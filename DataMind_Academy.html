@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DataMind">
+<meta name="theme-color" content="#080c14">
+<link rel="manifest" href="manifest.json">
+<title>DataMind Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN SYSTEM — Dark Academic / Blueprint
+═══════════════════════════════════════════════ */
+:root {
+  --bg:       #080c14;
+  --s1:       #0d1220;
+  --s2:       #111827;
+  --s3:       #1a2236;
+  --border:   #1e2d45;
+  --border2:  #243450;
+
+  --blue:     #2d7ef7;
+  --blue-g:   linear-gradient(135deg,#1a5fd4,#2d7ef7);
+  --cyan:     #0dcaf0;
+  --green:    #1ecc7a;
+  --amber:    #f59e0b;
+  --red:      #ef4444;
+  --purple:   #8b5cf6;
+  --orange:   #f97316;
+
+  --text:     #e2eaf7;
+  --muted:    #64748b;
+  --muted2:   #94a3b8;
+
+  --font:     'Outfit', sans-serif;
+  --mono:     'Fira Code', monospace;
+  --r:        12px;
+  --r2:       8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px}
+
+/* Blueprint grid overlay */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(45,126,247,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(45,126,247,.03) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+
+/* ── LAYOUT ── */
+#app{display:flex;flex-direction:column;height:100%;position:relative;z-index:1}
+#screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+#screen::-webkit-scrollbar{display:none}
+
+/* ── BOTTOM NAV ── */
+#nav{
+  display:flex;background:var(--s1);border-top:1px solid var(--border);
+  padding:8px 0 max(8px,env(safe-area-inset-bottom));
+  flex-shrink:0;position:relative;z-index:50;
+}
+.ni{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:4px 0;cursor:pointer;transition:all .2s;border:none;background:none;
+}
+.ni svg{width:22px;height:22px;stroke:var(--muted);transition:stroke .2s;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ni span{font-size:10px;color:var(--muted);font-weight:500;letter-spacing:.03em;transition:color .2s}
+.ni.active svg{stroke:var(--blue)}
+.ni.active span{color:var(--blue)}
+.ni-dot{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:4px;height:4px;border-radius:50%;background:var(--blue);
+  opacity:0;transition:opacity .2s;
+}
+.ni.active .ni-dot{opacity:1}
+
+/* ── VIEWS ── */
+.view{display:none;padding:16px 16px 24px;min-height:100%}
+.view.active{display:block}
+
+/* ── HEADER ── */
+.vh{padding:20px 16px 12px;background:linear-gradient(180deg,var(--s1) 0%,transparent 100%);position:sticky;top:0;z-index:20;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.vh h1{font-size:1.5rem;font-weight:800;background:var(--blue-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2}
+.vh p{font-size:.8rem;color:var(--muted2);margin-top:3px}
+
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.card-hd{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.card-hd h3{font-size:.95rem;font-weight:700}
+.icon-circle{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+
+/* ── TOPIC CHIP ── */
+.chip{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600;font-family:var(--mono);margin-right:4px;margin-bottom:4px}
+.chip-blue{background:rgba(45,126,247,.15);color:var(--blue)}
+.chip-cyan{background:rgba(13,202,240,.15);color:var(--cyan)}
+.chip-green{background:rgba(30,204,122,.15);color:var(--green)}
+.chip-amber{background:rgba(245,158,11,.15);color:var(--amber)}
+.chip-purple{background:rgba(139,92,246,.15);color:var(--purple)}
+.chip-orange{background:rgba(249,115,22,.15);color:var(--orange)}
+
+/* ── CODE BLOCK ── */
+.code-block{background:#050a10;border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin:10px 0;font-family:var(--mono);font-size:.78rem;line-height:1.7;color:#7dd3fc;overflow-x:auto;white-space:pre;position:relative}
+.code-block .kw{color:#c792ea}
+.code-block .fn{color:#82aaff}
+.code-block .str{color:#c3e88d}
+.code-block .cm{color:#546e7a}
+.code-block .num{color:#f78c6c}
+.code-label{position:absolute;top:8px;right:10px;font-size:.65rem;color:var(--muted);font-family:var(--mono);letter-spacing:.05em}
+
+/* ── DEFINITION BOX ── */
+.def-box{background:rgba(45,126,247,.07);border-left:3px solid var(--blue);border-radius:0 var(--r2) var(--r2) 0;padding:12px 14px;margin:10px 0;font-size:.84rem;line-height:1.7}
+.def-box.green{background:rgba(30,204,122,.07);border-left-color:var(--green)}
+.def-box.amber{background:rgba(245,158,11,.07);border-left-color:var(--amber)}
+.def-box.purple{background:rgba(139,92,246,.07);border-left-color:var(--purple)}
+.def-box strong{color:#fff}
+
+/* ── FORMULA BOX ── */
+.formula{background:#050a10;border:1px solid var(--border2);border-radius:var(--r2);padding:10px 14px;margin:8px 0;font-family:var(--mono);font-size:.82rem;color:var(--amber);text-align:center}
+
+/* ── EXERCISE ── */
+.exercise{background:var(--s2);border:1px solid var(--border2);border-radius:var(--r);padding:16px;margin:12px 0}
+.ex-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ex-badge{padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;font-family:var(--mono)}
+.ex-badge.easy{background:rgba(30,204,122,.15);color:var(--green)}
+.ex-badge.med{background:rgba(245,158,11,.15);color:var(--amber)}
+.ex-badge.hard{background:rgba(239,68,68,.15);color:var(--red)}
+.ex-title{font-size:.88rem;font-weight:700}
+.ex-body{font-size:.82rem;color:var(--muted2);line-height:1.7;margin-bottom:12px}
+.ex-editor{width:100%;background:#050a10;border:1px solid var(--border);border-radius:var(--r2);padding:12px;font-family:var(--mono);font-size:.75rem;color:#7dd3fc;resize:vertical;min-height:110px;outline:none;line-height:1.6}
+.ex-editor:focus{border-color:var(--blue)}
+.btn-run{background:var(--blue-g);border:none;border-radius:var(--r2);padding:10px 20px;color:#fff;font-weight:700;font-size:.82rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;font-family:var(--font);margin-top:8px}
+.btn-run:active{transform:scale(.97)}
+.ex-output{margin-top:10px;padding:10px 12px;border-radius:var(--r2);font-family:var(--mono);font-size:.75rem;line-height:1.6;display:none}
+.ex-output.show{display:block}
+.out-ok{background:rgba(30,204,122,.08);border:1px solid rgba(30,204,122,.3);color:var(--green)}
+.out-hint{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);color:var(--amber)}
+.out-err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+
+/* ── PROGRESS ── */
+.prog-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px}
+.prog-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+
+/* ── ACCORDION ── */
+.acc{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:8px}
+.acc-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;background:var(--s1);font-size:.88rem;font-weight:600;transition:background .2s}
+.acc-hd:active{background:var(--s2)}
+.acc-hd .arr{transition:transform .3s;color:var(--muted);font-size:.7rem}
+.acc-body{display:none;padding:14px 16px;background:var(--s2);font-size:.82rem;line-height:1.8;color:var(--muted2);border-top:1px solid var(--border)}
+.acc.open .acc-body{display:block}
+.acc.open .arr{transform:rotate(180deg)}
+
+/* ── FLASHCARD ── */
+#flashcard-wrap{perspective:1000px;cursor:pointer;margin:16px 0}
+#flashcard{
+  width:100%;min-height:200px;position:relative;
+  transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);
+}
+#flashcard.flipped{transform:rotateY(180deg)}
+.fc-face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--s1);border:1px solid var(--border);border-radius:var(--r);
+  padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+}
+.fc-back{transform:rotateY(180deg)}
+.fc-label{font-size:.68rem;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;font-family:var(--mono)}
+.fc-q{font-size:1rem;font-weight:700;line-height:1.5}
+.fc-a{font-size:.85rem;line-height:1.7;color:var(--muted2)}
+.fc-controls{display:flex;gap:10px;justify-content:center;margin-top:12px}
+.fc-btn{flex:1;padding:10px;border-radius:var(--r2);border:1px solid var(--border);background:var(--s2);font-size:.8rem;font-weight:600;cursor:pointer;color:var(--text);transition:all .2s;font-family:var(--font)}
+.fc-btn.ok{border-color:var(--green);color:var(--green);background:rgba(30,204,122,.08)}
+.fc-btn.ko{border-color:var(--red);color:var(--red);background:rgba(239,68,68,.08)}
+.fc-counter{text-align:center;font-size:.78rem;color:var(--muted);margin-bottom:8px;font-family:var(--mono)}
+
+/* ── KPI CARD ── */
+.kpi-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:10px}
+.kpi-name{font-size:.72rem;color:var(--muted2);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.kpi-def{font-size:.82rem;line-height:1.6;color:var(--text);margin-bottom:8px}
+.kpi-formula{font-family:var(--mono);font-size:.75rem;color:var(--amber);background:#050a10;padding:6px 10px;border-radius:6px;margin-bottom:6px;overflow-x:auto;white-space:nowrap}
+.kpi-copc{font-size:.72rem;color:var(--muted2)}
+.kpi-copc span{color:var(--cyan)}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:.78rem;overflow:hidden;border-radius:var(--r);overflow:hidden}
+.tbl th{background:var(--s3);padding:9px 10px;text-align:left;color:var(--muted2);font-weight:600;font-family:var(--mono);font-size:.72rem;letter-spacing:.04em;border-bottom:1px solid var(--border)}
+.tbl td{padding:8px 10px;border-bottom:1px solid rgba(30,42,69,.5);color:var(--muted2);vertical-align:top;line-height:1.5}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:nth-child(even) td{background:rgba(255,255,255,.015)}
+
+/* ── STEPS ── */
+.step{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--blue-g);color:#fff;font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-body h4{font-size:.88rem;font-weight:700;margin-bottom:3px}
+.step-body p{font-size:.8rem;color:var(--muted2);line-height:1.6}
+
+/* ── HOME ── */
+.home-hero{padding:24px 0 12px;text-align:center}
+.home-hero .logo{width:56px;height:56px;border-radius:16px;background:var(--blue-g);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:26px}
+.home-hero h1{font-size:1.6rem;font-weight:800;line-height:1.2;background:linear-gradient(135deg,#e2eaf7 0%,var(--blue) 80%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.home-hero p{font-size:.82rem;color:var(--muted2);margin-top:6px;line-height:1.6}
+.module-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.mod-btn{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 12px;cursor:pointer;transition:all .2s;text-align:left}
+.mod-btn:active{transform:scale(.97)}
+.mod-btn .em{font-size:22px;display:block;margin-bottom:6px}
+.mod-btn h4{font-size:.82rem;font-weight:700;margin-bottom:2px}
+.mod-btn p{font-size:.72rem;color:var(--muted);line-height:1.4}
+.streak-bar{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.streak-num{font-size:1.8rem;font-weight:800;color:var(--amber);line-height:1}
+.streak-info h4{font-size:.82rem;font-weight:700}
+.streak-info p{font-size:.75rem;color:var(--muted2)}
+
+/* ── SECTION NAV ── */
+.sec-nav{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:16px;scrollbar-width:none}
+.sec-nav::-webkit-scrollbar{display:none}
+.sec-tab{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:var(--s1);font-size:.78rem;font-weight:600;white-space:nowrap;cursor:pointer;transition:all .2s;color:var(--muted2);font-family:var(--font)}
+.sec-tab.active{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--border);margin:16px 0;position:relative}
+.divider span{position:absolute;top:-9px;left:12px;background:var(--bg);padding:0 8px;font-size:.7rem;color:var(--muted);font-family:var(--mono);letter-spacing:.06em}
+
+/* ── SEARCH BAR ── */
+.search-bar{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.search-bar input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:.85rem;font-family:var(--font)}
+.search-bar input::placeholder{color:var(--muted)}
+.search-bar svg{width:16px;height:16px;stroke:var(--muted);fill:none}
+
+/* ── ANIMATION ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.view.active .card,.view.active .acc,.view.active .kpi-card{animation:fadeUp .3s ease forwards}
+
+/* ── INSTALL BANNER ── */
+#install-banner{display:none;background:rgba(45,126,247,.12);border:1px solid rgba(45,126,247,.3);border-radius:var(--r);padding:12px 14px;margin-bottom:12px;font-size:.82rem;align-items:center;gap:10px}
+#install-banner.show{display:flex}
+#install-btn{background:var(--blue-g);border:none;border-radius:8px;padding:7px 14px;color:#fff;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--font)}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="screen">
+
+<!-- ═══════════════ HOME ═══════════════ -->
+<div id="v-home" class="view active">
+  <div id="install-banner">
+    <span>📲 Instala la app en tu teléfono para acceso offline</span>
+    <button id="install-btn">Instalar</button>
+  </div>
+  <div class="home-hero">
+    <div class="logo">📐</div>
+    <h1>DataMind Academy</h1>
+    <p>Data Analyst · Python · Power BI<br>DAX · M Query · COPC · Modelos</p>
+  </div>
+  <!-- Stats -->
+  <div class="streak-bar">
+    <div class="streak-num" id="streak-n">0</div>
+    <div class="streak-info">
+      <h4>días de racha 🔥</h4>
+      <p id="xp-label">XP: 0 · Retos: 0/40</p>
+    </div>
+    <div style="margin-left:auto;text-align:right">
+      <div style="font-size:.72rem;color:var(--muted2)">Progreso</div>
+      <div style="font-size:1.2rem;font-weight:800;color:var(--green)" id="pct-label">0%</div>
+    </div>
+  </div>
+  <!-- Modules -->
+  <div class="module-grid">
+    <div class="mod-btn" onclick="goto('v-python')">
+      <span class="em">🐍</span><h4>Python DA</h4><p>pandas · numpy · viz · cleaning</p>
+    </div>
+    <div class="mod-btn" onclick="goto('v-pbi')">
+      <span class="em">📊</span><h4>Power BI</h4><p>DAX · M Query · Modelos</p>
+    </div>
+    <div class="mod-btn" onclick="goto('v-copc')">
+      <span class="em">📞</span><h4>KPIs COPC</h4><p>SL · AHT · FCR · CSAT · NPS</p>
+    </div>
+    <div class="mod-btn" onclick="goto('v-flash')">
+      <span class="em">🃏</span><h4>Flashcards</h4><p>Memoriza con spaced repetition</p>
+    </div>
+    <div class="mod-btn" onclick="goto('v-retos')">
+      <span class="em">⚔️</span><h4>Ejercicios</h4><p>Problemas reales · Feedback</p>
+    </div>
+    <div class="mod-btn" onclick="goto('v-modelos')">
+      <span class="em">🌐</span><h4>Flujos & Modelos</h4><p>Star schema · Pipelines · ETL</p>
+    </div>
+  </div>
+  <!-- Concept of day -->
+  <div class="card" id="cod-card">
+    <div class="card-hd">
+      <div class="icon-circle" style="background:rgba(45,126,247,.15)">💡</div>
+      <div><div style="font-size:.68rem;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.08em">Concepto del día</div><h3 id="cod-title">—</h3></div>
+    </div>
+    <p id="cod-body" style="font-size:.82rem;color:var(--muted2);line-height:1.7"></p>
+    <div class="code-block" id="cod-code" style="margin-top:10px"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ PYTHON ═══════════════ -->
+<div id="v-python" class="view">
+  <div class="vh"><h1>Python para Data Analysis</h1><p>Fundamentos académicos + ejercicios reales</p></div>
+  <div style="padding:0 16px 24px">
+  <div class="sec-nav">
+    <div class="sec-tab active" onclick="pySec(this,'py-bases')">Bases</div>
+    <div class="sec-tab" onclick="pySec(this,'py-pandas')">pandas</div>
+    <div class="sec-tab" onclick="pySec(this,'py-numpy')">numpy</div>
+    <div class="sec-tab" onclick="pySec(this,'py-viz')">Visualización</div>
+    <div class="sec-tab" onclick="pySec(this,'py-cleaning')">Limpieza</div>
+    <div class="sec-tab" onclick="pySec(this,'py-stats')">Estadística</div>
+  </div>
+
+  <!-- BASES -->
+  <div id="py-bases">
+    <div class="acc open">
+      <div class="acc-hd" onclick="toggle(this)">📌 ¿Por qué Python para Data Analysis? <span class="arr">▼</span></div>
+      <div class="acc-body">
+        Python se convirtió en el estándar de Data Analysis porque combina <strong>legibilidad</strong> (código que se lee como inglés), un ecosistema masivo de librerías especializadas, y la capacidad de escalar desde análisis exploratorios hasta modelos de ML en producción.<br><br>
+        <strong>Stack del Data Analyst:</strong>
+        <div style="margin-top:8px">
+          <span class="chip chip-blue">pandas</span> manipulación de tablas
+          <span class="chip chip-cyan">numpy</span> cálculo numérico
+          <span class="chip chip-green">matplotlib/seaborn</span> visualización
+          <span class="chip chip-amber">scipy/statsmodels</span> estadística
+          <span class="chip chip-purple">scikit-learn</span> ML básico
+        </div>
+        <div class="def-box">
+          <strong>Analogía clave:</strong> Si Power BI es una calculadora muy potente con interfaz visual, Python es el taller completo — puedes hacer lo mismo que Power BI y también construir la calculadora desde cero.
+        </div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">📌 Tipos de datos y estructuras fundamentales <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <strong>Tipos primitivos:</strong>
+        <div class="code-block"><span class="cm"># int, float, str, bool</span>
+edad = <span class="num">28</span>          <span class="cm"># int</span>
+aht  = <span class="num">245.7</span>        <span class="cm"># float (segundos)</span>
+asesor = <span class="str">"García"</span>    <span class="cm"># str</span>
+activo = <span class="kw">True</span>         <span class="cm"># bool</span></div>
+        <strong>Estructuras de colección:</strong>
+        <div class="code-block"><span class="cm"># list — ordenada, mutable</span>
+campanas = [<span class="str">"TotalPlay"</span>, <span class="str">"Tigo"</span>, <span class="str">"Movistar"</span>]
+
+<span class="cm"># dict — clave:valor, como JSON</span>
+kpi = {<span class="str">"sl"</span>: <span class="num">0.85</span>, <span class="str">"aht"</span>: <span class="num">245</span>, <span class="str">"fcr"</span>: <span class="num">0.72</span>}
+
+<span class="cm"># tuple — inmutable, para coordenadas/constantes</span>
+umbral_sl = (<span class="num">0.80</span>, <span class="num">0.85</span>, <span class="num">0.90</span>)
+
+<span class="cm"># set — sin duplicados</span>
+asesores_unicos = {<span class="str">"A01"</span>, <span class="str">"A02"</span>, <span class="str">"A01"</span>}  <span class="cm"># → 2 items</span></div>
+        <div class="def-box amber"><strong>Regla de oro:</strong> Usa <code>dict</code> cuando necesites acceso por nombre, <code>list</code> cuando el orden importa, <code>set</code> para eliminar duplicados.</div>
+        <!-- EXERCISE -->
+        <div class="exercise">
+          <div class="ex-header"><span class="ex-badge easy">Fácil</span><span class="ex-title">Construye un dict de KPIs</span></div>
+          <div class="ex-body">Crea un diccionario llamado <code>kpis_turno</code> con 4 métricas del turno: <code>llamadas</code>=850, <code>sl</code>=0.83, <code>aht</code>=210, <code>asesor_top</code>="López". Luego imprime el SL formateado como porcentaje.</div>
+          <textarea class="ex-editor" id="ex-py1" placeholder="# Escribe aquí...
+kpis_turno = {...}
+print(...)"></textarea>
+          <button class="btn-run" onclick="checkEx('py1')">▶ Verificar</button>
+          <div class="ex-output" id="out-py1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">📌 Funciones, loops y comprensiones de lista <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box"><strong>Principio DRY:</strong> Don't Repeat Yourself. Si escribes el mismo bloque 2 veces, conviértelo en función.</div>
+        <div class="code-block"><span class="cm"># Función para calcular Service Level</span>
+<span class="kw">def</span> <span class="fn">calc_sl</span>(atendidas, total, umbral=<span class="num">0.80</span>):
+    <span class="str">"""Calcula SL y evalúa vs umbral COPC."""</span>
+    sl = atendidas / total
+    estado = <span class="str">"✅ OK"</span> <span class="kw">if</span> sl >= umbral <span class="kw">else</span> <span class="str">"❌ Bajo"</span>
+    <span class="kw">return</span> {<span class="str">"sl"</span>: sl, <span class="str">"estado"</span>: estado}
+
+<span class="cm"># List comprehension — Pythónico y eficiente</span>
+duraciones = [<span class="num">120</span>, <span class="num">340</span>, <span class="num">85</span>, <span class="num">600</span>, <span class="num">210</span>]
+largas = [d <span class="kw">for</span> d <span class="kw">in</span> duraciones <span class="kw">if</span> d > <span class="num">300</span>]
+<span class="cm"># → [340, 600]</span>
+
+<span class="cm"># Equivalente con loop (menos Pythónico)</span>
+largas = []
+<span class="kw">for</span> d <span class="kw">in</span> duraciones:
+    <span class="kw">if</span> d > <span class="num">300</span>: largas.append(d)</div>
+        <div class="exercise">
+          <div class="ex-header"><span class="ex-badge easy">Fácil</span><span class="ex-title">Función AHT con categoría</span></div>
+          <div class="ex-body">Crea una función <code>categorizar_aht(segundos)</code> que retorne: <code>"corta"</code> si &lt;180s, <code>"normal"</code> si 180-360s, <code>"larga"</code> si &gt;360s. Pruébala con [95, 245, 420, 180].</div>
+          <textarea class="ex-editor" id="ex-py2" placeholder="def categorizar_aht(segundos):
+    ...
+
+duraciones = [95, 245, 420, 180]
+# imprime cada resultado"></textarea>
+          <button class="btn-run" onclick="checkEx('py2')">▶ Verificar</button>
+          <div class="ex-output" id="out-py2"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /py-bases -->
+
+  <!-- PANDAS -->
+  <div id="py-pandas" style="display:none">
+    <div class="acc open">
+      <div class="acc-hd" onclick="toggle(this)">🐼 DataFrame: la tabla de pandas <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box"><strong>DataFrame</strong> = tabla 2D con filas indexadas y columnas nombradas. Piénsalo como una tabla de Power BI, pero programable. <strong>Series</strong> = una sola columna de un DataFrame.</div>
+        <div class="code-block"><span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="cm"># Crear desde diccionario (como si fuera JSON)</span>
+df = pd.DataFrame({
+    <span class="str">"asesor"</span>:    [<span class="str">"García"</span>, <span class="str">"López"</span>, <span class="str">"Martínez"</span>],
+    <span class="str">"llamadas"</span>: [<span class="num">120</span>, <span class="num">98</span>, <span class="num">135</span>],
+    <span class="str">"aht"</span>:      [<span class="num">245</span>, <span class="num">310</span>, <span class="num">198</span>],
+    <span class="str">"csat"</span>:     [<span class="num">4.2</span>, <span class="num">3.8</span>, <span class="num">4.6</span>]
+})
+
+<span class="cm"># Inspección rápida</span>
+df.shape       <span class="cm"># (3, 4) → filas, columnas</span>
+df.dtypes      <span class="cm"># tipo de dato por columna</span>
+df.describe()  <span class="cm"># estadísticas descriptivas</span>
+df.head(2)     <span class="cm"># primeras 2 filas</span></div>
+        <strong>Selección de datos:</strong>
+        <div class="code-block"><span class="cm"># Columna → Series</span>
+df[<span class="str">"aht"</span>]               <span class="cm"># por nombre</span>
+df[[<span class="str">"asesor"</span>,<span class="str">"aht"</span>]]   <span class="cm"># múltiples columnas</span>
+
+<span class="cm"># Filas por condición (equivalente a WHERE en SQL)</span>
+df[df[<span class="str">"aht"</span>] > <span class="num">250</span>]
+df[(df[<span class="str">"aht"</span>] > <span class="num">200</span>) & (df[<span class="str">"csat"</span>] >= <span class="num">4.0</span>)]
+
+<span class="cm"># .loc → por etiqueta  |  .iloc → por posición</span>
+df.loc[<span class="num">0</span>, <span class="str">"asesor"</span>]    <span class="cm"># "García"</span>
+df.iloc[<span class="num">0</span>, <span class="num">0</span>]          <span class="cm"># "García"</span></div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">🐼 GroupBy — SUMMARIZE en Python <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box purple"><strong>GroupBy = SUMMARIZE()</strong> en DAX. Agrupa filas y aplica funciones de agregación. La diferencia: pandas es más flexible — puedes aplicar múltiples funciones en una sola línea.</div>
+        <div class="code-block"><span class="cm"># Equivalente DAX:</span>
+<span class="cm"># SUMMARIZE(FACT_CDR, DIM_Asesor[Asesor],</span>
+<span class="cm">#   "AHT", AVERAGE(FACT_CDR[duracion]))</span>
+
+df.groupby(<span class="str">"campana"</span>)[<span class="str">"aht"</span>].mean()
+
+<span class="cm"># Múltiples métricas — agg()</span>
+resumen = df.groupby(<span class="str">"campana"</span>).agg(
+    AHT_Prom   = (<span class="str">"aht"</span>,      <span class="str">"mean"</span>),
+    Llamadas   = (<span class="str">"id"</span>,       <span class="str">"count"</span>),
+    CSAT_Med   = (<span class="str">"csat"</span>,     <span class="str">"median"</span>),
+    AHT_Max    = (<span class="str">"aht"</span>,      <span class="str">"max"</span>)
+).reset_index()
+
+<span class="cm"># pivot_table — como tabla dinámica Excel</span>
+pivot = df.pivot_table(
+    values=<span class="str">"llamadas"</span>, index=<span class="str">"campana"</span>,
+    columns=<span class="str">"turno"</span>,    aggfunc=<span class="str">"sum"</span>
+)</div>
+        <div class="exercise">
+          <div class="ex-header"><span class="ex-badge med">Medio</span><span class="ex-title">Resumen por campaña</span></div>
+          <div class="ex-body">Dado el dataset de abajo, calcula por <code>campana</code>: total de llamadas (count), AHT promedio y tasa de abandono. Muestra el resultado ordenado por tasa_abandono descendente.</div>
+          <textarea class="ex-editor" id="ex-pd1" placeholder="import pandas as pd
+
+data = {
+    'campana':   ['TotalPlay','TotalPlay','Tigo','Tigo','Movistar','Movistar'],
+    'aht':       [245, 310, 190, 220, 280, 195],
+    'abandono':  [0, 1, 0, 0, 1, 1],
+    'llamada_id':[1,2,3,4,5,6]
+}
+df = pd.DataFrame(data)
+
+# Tu código aquí
+resumen = df.groupby('campana').agg(...)
+print(resumen)"></textarea>
+          <button class="btn-run" onclick="checkEx('pd1')">▶ Verificar</button>
+          <div class="ex-output" id="out-pd1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">🐼 merge() — JOINs en pandas <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <table class="tbl" style="margin-bottom:12px">
+          <thead><tr><th>pandas</th><th>SQL</th><th>Power BI</th></tr></thead>
+          <tbody>
+            <tr><td>merge(how='inner')</td><td>INNER JOIN</td><td>Relación activa</td></tr>
+            <tr><td>merge(how='left')</td><td>LEFT JOIN</td><td>Todas filas tabla1</td></tr>
+            <tr><td>merge(how='outer')</td><td>FULL OUTER JOIN</td><td>Todas filas ambas</td></tr>
+          </tbody>
+        </table>
+        <div class="code-block"><span class="cm"># FACT + DIM — como relación en Power BI</span>
+fact = pd.DataFrame({
+    <span class="str">"AsesorKey"</span>: [<span class="str">"A01"</span>,<span class="str">"A02"</span>,<span class="str">"A01"</span>],
+    <span class="str">"duracion"</span>:  [<span class="num">245</span>, <span class="num">310</span>, <span class="num">198</span>]
+})
+dim = pd.DataFrame({
+    <span class="str">"AsesorKey"</span>: [<span class="str">"A01"</span>, <span class="str">"A02"</span>],
+    <span class="str">"Nombre"</span>:    [<span class="str">"García"</span>, <span class="str">"López"</span>]
+})
+
+resultado = fact.merge(dim, on=<span class="str">"AsesorKey"</span>, how=<span class="str">"left"</span>)
+<span class="cm"># → fact enriquecida con el nombre del asesor</span></div>
+      </div>
+    </div>
+  </div><!-- /py-pandas -->
+
+  <!-- NUMPY -->
+  <div id="py-numpy" style="display:none">
+    <div class="acc open">
+      <div class="acc-hd" onclick="toggle(this)">🔢 Arrays y operaciones vectorizadas <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box"><strong>NumPy array</strong> vs Python list: los arrays almacenan datos del mismo tipo en memoria contigua → operaciones 10-100x más rápidas que un loop Python. Fundamental para estadística y ML.</div>
+        <div class="code-block"><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+aht = np.array([<span class="num">245</span>, <span class="num">310</span>, <span class="num">198</span>, <span class="num">420</span>, <span class="num">185</span>, <span class="num">280</span>])
+
+<span class="cm"># Estadísticas en una línea</span>
+np.mean(aht)     <span class="cm"># 273.0 — promedio</span>
+np.median(aht)   <span class="cm"># 262.5 — mediana</span>
+np.std(aht)      <span class="cm"># desviación estándar</span>
+np.percentile(aht, [<span class="num">25</span>,<span class="num">75</span>])  <span class="cm"># Q1, Q3</span>
+
+<span class="cm"># Operación vectorizada (sin loop)</span>
+aht_min = (aht / <span class="num">60</span>).round(<span class="num">1</span>)
+<span class="cm"># → [4.1, 5.2, 3.3, 7.0, 3.1, 4.7] minutos</span>
+
+<span class="cm"># Filtro booleano</span>
+outliers = aht[aht > np.percentile(aht, <span class="num">75</span>) + <span class="num">1.5</span>*(np.percentile(aht,<span class="num">75</span>)-np.percentile(aht,<span class="num">25</span>))]</div>
+      </div>
+    </div>
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">🔢 IQR: Detección de outliers paso a paso <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box amber"><strong>IQR (Interquartile Range)</strong> = Q3 − Q1. Es robusto ante outliers porque no asume distribución normal. Estándar en análisis de tiempos de llamada.</div>
+        <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Calcular cuartiles</h4><p>Q1 = percentil 25, Q3 = percentil 75</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Calcular IQR</h4><p>IQR = Q3 − Q1</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Definir límites</h4><p>Límite inferior = Q1 − 1.5×IQR<br>Límite superior = Q3 + 1.5×IQR</p></div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Filtrar</h4><p>Cualquier valor fuera de los límites es outlier</p></div></div>
+        <div class="code-block"><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+duraciones = np.array([<span class="num">180</span>,<span class="num">200</span>,<span class="num">195</span>,<span class="num">210</span>,<span class="num">185</span>,
+                       <span class="num">2400</span>,<span class="num">190</span>,<span class="num">175</span>,<span class="num">3600</span>,<span class="num">205</span>])
+
+Q1  = np.percentile(duraciones, <span class="num">25</span>)
+Q3  = np.percentile(duraciones, <span class="num">75</span>)
+IQR = Q3 - Q1
+
+li = Q1 - <span class="num">1.5</span> * IQR   <span class="cm"># límite inferior</span>
+ls = Q3 + <span class="num">1.5</span> * IQR   <span class="cm"># límite superior</span>
+
+limpios   = duraciones[(duraciones >= li) & (duraciones <= ls)]
+outliers  = duraciones[(duraciones < li)  | (duraciones > ls)]
+
+<span class="kw">print</span>(<span class="str">f"Outliers detectados: {outliers}"</span>)
+<span class="kw">print</span>(<span class="str">f"AHT limpio: {limpios.mean():.0f}s"</span>)</div>
+        <div class="exercise">
+          <div class="ex-header"><span class="ex-badge med">Medio</span><span class="ex-title">Limpia los tiempos de espera</span></div>
+          <div class="ex-body">Aplica IQR sobre los tiempos de espera [30,45,28,60,35,40,850,32,44,38,920,41]. Imprime: outliers encontrados, media antes y después de limpiar.</div>
+          <textarea class="ex-editor" id="ex-np1" placeholder="import numpy as np
+tiempos = [30,45,28,60,35,40,850,32,44,38,920,41]
+# IQR..."></textarea>
+          <button class="btn-run" onclick="checkEx('np1')">▶ Verificar</button>
+          <div class="ex-output" id="out-np1"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /py-numpy -->
+
+  <!-- VIZ -->
+  <div id="py-viz" style="display:none">
+    <div class="acc open">
+      <div class="acc-hd" onclick="toggle(this)">📈 Cuándo usar cada tipo de gráfico <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <table class="tbl">
+          <thead><tr><th>Gráfico</th><th>Cuándo usarlo</th><th>Ejemplo CC</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Línea</strong></td><td>Tendencia en el tiempo</td><td>SL por hora del día</td></tr>
+            <tr><td><strong>Barra</strong></td><td>Comparar categorías</td><td>Llamadas por campaña</td></tr>
+            <tr><td><strong>Dispersión</strong></td><td>Correlación entre 2 vars</td><td>AHT vs CSAT</td></tr>
+            <tr><td><strong>Histograma</strong></td><td>Distribución de 1 variable</td><td>Distribución de AHTs</td></tr>
+            <tr><td><strong>Box plot</strong></td><td>Distribución + outliers</td><td>AHT por asesor</td></tr>
+            <tr><td><strong>Mapa calor</strong></td><td>2D de intensidad</td><td>Llamadas hora×día</td></tr>
+          </tbody>
+        </table>
+        <div class="code-block" style="margin-top:12px"><span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+
+<span class="cm"># Histograma de AHT</span>
+fig, axes = plt.subplots(<span class="num">1</span>, <span class="num">2</span>, figsize=(<span class="num">12</span>,<span class="num">4</span>))
+
+axes[<span class="num">0</span>].hist(df[<span class="str">"aht"</span>], bins=<span class="num">20</span>, color=<span class="str">"#2d7ef7"</span>,
+              edgecolor=<span class="str">"white"</span>, alpha=<span class="num">0.8</span>)
+axes[<span class="num">0</span>].set_title(<span class="str">"Distribución AHT"</span>)
+axes[<span class="num">0</span>].axvline(df[<span class="str">"aht"</span>].mean(), color=<span class="str">"red"</span>,
+                  linestyle=<span class="str">"--"</span>, label=<span class="str">"Media"</span>)
+
+<span class="cm"># Box plot por campaña</span>
+sns.boxplot(data=df, x=<span class="str">"campana"</span>, y=<span class="str">"aht"</span>, ax=axes[<span class="num">1</span>])
+axes[<span class="num">1</span>].set_title(<span class="str">"AHT por Campaña"</span>)
+
+plt.tight_layout()
+plt.savefig(<span class="str">"analisis_aht.png"</span>, dpi=<span class="num">150</span>)</div>
+      </div>
+    </div>
+  </div><!-- /py-viz -->
+
+  <!-- CLEANING -->
+  <div id="py-cleaning" style="display:none">
+    <div class="acc open">
+      <div class="acc-hd" onclick="toggle(this)">🧹 Limpieza de datos — el 80% del trabajo real <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box"><strong>Ley de la basura:</strong> Garbage in, garbage out. Un dashboard construido sobre datos sucios produce insights incorrectos. Siempre limpia antes de analizar.</div>
+        <div class="code-block"><span class="cm"># 1. Detectar nulos</span>
+df.isnull().sum()          <span class="cm"># conteo por columna</span>
+df.isnull().mean() * <span class="num">100</span>   <span class="cm"># % de nulos</span>
+
+<span class="cm"># 2. Tratar nulos</span>
+df[<span class="str">"aht"</span>].fillna(df[<span class="str">"aht"</span>].median(), inplace=<span class="kw">True</span>)
+df.dropna(subset=[<span class="str">"asesor"</span>], inplace=<span class="kw">True</span>)
+
+<span class="cm"># 3. Limpiar strings (como Text.Trim en M)</span>
+df[<span class="str">"asesor"</span>] = df[<span class="str">"asesor"</span>].str.strip().str.upper()
+
+<span class="cm"># 4. Convertir tipos</span>
+df[<span class="str">"fecha"</span>] = pd.to_datetime(df[<span class="str">"fecha"</span>])
+df[<span class="str">"duracion"</span>] = pd.to_numeric(df[<span class="str">"duracion"</span>], errors=<span class="str">"coerce"</span>)
+
+<span class="cm"># 5. Duplicados</span>
+df.duplicated().sum()       <span class="cm"># cuántos hay</span>
+df.drop_duplicates(inplace=<span class="kw">True</span>)
+
+<span class="cm"># 6. Renombrar columnas (como RenameColumns en M)</span>
+df.rename(columns={<span class="str">"dur_seg"</span>: <span class="str">"aht"</span>,
+                   <span class="str">"nm_asesor"</span>: <span class="str">"asesor"</span>}, inplace=<span class="kw">True</span>)</div>
+        <div class="exercise">
+          <div class="ex-header"><span class="ex-badge med">Medio</span><span class="ex-title">Pipeline de limpieza CDR</span></div>
+          <div class="ex-body">El DataFrame de abajo tiene nulos, strings sucios y tipos incorrectos. Limpia: elimina filas sin asesor, rellena AHT nulo con mediana, normaliza asesor a mayúsculas sin espacios, convierte fecha a datetime.</div>
+          <textarea class="ex-editor" id="ex-cl1" placeholder="import pandas as pd
+import numpy as np
+
+df = pd.DataFrame({
+    'asesor':['garcia ', ' LOPEZ', None, 'Martinez'],
+    'aht':   [245, None, 310, 198],
+    'fecha': ['2024-01-15','2024-01-15','2024-01-16','2024-01-16']
+})
+
+# Limpia el DataFrame
+print(df)"></textarea>
+          <button class="btn-run" onclick="checkEx('cl1')">▶ Verificar</button>
+          <div class="ex-output" id="out-cl1"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /py-cleaning -->
+
+  <!-- STATS -->
+  <div id="py-stats" style="display:none">
+    <div class="acc open">
+      <div class="acc-hd" onclick="toggle(this)">📐 Estadística descriptiva aplicada a Contact Center <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <table class="tbl" style="margin-bottom:12px">
+          <thead><tr><th>Métrica</th><th>Fórmula</th><th>Cuándo usar en CC</th></tr></thead>
+          <tbody>
+            <tr><td>Media</td><td>Σx / n</td><td>AHT promedio general</td></tr>
+            <tr><td>Mediana</td><td>Valor central</td><td>AHT real (con outliers)</td></tr>
+            <tr><td>σ (Std Dev)</td><td>√(Σ(x-μ)²/n)</td><td>Consistencia del asesor</td></tr>
+            <tr><td>CV</td><td>σ/μ × 100</td><td>Comparar variabilidad entre asesores</td></tr>
+            <tr><td>Pearson r</td><td>cov(X,Y)/σxσy</td><td>AHT vs CSAT</td></tr>
+          </tbody>
+        </table>
+        <div class="code-block"><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+aht  = np.array([<span class="num">245</span>,<span class="num">310</span>,<span class="num">198</span>,<span class="num">420</span>,<span class="num">185</span>,<span class="num">280</span>,<span class="num">225</span>,<span class="num">350</span>])
+csat = np.array([<span class="num">4.2</span>,<span class="num">3.5</span>,<span class="num">4.8</span>,<span class="num">3.0</span>,<span class="num">4.5</span>,<span class="num">3.8</span>,<span class="num">4.1</span>,<span class="num">3.3</span>])
+
+<span class="cm"># Correlación de Pearson</span>
+r, p_value = stats.pearsonr(aht, csat)
+<span class="kw">print</span>(<span class="str">f"r = {r:.3f} | p = {p_value:.4f}"</span>)
+
+<span class="cm"># Interpretación</span>
+<span class="kw">if</span>   abs(r) > <span class="num">0.7</span>: fuerza = <span class="str">"fuerte"</span>
+<span class="kw">elif</span> abs(r) > <span class="num">0.4</span>: fuerza = <span class="str">"moderada"</span>
+<span class="kw">else</span>:             fuerza = <span class="str">"débil"</span>
+direccion = <span class="str">"negativa"</span> <span class="kw">if</span> r < <span class="num">0</span> <span class="kw">else</span> <span class="str">"positiva"</span>
+<span class="kw">print</span>(<span class="str">f"Correlación {fuerza} {direccion}"</span>)</div>
+      </div>
+    </div>
+  </div><!-- /py-stats -->
+
+  </div><!-- /padding -->
+</div><!-- /v-python -->
+
+<!-- ═══════════════ POWER BI / DAX / M ═══════════════ -->
+<div id="v-pbi" class="view">
+  <div class="vh"><h1>Power BI · DAX · M Query</h1><p>Fundamentos, patrones y ejercicios reales</p></div>
+  <div style="padding:0 16px 24px">
+  <div class="sec-nav">
+    <div class="sec-tab active" onclick="pbiSec(this,'pbi-dax')">DAX</div>
+    <div class="sec-tab" onclick="pbiSec(this,'pbi-m')">M Query</div>
+    <div class="sec-tab" onclick="pbiSec(this,'pbi-modelo')">Modelo</div>
+    <div class="sec-tab" onclick="pbiSec(this,'pbi-visual')">Visuals HTML</div>
+  </div>
+
+  <!-- DAX -->
+  <div id="pbi-dax">
+    <div class="acc open">
+      <div class="acc-hd" onclick="toggle(this)">⚡ Contexto de evaluación — el concepto más importante de DAX <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box"><strong>Todo en DAX gira en torno al contexto.</strong> Una misma medida puede devolver valores distintos dependiendo de dónde se evalúa. Hay dos tipos de contexto:</div>
+        <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Contexto de fila (Row Context)</h4><p>Existe en columnas calculadas. Itera fila por fila. Puedes acceder a <code>FACT_CDR[duracion]</code> directamente.</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Contexto de filtro (Filter Context)</h4><p>Existe en medidas. Define qué filas están visibles. Lo crean los slicers, filas/columnas de matriz, y CALCULATE.</p></div></div>
+        <div class="code-block"><span class="cm">-- Columna calculada (row context)</span>
+<span class="cm">-- Calcula por cada fila individualmente</span>
+AHT_Min = FACT_CDR[duracion_seg] / <span class="num">60</span>
+
+<span class="cm">-- Medida (filter context)</span>
+<span class="cm">-- Se recalcula según los filtros activos</span>
+AHT_Promedio = AVERAGE(FACT_CDR[duracion_seg])</div>
+        <div class="def-box amber"><strong>Trampa común:</strong> Usar una medida donde se necesita una columna calculada, o viceversa. Regla: si necesitas el valor fila por fila → columna. Si necesitas agregación → medida.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">⚡ CALCULATE — el motor de DAX <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box"><code>CALCULATE(expresión, filtro1, filtro2...)</code> — <strong>Modifica el contexto de filtro</strong> y evalúa la expresión en ese nuevo contexto. Es la función más poderosa del lenguaje.</div>
+        <div class="code-block"><span class="cm">-- SL solo de campaña TotalPlay</span>
+SL_TotalPlay =
+CALCULATE(
+    [SL_Global],
+    DIM_Campana[Campana] = <span class="str">"TotalPlay"</span>
+)
+
+<span class="cm">-- Llamadas del mes anterior</span>
+Llamadas_MesAnt =
+CALCULATE(
+    COUNT(FACT_CDR[id_llamada]),
+    DATEADD(DIM_Fecha[Fecha], -<span class="num">1</span>, MONTH)
+)
+
+<span class="cm">-- ALL() elimina filtros — fundamental para % del total</span>
+Pct_Campana =
+DIVIDE(
+    [Llamadas],
+    CALCULATE([Llamadas], ALL(DIM_Campana))
+)</div>
+        <div class="exercise">
+          <div class="ex-header"><span class="ex-badge med">Medio</span><span class="ex-title">Medida: AHT vs Objetivo</span></div>
+          <div class="ex-body">Escribe una medida DAX que calcule el AHT promedio y devuelva una etiqueta: "✅ OK" si AHT ≤ 300s, "⚠️ Alto" si 300-420s, "❌ Crítico" si >420s. Usa VAR para organizar el código.</div>
+          <textarea class="ex-editor" id="ex-dax1" placeholder="AHT_Semaforo =
+VAR _AHT = AVERAGE(FACT_CDR[duracion_seg])
+VAR _Label = ...
+RETURN _Label"></textarea>
+          <button class="btn-run" onclick="checkEx('dax1')">▶ Verificar</button>
+          <div class="ex-output" id="out-dax1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">⚡ SUMMARIZE vs ADDCOLUMNS — diferencia crítica <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box"><strong>SUMMARIZE</strong> crea una tabla agrupada. <strong>ADDCOLUMNS</strong> agrega columnas a una tabla existente. La trampa: <code>SUMMARIZE</code> no puede evaluar medidas correctamente en su cuerpo — eso causa resultados incorrectos.</div>
+        <div class="code-block"><span class="cm">-- ❌ INCORRECTO — medida dentro de SUMMARIZE</span>
+SUMMARIZE(
+    FACT_CDR,
+    DIM_Asesor[Asesor],
+    <span class="str">"AHT"</span>, AVERAGE(FACT_CDR[duracion_seg])  <span class="cm">-- bug silencioso</span>
+)
+
+<span class="cm">-- ✅ CORRECTO — ADDCOLUMNS + VALUES</span>
+ADDCOLUMNS(
+    VALUES(DIM_Asesor[Asesor]),
+    <span class="str">"AHT"</span>,      [AHT_Promedio],
+    <span class="str">"Llamadas"</span>, [Total_Llamadas]
+)</div>
+        <div class="def-box amber"><strong>Regla de oro:</strong> Usa <code>SUMMARIZE</code> solo para agrupar columnas de dimensiones. Usa <code>ADDCOLUMNS</code> para agregar medidas calculadas a esa tabla.</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">⚡ Inteligencia de tiempo — patrones esenciales <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="code-block"><span class="cm">-- Requiere tabla DIM_Fecha marcada como fecha</span>
+
+<span class="cm">-- MTD (Month To Date)</span>
+Llamadas_MTD =
+CALCULATE([Total_Llamadas], DATESMTD(DIM_Fecha[Fecha]))
+
+<span class="cm">-- Mismo período año anterior</span>
+Llamadas_SPLY =
+CALCULATE([Total_Llamadas], SAMEPERIODLASTYEAR(DIM_Fecha[Fecha]))
+
+<span class="cm">-- Promedio móvil 7 días</span>
+AHT_MA7 =
+<span class="kw">VAR</span> _hoy = MAX(DIM_Fecha[Fecha])
+<span class="kw">VAR</span> _inicio = _hoy - <span class="num">6</span>
+<span class="kw">RETURN</span>
+    CALCULATE(
+        AVERAGE(FACT_CDR[duracion_seg]),
+        DATESBETWEEN(DIM_Fecha[Fecha], _inicio, _hoy)
+    )
+
+<span class="cm">-- Variación % vs mes anterior</span>
+Delta_MoM =
+<span class="kw">VAR</span> _actual = [Total_Llamadas]
+<span class="kw">VAR</span> _ant = CALCULATE([Total_Llamadas], DATEADD(DIM_Fecha[Fecha],-<span class="num">1</span>,MONTH))
+<span class="kw">RETURN</span> DIVIDE(_actual - _ant, _ant)</div>
+      </div>
+    </div>
+  </div><!-- /pbi-dax -->
+
+  <!-- M QUERY -->
+  <div id="pbi-m" style="display:none">
+    <div class="acc open">
+      <div class="acc-hd" onclick="toggle(this)">⚙️ M Query — cómo funciona el lenguaje <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box"><strong>M es funcional e inmutable.</strong> Cada paso (<code>let</code>) crea una nueva tabla/valor — nunca modifica el original. La transformación es una cadena de pasos donde cada uno toma el resultado anterior.</div>
+        <div class="code-block"><span class="cm">// Estructura base de toda consulta M</span>
+<span class="kw">let</span>
+    <span class="cm">// Paso 1: Fuente</span>
+    Fuente = Sql.Database(<span class="str">"servidor"</span>, <span class="str">"BD_ContactCenter"</span>),
+
+    <span class="cm">// Paso 2: Tabla específica</span>
+    CDR_Raw = Fuente{[Schema=<span class="str">"dbo"</span>, Item=<span class="str">"CDR_Bonsaif"</span>]}[Data],
+
+    <span class="cm">// Paso 3: Filtrar solo el mes actual</span>
+    Filtrado = Table.SelectRows(CDR_Raw, each
+        [FechaLlamada] >= Date.StartOfMonth(DateTime.Date(DateTime.LocalNow()))
+    ),
+
+    <span class="cm">// Paso 4: Limpiar asesor (como str.strip().upper() en Python)</span>
+    AsesorLimpio = Table.TransformColumns(Filtrado, {
+        {<span class="str">"Asesor"</span>, each Text.Upper(Text.Trim(_)), type text}
+    }),
+
+    <span class="cm">// Paso 5: AsesorKey (llave para relación)</span>
+    AsesorKey = Table.AddColumn(AsesorLimpio, <span class="str">"AsesorKey"</span>, each
+        Text.Upper(Text.Trim([Asesor])) & <span class="str">"-"</span> & Text.Trim([Extension])
+    )
+<span class="kw">in</span>
+    AsesorKey</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">⚙️ Transformaciones esenciales en M <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <table class="tbl">
+          <thead><tr><th>Operación</th><th>M Query</th><th>Equivalente pandas</th></tr></thead>
+          <tbody>
+            <tr><td>Filtrar filas</td><td>Table.SelectRows</td><td>df[condición]</td></tr>
+            <tr><td>Agregar columna</td><td>Table.AddColumn</td><td>df['col'] = ...</td></tr>
+            <tr><td>Renombrar</td><td>Table.RenameColumns</td><td>df.rename()</td></tr>
+            <tr><td>Cambiar tipo</td><td>Table.TransformColumnTypes</td><td>df.astype()</td></tr>
+            <tr><td>Agrupar</td><td>Table.Group</td><td>df.groupby()</td></tr>
+            <tr><td>JOIN</td><td>Table.NestedJoin</td><td>df.merge()</td></tr>
+            <tr><td>Unpivot</td><td>Table.UnpivotOtherColumns</td><td>df.melt()</td></tr>
+          </tbody>
+        </table>
+        <div class="code-block" style="margin-top:12px"><span class="cm">// Limpiar y tipar en un solo paso (patrón eficiente)</span>
+Tipado = Table.TransformColumnTypes(AsesorKey, {
+    {<span class="str">"FechaLlamada"</span>, type date},
+    {<span class="str">"Duracion"</span>,     Int64.Type},
+    {<span class="str">"CSAT"</span>,         type number},
+    {<span class="str">"Asesor"</span>,        type text}
+}),
+
+<span class="cm">// Columna condicional (semáforo)</span>
+Semaforo = Table.AddColumn(Tipado, <span class="str">"SL_Semaforo"</span>, each
+    <span class="kw">if</span>   [SL] >= <span class="num">0.90</span> <span class="kw">then</span> <span class="str">"Verde"</span>
+    <span class="kw">else if</span> [SL] >= <span class="num">0.80</span> <span class="kw">then</span> <span class="str">"Amarillo"</span>
+    <span class="kw">else</span> <span class="str">"Rojo"</span>
+)</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">⚙️ Dataflows Gen1 — arquitectura Bronce/Plata/FACT <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="step"><div class="step-num">B</div><div class="step-body"><h4>Capa Bronce — Raw</h4><p><strong>Regla absoluta: NUNCA transforma.</strong> Solo ingiere y guarda la fuente original. Una sola fuente por Dataflow Bronce.</p></div></div>
+        <div class="step"><div class="step-num">S</div><div class="step-body"><h4>Capa Plata — Staging</h4><p>Limpieza, tipado, normalización. Tablas <code>Src_*</code> como entidades buffer. No depende de otros Dataflows del mismo workspace.</p></div></div>
+        <div class="step"><div class="step-num">F</div><div class="step-body"><h4>FACT / DIM — Gold</h4><p>Tablas finales del modelo estrella. Referencian Plata. <strong>FACT nunca se auto-referencia.</strong> Bronce refresca antes que FACT.</p></div></div>
+        <div class="code-block"><span class="cm">// Patrón: 6 Src_* buffer + 1 entidad FACT</span>
+<span class="cm">// Src_CDR → Src_Asesores → Src_Campanas → FACT_CDR</span>
+
+<span class="cm">// Src_CDR (buffer Plata)</span>
+<span class="kw">let</span>
+    Fuente     = PowerBI.Dataflows([workspaceId=<span class="str">"..."</span>]),
+    BronceCDR  = Fuente{[dataflowId=<span class="str">"..."</span>]}[tables],
+    CDR        = BronceCDR{[entity=<span class="str">"CDR_Raw"</span>]}[data]
+<span class="kw">in</span> CDR</div>
+      </div>
+    </div>
+  </div><!-- /pbi-m -->
+
+  <!-- MODELO -->
+  <div id="pbi-modelo" style="display:none">
+    <div class="acc open">
+      <div class="acc-hd" onclick="toggle(this)">🌟 Star Schema — por qué es el estándar de BI <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box"><strong>Star Schema (Esquema Estrella):</strong> Una tabla FACT central con métricas numéricas, rodeada de tablas DIM con atributos descriptivos. Optimizado para agregaciones rápidas en Power BI.</div>
+        <div style="background:#050a10;border:1px solid var(--border);border-radius:var(--r2);padding:16px;font-family:var(--mono);font-size:.72rem;color:var(--muted2);line-height:1.8;margin:10px 0">
+<span style="color:var(--amber)">         DIM_Fecha</span>
+             │
+<span style="color:var(--cyan)">DIM_Asesor</span> ─┤
+             │
+<span style="color:var(--green)">DIM_Campana</span>─┤── <span style="color:var(--blue);font-weight:600">FACT_CDR</span> ─┬─ <span style="color:var(--purple)">DIM_Hora</span>
+             │               └─ <span style="color:var(--orange)">DIM_Disposicion</span>
+<span style="color:var(--red)">DIM_Canal</span>  ─┘
+        </div>
+        <table class="tbl">
+          <thead><tr><th>Tabla</th><th>Tipo</th><th>Columnas clave</th></tr></thead>
+          <tbody>
+            <tr><td>FACT_CDR</td><td>Hechos</td><td>FechaKey, AsesorKey, CampanaKey, duracion_seg, abandono</td></tr>
+            <tr><td>DIM_Fecha</td><td>Dimensión</td><td>DateKey, Fecha, Año, Mes, Semana, DiaSemana</td></tr>
+            <tr><td>DIM_Asesor</td><td>Dimensión</td><td>AsesorKey, Nombre, Extension, Supervisor, Turno</td></tr>
+            <tr><td>DIM_Campana</td><td>Dimensión</td><td>CampanaKey, Nombre, Operador, SLA_Objetivo</td></tr>
+            <tr><td>DIM_Hora</td><td>Dimensión</td><td>HoraKey, Hora, Turno, EsHoraPico</td></tr>
+          </tbody>
+        </table>
+        <div class="def-box green"><strong>Cardinalidad correcta:</strong> Siempre <code>DIM[Key] 1 → * FACT[Key]</code>. Nunca muchos a muchos sin tabla puente. Dirección de filtro: DIM → FACT (unidireccional).</div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-hd" onclick="toggle(this)">🌟 AsesorKey — construcción de llaves compuestas <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box amber"><strong>Problema real de Konibit:</strong> El mismo nombre de asesor puede existir en múltiples campañas con distinta extensión. Una llave simple (solo nombre) causa relaciones ambiguas.</div>
+        <div class="code-block"><span class="cm">// M Query — AsesorKey compuesta</span>
+AsesorKey = Text.Upper(Text.Trim([Asesor]))
+            & <span class="str">"-"</span>
+            & Text.Trim([Extension])
+<span class="cm">// Resultado: "GARCIA LOPEZ-5001"</span>
+
+<span class="cm">// DAX equivalente en columna calculada</span>
+AsesorKey = UPPER(TRIM(DIM_Asesor[Nombre]))
+            & <span class="str">"-"</span>
+            & TRIM(DIM_Asesor[Extension])</div>
+        <div class="def-box"><strong>Regla:</strong> Aplica la misma lógica de construcción en FACT_CDR y DIM_Asesor para garantizar integridad referencial (que todos los keys de FACT tengan su par en DIM).</div>
+      </div>
+    </div>
+  </div><!-- /pbi-modelo -->
+
+  <!-- VISUAL HTML -->
+  <div id="pbi-visual" style="display:none">
+    <div class="acc open">
+      <div class="acc-hd" onclick="toggle(this)">🖥️ HTML Visuals en Power BI — patrones y errores comunes <span class="arr">▼</span></div>
+      <div class="acc-body">
+        <div class="def-box amber"><strong>Reglas para HTML Visuals en Power BI:</strong></div>
+        <table class="tbl" style="margin-bottom:12px">
+          <thead><tr><th>❌ Evitar</th><th>✅ Usar en cambio</th></tr></thead>
+          <tbody>
+            <tr><td>Comilla simple ' en RETURN</td><td>Comillas dobles "" escapadas</td></tr>
+            <tr><td>SUMMARIZE con medidas</td><td>ADDCOLUMNS(VALUES(...))</td></tr>
+            <tr><td>querySelectorAll()</td><td>getElementsByClassName()</td></tr>
+            <tr><td>box-shadow en elementos</td><td>box-shadow: none</td></tr>
+            <tr><td>clamp() en font-size</td><td>px fijos (12px, 14px...)</td></tr>
+            <tr><td>position: absolute en labels</td><td>CSS Grid para layout</td></tr>
+            <tr><td>var JS dentro de RETURN ""</td><td>Pre-construir en VAR DAX</td></tr>
+          </tbody>
+        </table>
+        <div class="code-block"><span class="cm">-- Patrón correcto para KPI HTML</span>
+KPI_HTML =
+<span class="kw">VAR</span> _val   = [AHT_Promedio]
+<span class="kw">VAR</span> _color = <span class="kw">IF</span>(_val <= <span class="num">300</span>, <span class="str">"#1ecc7a"</span>,
+               <span class="kw">IF</span>(_val <= <span class="num">420</span>, <span class="str">"#f59e0b"</span>, <span class="str">"#ef4444"</span>))
+<span class="kw">VAR</span> _fmt   = FORMAT(_val/60, <span class="str">"0.0"</span>) & <span class="str">" min"</span>
+<span class="kw">VAR</span> _html  =
+    <span class="str">"&lt;div style=""font-family:Segoe UI;font-size:12px;padding:12px""&gt;"</span>
+    &amp; <span class="str">"&lt;div style=""font-size:28px;font-weight:700;color:"</span>
+    &amp; _color &amp; <span class="str">"""&gt;"</span> &amp; _fmt &amp; <span class="str">"&lt;/div&gt;"</span>
+    &amp; <span class="str">"&lt;div style=""color:#94a3b8;font-size:11px""&gt;AHT Promedio&lt;/div&gt;"</span>
+    &amp; <span class="str">"&lt;/div&gt;"</span>
+<span class="kw">RETURN</span> _html</div>
+      </div>
+    </div>
+  </div><!-- /pbi-visual -->
+
+  </div><!-- /padding -->
+</div><!-- /v-pbi -->
+
+<!-- ═══════════════ COPC / KPIs ═══════════════ -->
+<div id="v-copc" class="view">
+  <div class="vh"><h1>KPIs Contact Center COPC</h1><p>Definiciones, fórmulas y benchmarks</p></div>
+  <div style="padding:0 16px 24px">
+
+  <div class="def-box" style="margin-bottom:16px">
+    <strong>COPC (Customer Operations Performance Center)</strong> es el estándar internacional de gestión de operaciones de servicio al cliente. Define métricas con objetivos claros: cómo medirlas, calcularlas y cuáles son los umbrales de desempeño.
+  </div>
+
+  <div class="divider"><span>EFICIENCIA OPERATIVA</span></div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">SL — Service Level (Nivel de Servicio)</div>
+    <div class="kpi-def">Porcentaje de llamadas atendidas dentro del umbral de tiempo establecido. Es el KPI principal de accesibilidad.</div>
+    <div class="kpi-formula">SL = (Llamadas atendidas en ≤T segundos / Total llamadas ofrecidas) × 100</div>
+    <div class="kpi-copc">COPC: <span>≥80% en ≤20s</span> para voz. Objetivo interno recomendado: <span>85% en ≤20s</span></div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">AHT — Average Handle Time</div>
+    <div class="kpi-def">Tiempo promedio total que un asesor dedica a una interacción: conversación + hold + ACW (After Call Work).</div>
+    <div class="kpi-formula">AHT = (Talk Time + Hold Time + ACW) / Total llamadas manejadas</div>
+    <div class="kpi-copc">COPC: Varía por tipo de campaña. Medir vs objetivo interno por segmento. <span>Monitoreo diario</span> recomendado.</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">FCR — First Contact Resolution</div>
+    <div class="kpi-def">Porcentaje de consultas resueltas en el primer contacto, sin necesidad de devolución de llamada, reasignación o recontacto.</div>
+    <div class="kpi-formula">FCR = (Interacciones resueltas en 1er contacto / Total interacciones) × 100</div>
+    <div class="kpi-copc">COPC: <span>≥70%</span> es el mínimo aceptable. World class: <span>≥85%</span>. Alto impacto en CSAT.</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">ASA — Average Speed of Answer</div>
+    <div class="kpi-def">Tiempo promedio que un cliente espera en cola antes de ser atendido por un asesor.</div>
+    <div class="kpi-formula">ASA = Total tiempo en cola de llamadas atendidas / Total llamadas atendidas</div>
+    <div class="kpi-copc">COPC: Complementa al SL. <span>Target: ≤20s</span> para la mayoría de operaciones de voz inbound.</div>
+  </div>
+
+  <div class="divider"><span>ABANDONO</span></div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">ABN — Abandonment Rate (Tasa de Abandono)</div>
+    <div class="kpi-def">Porcentaje de llamadas que el cliente cuelga antes de ser atendido. Refleja directamente la experiencia del cliente en cola.</div>
+    <div class="kpi-formula">ABN = (Llamadas abandonadas / Total llamadas ofrecidas) × 100</div>
+    <div class="kpi-copc">COPC: <span>≤5%</span> es el estándar de referencia. Se excluyen abandonos en los primeros 5s.</div>
+  </div>
+
+  <div class="divider"><span>SATISFACCIÓN DEL CLIENTE</span></div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">CSAT — Customer Satisfaction Score</div>
+    <div class="kpi-def">Mide la satisfacción del cliente con una interacción específica, generalmente en escala 1-5 o 1-10. Pregunta directa post-interacción.</div>
+    <div class="kpi-formula">CSAT = (Respuestas positivas / Total respuestas) × 100</div>
+    <div class="kpi-copc">COPC: Positivas = puntajes ≥4 (en escala 1-5). <span>Target: ≥85%</span> satisfacción positiva.</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">NPS — Net Promoter Score</div>
+    <div class="kpi-def">Mide la lealtad del cliente: ¿Recomendarías la empresa a un amigo? Escala 0-10. Promotores (9-10), Pasivos (7-8), Detractores (0-6).</div>
+    <div class="kpi-formula">NPS = %Promotores − %Detractores</div>
+    <div class="kpi-copc">Rango: -100 a +100. <span>NPS ≥50</span> es excelente. <span>NPS ≥0</span> es aceptable. Medir por campaña.</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">CES — Customer Effort Score</div>
+    <div class="kpi-def">Mide el esfuerzo que el cliente tuvo que hacer para resolver su problema. Predictor fuerte de churn y lealtad.</div>
+    <div class="kpi-formula">CES = Media de respuestas en escala "Qué tan fácil fue resolver tu problema" (1-7)</div>
+    <div class="kpi-copc">COPC: <span>Puntaje ≥5.5</span> en escala 1-7. Alta correlación con FCR — a mayor FCR, menor esfuerzo.</div>
+  </div>
+
+  <div class="divider"><span>PERSONAL Y PRODUCTIVIDAD</span></div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">Occupancy (Ocupación)</div>
+    <div class="kpi-def">Porcentaje del tiempo productivo que el asesor está en interacción o ACW, vs tiempo disponible total. Indica eficiencia del workforce.</div>
+    <div class="kpi-formula">Occupancy = (Talk Time + ACW) / Login Time × 100</div>
+    <div class="kpi-copc">COPC: Optimal: <span>85-90%</span>. Encima del 90% genera burnout. Abajo del 75% indica sobreservicio.</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">Shrinkage (Contracción)</div>
+    <div class="kpi-def">Porcentaje del tiempo pagado en el que el asesor NO está disponible para atender llamadas (capacitación, baño, breaks, ausencias).</div>
+    <div class="kpi-formula">Shrinkage = (Tiempo no productivo / Tiempo total pagado) × 100</div>
+    <div class="kpi-copc">COPC: Típicamente <span>30-35%</span> en operaciones bien gestionadas. Incluir en planificación de WFM.</div>
+  </div>
+
+  <div class="kpi-card">
+    <div class="kpi-name">Attrition (Rotación)</div>
+    <div class="kpi-def">Porcentaje de asesores que abandonan la operación en un período. Alto attrition impacta calidad, costos de reclutamiento y curva de aprendizaje.</div>
+    <div class="kpi-formula">Attrition = (Salidas en el período / Headcount promedio) × 100</div>
+    <div class="kpi-copc">COPC: <span>&lt;5% mensual</span> es manejable. Medir voluntario vs involuntario por separado.</div>
+  </div>
+
+  <!-- Ejercicio COPC -->
+  <div class="exercise" style="margin-top:16px">
+    <div class="ex-header"><span class="ex-badge med">Medio</span><span class="ex-title">Calcula el dashboard COPC del turno</span></div>
+    <div class="ex-body">Con los datos del turno matutino: 850 llamadas ofrecidas, 780 atendidas, 720 en ≤20s, 70 abandonadas, AHT promedio = 245s (210 talk + 20 hold + 15 ACW), Login time = 8h/asesor × 15 asesores. Calcula: SL, ABN, AHT, Occupancy.</div>
+    <textarea class="ex-editor" id="ex-copc1" placeholder="# Datos del turno
+ofrecidas = 850
+atendidas = 780
+en_tiempo = 720  # atendidas en ≤20s
+abandonadas = 70
+talk_time = 210  # segundos promedio
+hold_time = 20
+acw = 15
+asesores = 15
+login_horas = 8
+
+# Calcula los 4 KPIs"></textarea>
+    <button class="btn-run" onclick="checkEx('copc1')">▶ Verificar</button>
+    <div class="ex-output" id="out-copc1"></div>
+  </div>
+
+  </div><!-- /padding -->
+</div><!-- /v-copc -->
+
+<!-- ═══════════════ FLASHCARDS ═══════════════ -->
+<div id="v-flash" class="view">
+  <div class="vh"><h1>Flashcards</h1><p>Spaced repetition para memorizar sin olvidar</p></div>
+  <div style="padding:0 16px 24px">
+    <div class="sec-nav">
+      <div class="sec-tab active" onclick="fcSec(this,'fc-dax')">DAX</div>
+      <div class="sec-tab" onclick="fcSec(this,'fc-python')">Python</div>
+      <div class="sec-tab" onclick="fcSec(this,'fc-copc')">COPC KPIs</div>
+      <div class="sec-tab" onclick="fcSec(this,'fc-modelo')">Modelos</div>
+    </div>
+    <div class="fc-counter" id="fc-counter">Carta 1 de 10</div>
+    <div id="flashcard-wrap" onclick="flipCard()">
+      <div id="flashcard">
+        <div class="fc-face fc-front">
+          <div class="fc-label" id="fc-deck-label">DAX</div>
+          <div class="fc-q" id="fc-q">—</div>
+          <div style="font-size:.72rem;color:var(--muted);margin-top:12px">Toca para ver la respuesta</div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-label">RESPUESTA</div>
+          <div class="fc-a" id="fc-a">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-controls">
+      <button class="fc-btn ko" onclick="fcAnswer(false)">✗ No sabía</button>
+      <button class="fc-btn ok" onclick="fcAnswer(true)">✓ Lo supe</button>
+    </div>
+    <div style="margin-top:16px">
+      <div class="prog-bar"><div class="prog-fill" id="fc-prog" style="width:0%;background:var(--blue)"></div></div>
+      <div style="font-size:.72rem;color:var(--muted);margin-top:6px;text-align:center" id="fc-score">Correctas: 0 | Incorrectas: 0</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ EJERCICIOS ═══════════════ -->
+<div id="v-retos" class="view">
+  <div class="vh"><h1>Ejercicios Prácticos</h1><p>Problemas reales de contact center</p></div>
+  <div style="padding:0 16px 24px">
+
+  <div class="divider"><span>PYTHON</span></div>
+
+  <div class="exercise">
+    <div class="ex-header"><span class="ex-badge easy">Fácil</span><span class="ex-title">Análisis de SL por hora</span></div>
+    <div class="ex-body">Tienes un dict con llamadas ofrecidas y atendidas en ≤20s por hora. Calcula el SL por hora y encuentra las horas donde el SL cayó por debajo del 80%. Imprime un reporte claro.</div>
+    <textarea class="ex-editor" id="ex-r1" placeholder="datos = {
+    8:  {'ofrecidas': 120, 'en_tiempo': 105},
+    9:  {'ofrecidas': 200, 'en_tiempo': 148},
+    10: {'ofrecidas': 180, 'en_tiempo': 162},
+    11: {'ofrecidas': 150, 'en_tiempo': 108},
+    12: {'ofrecidas': 90,  'en_tiempo': 54},
+    13: {'ofrecidas': 110, 'en_tiempo': 99},
+}
+# Calcula SL y detecta horas críticas"></textarea>
+    <button class="btn-run" onclick="checkEx('r1')">▶ Verificar</button>
+    <div class="ex-output" id="out-r1"></div>
+  </div>
+
+  <div class="exercise">
+    <div class="ex-header"><span class="ex-badge med">Medio</span><span class="ex-title">Ranking de asesores por eficiencia</span></div>
+    <div class="ex-body">Construye un ranking de asesores combinando: AHT normalizado (menor es mejor) y CSAT (mayor es mejor). Score = 0.4×(1-AHT_norm) + 0.6×CSAT_norm. Muestra el top 3.</div>
+    <textarea class="ex-editor" id="ex-r2" placeholder="import pandas as pd
+
+asesores = pd.DataFrame({
+    'nombre': ['García','López','Martínez','Pérez','Sánchez'],
+    'aht':    [245, 310, 198, 420, 280],
+    'csat':   [4.2, 3.8, 4.6, 3.0, 4.1]
+})
+# Normaliza min-max y calcula score"></textarea>
+    <button class="btn-run" onclick="checkEx('r2')">▶ Verificar</button>
+    <div class="ex-output" id="out-r2"></div>
+  </div>
+
+  <div class="exercise">
+    <div class="ex-header"><span class="ex-badge hard">Difícil</span><span class="ex-title">Pipeline completo de análisis CDR</span></div>
+    <div class="ex-body">Simula un pipeline completo: 1) Genera 100 registros CDR con datos aleatorios, 2) Limpia outliers con IQR, 3) Calcula KPIs por campaña, 4) Identifica la hora pico de abandono.</div>
+    <textarea class="ex-editor" id="ex-r3" placeholder="import pandas as pd
+import numpy as np
+
+np.random.seed(42)
+n = 100
+
+df = pd.DataFrame({
+    'campana':   np.random.choice(['TotalPlay','Tigo','Movistar'], n),
+    'hora':      np.random.randint(8, 20, n),
+    'duracion':  np.random.exponential(240, n).astype(int),
+    'abandono':  np.random.binomial(1, 0.15, n),
+    'csat':      np.random.normal(4.0, 0.5, n).clip(1,5)
+})
+# Tu pipeline aquí"></textarea>
+    <button class="btn-run" onclick="checkEx('r3')">▶ Verificar</button>
+    <div class="ex-output" id="out-r3"></div>
+  </div>
+
+  <div class="divider"><span>DAX</span></div>
+
+  <div class="exercise">
+    <div class="ex-header"><span class="ex-badge easy">Fácil</span><span class="ex-title">Medida: % de Abandono vs Objetivo</span></div>
+    <div class="ex-body">Escribe la medida DAX completa para calcular la tasa de abandono y devolverla junto con su estado COPC (OK/Alerta/Crítico) usando VAR bien estructurado.</div>
+    <textarea class="ex-editor" id="ex-dax2" placeholder="Abandono_Pct_Label =
+VAR _total = ...
+VAR _abn   = ...
+VAR _pct   = DIVIDE(...)
+VAR _label = ...
+RETURN ..."></textarea>
+    <button class="btn-run" onclick="checkEx('dax2')">▶ Verificar</button>
+    <div class="ex-output" id="out-dax2"></div>
+  </div>
+
+  <div class="divider"><span>SQL</span></div>
+
+  <div class="exercise">
+    <div class="ex-header"><span class="ex-badge med">Medio</span><span class="ex-title">Window Function: Ranking de asesores</span></div>
+    <div class="ex-body">Escribe el query SQL que rankee a los asesores por AHT dentro de cada campaña usando RANK(). Incluye solo asesores con más de 50 llamadas. Muestra: campaña, asesor, aht_prom, llamadas, ranking.</div>
+    <textarea class="ex-editor" id="ex-sql1" placeholder="SELECT 
+    campana,
+    asesor,
+    -- Tu código aquí
+FROM FACT_CDR
+GROUP BY campana, asesor
+HAVING ..."></textarea>
+    <button class="btn-run" onclick="checkEx('sql1')">▶ Verificar</button>
+    <div class="ex-output" id="out-sql1"></div>
+  </div>
+
+  </div><!-- /padding -->
+</div><!-- /v-retos -->
+
+<!-- ═══════════════ FLUJOS & MODELOS ═══════════════ -->
+<div id="v-modelos" class="view">
+  <div class="vh"><h1>Flujos de Datos & Modelos</h1><p>ETL, arquitectura, modelado relacional</p></div>
+  <div style="padding:0 16px 24px">
+
+  <div class="acc open">
+    <div class="acc-hd" onclick="toggle(this)">🔄 Flujo de datos: de la fuente al dashboard <span class="arr">▼</span></div>
+    <div class="acc-body">
+      <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Fuente (Source)</h4><p>Base de datos operacional, APIs, archivos CSV/Excel. Los datos crudos, sin transformar. Nunca modifiques la fuente original.</p></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Ingesta (Extract)</h4><p>Lectura de la fuente. En Power BI: conectores nativos. En Python: <code>pd.read_sql()</code>, <code>pd.read_csv()</code>. En Dataflows: primera consulta M.</p></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Transformación (Transform)</h4><p>Limpieza, tipado, normalización, enriquecimiento, creación de llaves. Capas Bronce→Plata. En Python: pandas pipeline.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Modelado (Load)</h4><p>Construcción del Star Schema: FACT + DIMs. En Power BI: modelo de datos con relaciones correctas y cardinalidad 1:*.</p></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Semántica (DAX)</h4><p>Medidas, columnas calculadas, tablas calculadas. La capa de negocio sobre el modelo físico.</p></div></div>
+      <div class="step"><div class="step-num">6</div><div class="step-body"><h4>Presentación (Visuals)</h4><p>Dashboard ejecutivo. Cada visual consume medidas DAX del modelo semántico.</p></div></div>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="acc-hd" onclick="toggle(this)">🔄 Normalización de bases de datos (1NF, 2NF, 3NF) <span class="arr">▼</span></div>
+    <div class="acc-body">
+      <div class="def-box"><strong>Normalización</strong> = proceso de organizar una BD para reducir redundancia y mejorar integridad. Cada forma normal (NF) agrega una regla.</div>
+      <table class="tbl">
+        <thead><tr><th>Forma Normal</th><th>Regla</th><th>Ejemplo violación</th></tr></thead>
+        <tbody>
+          <tr><td>1NF</td><td>Sin grupos repetidos, valores atómicos</td><td>Columna "campanas" = "TotalPlay,Tigo"</td></tr>
+          <tr><td>2NF</td><td>1NF + atributos dependen de toda la PK</td><td>Tabla CDR con Nombre_Asesor (depende de Asesor, no de la llamada)</td></tr>
+          <tr><td>3NF</td><td>2NF + sin dependencias transitivas</td><td>CDR con Ciudad_Asesor (depende de Asesor, no de la llamada)</td></tr>
+        </tbody>
+      </table>
+      <div class="def-box green"><strong>Star Schema ya cumple 3NF</strong> en la FACT. Las DIM están desnormalizadas intencionalmente (optimizadas para lectura, no escritura).</div>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="acc-hd" onclick="toggle(this)">🔄 ETL vs ELT — cuándo usar cada enfoque <span class="arr">▼</span></div>
+    <div class="acc-body">
+      <table class="tbl">
+        <thead><tr><th></th><th>ETL</th><th>ELT</th></tr></thead>
+        <tbody>
+          <tr><td>Orden</td><td>Transforma ANTES de cargar</td><td>Carga CRUDO, transforma en destino</td></tr>
+          <tr><td>Dónde transforma</td><td>Herramienta intermedia (SSIS, Python)</td><td>En el data warehouse (SQL, dbt)</td></tr>
+          <tr><td>Cuándo usar</td><td>Datos sensibles, transformaciones complejas</td><td>Cloud DWH, grandes volúmenes</td></tr>
+          <tr><td>Ejemplo Power BI</td><td>Dataflows con M transformando antes</td><td>Importar crudo + DAX para todo</td></tr>
+        </tbody>
+      </table>
+      <div class="def-box amber"><strong>En Konibit/Power BI</strong> el patrón de Dataflows Gen1 (Bronce→Plata→FACT) es un ETL clásico donde la transformación ocurre en capas antes de llegar al modelo semántico.</div>
+    </div>
+  </div>
+
+  <div class="acc">
+    <div class="acc-hd" onclick="toggle(this)">🔄 OLTP vs OLAP — diferencias fundamentales <span class="arr">▼</span></div>
+    <div class="acc-body">
+      <table class="tbl">
+        <thead><tr><th></th><th>OLTP</th><th>OLAP</th></tr></thead>
+        <tbody>
+          <tr><td>Propósito</td><td>Operaciones transaccionales</td><td>Análisis e informes</td></tr>
+          <tr><td>Diseño</td><td>Normalizado (3NF)</td><td>Desnormalizado (Star)</td></tr>
+          <tr><td>Velocidad</td><td>Miles de INSERT/UPDATE/s</td><td>Millones de filas en consulta</td></tr>
+          <tr><td>Ejemplo</td><td>CRM, ACD (sistema de cola)</td><td>Power BI, data warehouse</td></tr>
+          <tr><td>Query típico</td><td>SELECT * WHERE id=5001</td><td>SELECT campana, AVG(aht) GROUP BY...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  </div><!-- /padding -->
+</div><!-- /v-modelos -->
+
+</div><!-- /#screen -->
+
+<!-- BOTTOM NAV -->
+<nav id="nav">
+  <button class="ni active" onclick="goto('v-home')">
+    <div class="ni-dot"></div>
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Inicio</span>
+  </button>
+  <button class="ni" onclick="goto('v-python')">
+    <div class="ni-dot"></div>
+    <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+    <span>Python</span>
+  </button>
+  <button class="ni" onclick="goto('v-pbi')">
+    <div class="ni-dot"></div>
+    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    <span>Power BI</span>
+  </button>
+  <button class="ni" onclick="goto('v-copc')">
+    <div class="ni-dot"></div>
+    <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+    <span>COPC</span>
+  </button>
+  <button class="ni" onclick="goto('v-flash')">
+    <div class="ni-dot"></div>
+    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    <span>Estudio</span>
+  </button>
+</nav>
+</div><!-- /#app -->
+
+<script>
+/* ──────────────── NAV ──────────────── */
+function goto(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  const map={
+    'v-home':0,'v-python':1,'v-pbi':2,'v-copc':3,
+    'v-flash':4,'v-retos':4,'v-modelos':4
+  };
+  const idx=map[id];
+  if(idx!==undefined) document.querySelectorAll('.ni')[idx].classList.add('active');
+  document.getElementById('screen').scrollTop=0;
+}
+
+/* ──────────────── SECTION TABS ──────────────── */
+function pySec(tab,sec){
+  ['py-bases','py-pandas','py-numpy','py-viz','py-cleaning','py-stats']
+    .forEach(s=>document.getElementById(s).style.display='none');
+  document.getElementById(sec).style.display='block';
+  tab.closest('.sec-nav').querySelectorAll('.sec-tab')
+    .forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+}
+function pbiSec(tab,sec){
+  ['pbi-dax','pbi-m','pbi-modelo','pbi-visual']
+    .forEach(s=>document.getElementById(s).style.display='none');
+  document.getElementById(sec).style.display='block';
+  tab.closest('.sec-nav').querySelectorAll('.sec-tab')
+    .forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+}
+function fcSec(tab,deck){
+  currentDeck=deck; fcIdx=0; fcCorrect=0; fcWrong=0;
+  loadCard();
+  tab.closest('.sec-nav').querySelectorAll('.sec-tab')
+    .forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+}
+
+/* ──────────────── ACCORDION ──────────────── */
+function toggle(hd){hd.parentElement.classList.toggle('open')}
+
+/* ──────────────── STATS ──────────────── */
+let xp=parseInt(localStorage.getItem('dm_xp')||'0');
+let solved=parseInt(localStorage.getItem('dm_solved')||'0');
+let streak=parseInt(localStorage.getItem('dm_streak')||'1');
+function saveStats(){
+  localStorage.setItem('dm_xp',xp);
+  localStorage.setItem('dm_solved',solved);
+  localStorage.setItem('dm_streak',streak);
+  document.getElementById('streak-n').textContent=streak;
+  document.getElementById('xp-label').textContent=`XP: ${xp} · Retos: ${solved}/40`;
+  document.getElementById('pct-label').textContent=Math.round(solved/40*100)+'%';
+}
+saveStats();
+
+/* ──────────────── EXERCISES ──────────────── */
+const solutions={
+  'py1':{
+    check:c=>c.includes('kpis_turno')&&c.includes('0.83')&&(c.includes('f-string')||c.includes('format')||c.includes('83')||c.includes('%')||c.includes('sl')),
+    ok:'✅ Correcto. kpis_turno creado y SL formateado. +20 XP\nTip: f"{kpis_turno[\'sl\']*100:.1f}%" produce "83.0%"',
+    hint:'💡 Crea el dict con las 4 claves. Luego: print(f"{kpis_turno[\'sl\']*100:.0f}%")'
+  },
+  'py2':{
+    check:c=>c.includes('def')&&c.includes('categorizar')&&c.includes('corta')&&c.includes('normal')&&c.includes('larga'),
+    ok:'✅ Función correcta con 3 categorías. +20 XP\nResultados esperados: corta, normal, larga, normal',
+    hint:'💡 Usa if/elif/else con los umbrales 180 y 360. Luego itera la lista con un for loop.'
+  },
+  'pd1':{
+    check:c=>c.includes('groupby')&&(c.includes('agg')||c.includes('mean')||c.includes('sum')),
+    ok:'✅ GroupBy correcto. +25 XP\nResultado esperado:\n  TotalPlay: 2 llamadas, AHT 277.5, abandono 50%\n  Tigo: 2 llamadas, AHT 205.0, abandono 0%\n  Movistar: 2 llamadas, AHT 237.5, abandono 100%',
+    hint:'💡 df.groupby("campana").agg(total=("llamada_id","count"), aht_prom=("aht","mean"), tasa_abn=("abandono","mean"))'
+  },
+  'np1':{
+    check:c=>c.includes('percentile')&&c.includes('IQR'||'iqr')&&(c.includes('850')||c.includes('920')||c.includes('outlier')),
+    ok:'✅ IQR implementado. +30 XP\nOutliers detectados: [850, 920]\nMedia original ≈ 131.5s | Media limpia ≈ 39.3s',
+    hint:'💡 Q1=np.percentile(t,25), Q3=np.percentile(t,75), IQR=Q3-Q1\nlimites: Q1-1.5*IQR y Q3+1.5*IQR'
+  },
+  'cl1':{
+    check:c=>(c.includes('dropna')||c.includes('None'))&&c.includes('upper')&&(c.includes('strip')||c.includes('trim')),
+    ok:'✅ Pipeline de limpieza correcto. +25 XP\nResultado: 3 filas (López eliminado por None en asesor), AHT 277.5 como mediana, asesores en mayúsculas.',
+    hint:'💡 1) df.dropna(subset=["asesor"]) 2) df["aht"].fillna(df["aht"].median()) 3) df["asesor"].str.strip().str.upper()'
+  },
+  'dax1':{
+    check:c=>(c.includes('VAR')||c.includes('var'))&&c.includes('IF')&&c.includes('300')&&(c.includes('OK')||c.includes('Alto')||c.includes('Crítico')),
+    ok:'✅ Medida DAX con semáforo correcta. +30 XP\nBuena práctica: usar VAR para el valor intermedio evita calcular AVERAGE dos veces.',
+    hint:'💡 VAR _aht = AVERAGE(...) luego IF(_aht<=300,"✅ OK", IF(_aht<=420,"⚠️ Alto","❌ Crítico"))'
+  },
+  'copc1':{
+    check:c=>(c.includes('sl')||c.includes('SL'))&&(c.includes('abn')||c.includes('ABN'))&&c.includes('AHT'||'aht'),
+    ok:'✅ KPIs calculados. +35 XP\nResultados esperados:\n  SL = 720/850 = 84.7% ✅ (>80%)\n  ABN = 70/850 = 8.2% ❌ (>5% límite COPC)\n  AHT = 210+20+15 = 245s = 4.1 min\n  Occupancy = (210+15)/(8*3600/15*asesores) — revisar fórmula',
+    hint:'💡 SL = en_tiempo/ofrecidas | ABN = abandonadas/ofrecidas | AHT = talk+hold+acw | Occupancy = (talk+acw)/(login_horas*3600)'
+  },
+  'dax2':{
+    check:c=>(c.includes('VAR')||c.includes('var'))&&c.includes('DIVIDE')&&(c.includes('5%')||c.includes('0.05')||c.includes('abandono')||c.includes('ABN')),
+    ok:'✅ Medida de abandono con etiqueta COPC correcta. +30 XP',
+    hint:'💡 VAR _abn = CALCULATE(COUNT(...), FACT_CDR[abandono]=1)\nVAR _total = COUNT(...)\nVAR _pct = DIVIDE(_abn, _total)'
+  },
+  'sql1':{
+    check:c=>c.toLowerCase().includes('rank')&&c.toLowerCase().includes('partition by')&&c.toLowerCase().includes('having'),
+    ok:'✅ Window function RANK() con PARTITION BY correcta. +35 XP\nPatrón: RANK() OVER (PARTITION BY campana ORDER BY AVG(aht))',
+    hint:'💡 RANK() OVER (PARTITION BY campana ORDER BY AVG(aht_seg) ASC) AS ranking\nEl HAVING COUNT(*) > 50 va DESPUÉS del GROUP BY'
+  },
+  'r1':{
+    check:c=>c.includes('sl')&&(c.includes('0.80')||c.includes('80'))&&(c.includes('for')||c.includes('items')||c.includes('critical')||c.includes('críti')),
+    ok:'✅ Análisis SL por hora correcto. +25 XP\nHoras críticas: 9 (74%), 11 (72%), 12 (60%) — todas <80%',
+    hint:'💡 for hora, d in datos.items(): sl = d["en_tiempo"]/d["ofrecidas"]; if sl < 0.80: print(...)'
+  },
+  'r2':{
+    check:c=>c.includes('norm')&&(c.includes('score')||c.includes('Score'))&&(c.includes('0.4')||c.includes('0.6')),
+    ok:'✅ Ranking con score ponderado correcto. +40 XP\nTop 3 esperado: Martínez (bajo AHT + alto CSAT), García, Sánchez',
+    hint:'💡 min-max: (x-min)/(max-min) — aplica a cada columna. Score = 0.4*(1-aht_norm) + 0.6*csat_norm'
+  },
+  'r3':{
+    check:c=>c.includes('groupby')&&(c.includes('IQR')||c.includes('percentile'))&&c.includes('abandono'),
+    ok:'✅ Pipeline completo implementado. +50 XP 🏆\nExcelente trabajo integrando IQR + groupby + análisis de abandono en un flujo real.',
+    hint:'💡 Orden: 1) IQR en duracion 2) df limpio 3) groupby campana con agg 4) hora_pico = df.groupby("hora")["abandono"].mean().idxmax()'
+  },
+};
+
+function checkEx(id){
+  const code=document.getElementById('ex-'+id)?.value.trim()||'';
+  const out=document.getElementById('out-'+id);
+  if(!out)return;
+  out.className='ex-output show';
+  if(!code||code.length<20){
+    out.className='ex-output show out-hint';
+    out.textContent='💡 Escribe tu solución antes de verificar.';
+    return;
+  }
+  const sol=solutions[id];
+  if(!sol){out.className='ex-output show out-hint';out.textContent='Ejercicio en construcción.';return;}
+  if(sol.check(code)){
+    out.className='ex-output show out-ok';
+    out.textContent=sol.ok;
+    xp+=getXP(id); solved++; saveStats();
+  } else {
+    out.className='ex-output show out-hint';
+    out.textContent=sol.hint;
+  }
+}
+function getXP(id){
+  const m={'py1':20,'py2':20,'pd1':25,'np1':30,'cl1':25,'dax1':30,'copc1':35,'dax2':30,'sql1':35,'r1':25,'r2':40,'r3':50};
+  return m[id]||20;
+}
+
+/* ──────────────── FLASHCARDS ──────────────── */
+const decks={
+  'fc-dax':[
+    {q:'¿Cuál es la diferencia entre contexto de fila y contexto de filtro en DAX?',a:'Contexto de fila: existe en columnas calculadas, itera fila por fila. Contexto de filtro: existe en medidas, define qué filas son visibles según los filtros del report.'},
+    {q:'¿Por qué SUMMARIZE no debe usarse para calcular medidas?',a:'SUMMARIZE evalúa medidas en el contexto de fila de la tabla agrupada, lo que puede producir resultados incorrectos. La solución correcta es ADDCOLUMNS(VALUES(DIM[col]), "Metrica", [Medida]).'},
+    {q:'¿Qué hace ALL() en DAX?',a:'ALL() elimina todos los filtros de una tabla o columna. Es fundamental para calcular porcentajes del total: DIVIDE([Medida], CALCULATE([Medida], ALL(DIM_Tabla))).'},
+    {q:'¿Cuál es la sintaxis de CALCULATE?',a:'CALCULATE(expresión, filtro1, filtro2...). Modifica el contexto de filtro y evalúa la expresión en ese nuevo contexto. Es la función más poderosa del lenguaje DAX.'},
+    {q:'¿Cuándo usar VAR en DAX?',a:'Siempre que necesites: 1) reutilizar un valor calculado, 2) mejorar legibilidad, 3) evitar recalcular una medida costosa múltiples veces. VAR se evalúa una sola vez en el contexto en que se declara.'},
+    {q:'¿Qué es DATEADD y para qué sirve?',a:'DATEADD(Columna_Fecha, N, Intervalo) desplaza un conjunto de fechas. Ejemplo: DATEADD(DIM_Fecha[Fecha], -1, MONTH) = mes anterior. Intervalos: DAY, MONTH, QUARTER, YEAR.'},
+    {q:'¿Diferencia entre DIVIDE y el operador /?',a:'DIVIDE(numerador, denominador, [alternativo]) maneja división por cero devolviendo 0 o un valor alternativo. El operador / arroja error si el denominador es 0. Siempre usa DIVIDE en producción.'},
+    {q:'¿Qué es HASONEVALUE y cuándo usarla?',a:'HASONEVALUE(columna) devuelve TRUE cuando hay exactamente un valor en la columna en el contexto actual. Útil para mostrar valores específicos en tarjetas KPI que solo tienen sentido con un único filtro seleccionado.'},
+  ],
+  'fc-python':[
+    {q:'¿Cuál es la diferencia entre .loc y .iloc en pandas?',a:'.loc accede por etiquetas (nombres de índice y columnas): df.loc[0, "asesor"]. .iloc accede por posición entera: df.iloc[0, 0]. Cuando el índice es numérico, pueden parecer iguales pero no lo son.'},
+    {q:'¿Cómo funciona GroupBy + agg() en pandas?',a:'df.groupby("campana").agg(AHT=("duracion","mean"), Total=("id","count")). Agrupa por la columna, aplica una función diferente a cada columna especificada. El resultado es un DataFrame con una fila por grupo.'},
+    {q:'¿Qué hace reset_index() después de groupby?',a:'Después de groupby().agg(), la columna de agrupación se convierte en el índice. reset_index() la devuelve a columna normal, produciendo un DataFrame estándar. Es casi siempre necesario después de GroupBy.'},
+    {q:'¿Para qué sirve pd.to_datetime()?',a:'Convierte strings de fecha a tipo datetime64, lo que habilita operaciones temporales: filtrar por mes, extraer año/mes/día, calcular diferencias entre fechas. Sin este paso, las fechas son solo texto.'},
+    {q:'¿Qué es una list comprehension y cuándo usarla?',a:'[expresión for elemento in iterable if condición] — forma compacta de crear listas. Usa cuando puedes expresar la lógica en una línea. Más rápido que un loop append. Ej: [d/60 for d in duraciones if d > 0].'},
+    {q:'¿Cuál es la diferencia entre media y mediana? ¿Cuándo usar cada una?',a:'Media: suma / n. Sensible a outliers. Mediana: valor central. Robusta ante outliers. En contact center: si hay llamadas de 3600s, la mediana refleja mejor el AHT "típico" que la media (que se dispara por los outliers).'},
+    {q:'¿Qué es el IQR y para qué se usa?',a:'IQR = Q3 - Q1 (percentil 75 - percentil 25). Define límites para detectar outliers: [Q1-1.5*IQR, Q3+1.5*IQR]. Robusto porque no asume distribución normal. Estándar para limpiar tiempos de llamada atípicos.'},
+    {q:'¿Diferencia entre df.copy() y df = df2?',a:'df = df2 crea dos variables apuntando al mismo objeto — modificar uno modifica el otro. df = df2.copy() crea una copia independiente. Siempre usa .copy() cuando necesites preservar el DataFrame original.'},
+  ],
+  'fc-copc':[
+    {q:'¿Fórmula y target COPC del Service Level?',a:'SL = (Llamadas atendidas en ≤T segundos / Total ofrecidas) × 100. Target COPC: ≥80% en ≤20 segundos para voz inbound. Objetivo interno recomendado: ≥85%.'},
+    {q:'¿Qué es AHT y cómo se compone?',a:'AHT = (Talk Time + Hold Time + ACW) / Total llamadas manejadas. Mide el tiempo total que el asesor dedica por interacción. No confundir con Talk Time solo — el ACW (post-llamada) es parte del AHT.'},
+    {q:'¿Fórmula del FCR y qué mide?',a:'FCR = (Resueltas en 1er contacto / Total interacciones) × 100. Mide resolución sin recontacto. Target COPC: ≥70% mínimo, ≥85% world class. Alta correlación con CSAT y NPS.'},
+    {q:'¿Cómo se calcula el NPS?',a:'NPS = %Promotores (9-10) − %Detractores (0-6). Los Pasivos (7-8) no se cuentan. Rango: -100 a +100. NPS ≥50 = excelente. NPS ≥0 = aceptable. NPS negativo = problema grave.'},
+    {q:'¿Qué es Occupancy y cuál es el rango óptimo COPC?',a:'Occupancy = (Talk Time + ACW) / Login Time × 100. Rango óptimo: 85-90%. Encima de 90%: agotamiento (burnout). Debajo de 75%: sobreservicio (costo innecesario). Medir en intervalos de 15-30 min.'},
+    {q:'¿Cuál es el target de ABN (Abandonment Rate) según COPC?',a:'ABN = (Abandonadas / Ofrecidas) × 100. Target COPC: ≤5%. Se excluyen llamadas abandonadas en los primeros 5 segundos (clientes que cuelgan inmediatamente). Relacionado directamente con el SL.'},
+    {q:'¿Qué es Shrinkage y cómo afecta el WFM?',a:'Shrinkage = (Tiempo no productivo / Tiempo pagado) × 100. Incluye: breaks, baños, capacitación, ausencias, reuniones. Típico: 30-35%. En WFM se usa para calcular cuántos agentes necesitas: headcount = agentes_requeridos / (1 - shrinkage).'},
+    {q:'¿Diferencia entre CSAT y CES?',a:'CSAT mide satisfacción con la interacción específica (¿qué tan satisfecho quedaste?). CES mide el esfuerzo del cliente para resolver su problema (¿qué tan fácil fue?). CES predice mejor el churn futuro; CSAT mide la experiencia inmediata.'},
+  ],
+  'fc-modelo':[
+    {q:'¿Qué es un Star Schema y por qué se usa en Power BI?',a:'Tabla FACT central con métricas numéricas + tablas DIM con atributos descriptivos. Se usa en Power BI porque optimiza las agregaciones (pocas JOIN vs muchas filas), reduce el tamaño del modelo y simplifica la escritura de DAX.'},
+    {q:'¿Cardinalidad correcta en un Star Schema?',a:'Siempre 1:* de DIM a FACT. DIM[Key] tiene valores únicos (1). FACT[Key] puede repetirse (*). La dirección del filtro debe ser unidireccional: DIM → FACT. Bidireccional solo en casos muy específicos (tabla puente).'},
+    {q:'¿Diferencia entre OLTP y OLAP?',a:'OLTP: transaccional, normalizado (3NF), muchos INSERT/UPDATE, alta concurrencia. Ej: CRM, ACD. OLAP: analítico, desnormalizado (Star), pocas escrituras, consultas masivas de lectura. Ej: Power BI, data warehouse.'},
+    {q:'¿Qué es la capa Bronce en arquitectura de datos?',a:'Capa que ingesta datos crudos de la fuente sin ninguna transformación. Regla absoluta: NUNCA transforma. Preserva el dato original. Permite reprocessing si la capa downstream tiene errores. Una fuente por Dataflow Bronce.'},
+    {q:'¿Diferencia entre ETL y ELT?',a:'ETL: Extrae → Transforma → Carga. Transforma antes de llegar al destino. ELT: Extrae → Carga crudo → Transforma en el destino. ETL es mejor para datos sensibles. ELT para cloud DWH con grandes volúmenes.'},
+    {q:'¿Qué es normalización y qué resuelve la 3NF?',a:'Normalización = organizar BD para reducir redundancia. 3NF: sin dependencias transitivas. Ejemplo: no guardar Ciudad_Asesor en FACT_CDR porque depende del Asesor, no de la llamada. Eso va en DIM_Asesor.'},
+    {q:'¿Qué es una llave compuesta y cuándo usarla?',a:'Clave formada por 2+ columnas. Usar cuando ninguna columna por sí sola identifica unívocamente una fila. Ejemplo: AsesorKey = NOMBRE + "-" + EXTENSION, porque el mismo nombre puede existir con distintas extensiones.'},
+    {q:'¿Qué es M Query y en qué se diferencia de DAX?',a:'M (Power Query Formula Language): transforma datos ANTES de cargarlos al modelo. Inmutable y funcional. DAX: crea cálculos SOBRE el modelo ya cargado. M trabaja en la capa ETL; DAX en la capa semántica.'},
+  ],
+};
+
+let currentDeck='fc-dax', fcIdx=0, fcCorrect=0, fcWrong=0;
+
+function loadCard(){
+  const cards=decks[currentDeck];
+  if(!cards||cards.length===0)return;
+  fcIdx=fcIdx%cards.length;
+  const c=cards[fcIdx];
+  document.getElementById('fc-q').textContent=c.q;
+  document.getElementById('fc-a').textContent=c.a;
+  document.getElementById('fc-deck-label').textContent=currentDeck.replace('fc-','').toUpperCase();
+  document.getElementById('fc-counter').textContent=`Carta ${fcIdx+1} de ${cards.length}`;
+  document.getElementById('flashcard').classList.remove('flipped');
+  const total=fcCorrect+fcWrong;
+  document.getElementById('fc-prog').style.width=(total/cards.length*100)+'%';
+  document.getElementById('fc-score').textContent=`Correctas: ${fcCorrect} | Incorrectas: ${fcWrong}`;
+}
+
+function flipCard(){document.getElementById('flashcard').classList.toggle('flipped')}
+
+function fcAnswer(ok){
+  if(ok){fcCorrect++;xp+=5;saveStats();}else{fcWrong++;}
+  fcIdx++;
+  const cards=decks[currentDeck];
+  if(fcIdx>=cards.length){
+    fcIdx=0;
+    alert(`Ronda completa! ✅ ${fcCorrect} correctas | ✗ ${fcWrong} incorrectas\n${fcCorrect>=cards.length*0.8?'¡Excelente dominio! 🏆':'Repasa las tarjetas que fallaste.'}`);
+    fcCorrect=0;fcWrong=0;
+  }
+  loadCard();
+}
+
+// Init flashcards
+loadCard();
+
+/* ──────────────── CONCEPT OF DAY ──────────────── */
+const daily=[
+  {title:'CALCULATE modifica el contexto',body:'CALCULATE es el corazón de DAX. Toma una expresión y la evalúa en un contexto de filtro modificado. Sin entender CALCULATE, no puedes escribir medidas complejas.',code:`SL_TotalPlay = CALCULATE(
+    [SL_Global],
+    DIM_Campana[Campana] = "TotalPlay"
+)`},
+  {title:'pandas GroupBy = SUMMARIZE',body:'df.groupby("col").agg(...) en Python hace exactamente lo que SUMMARIZE + medidas hacen en DAX, pero con más flexibilidad y sin los bugs de contexto.',code:`resumen = df.groupby('campana').agg(
+    AHT=('duracion','mean'),
+    Calls=('id','count')
+).reset_index()`},
+  {title:'NPS: la métrica de lealtad',body:'NPS = %Promotores (9-10) − %Detractores (0-6). Los pasivos no cuentan. Un NPS de +50 es excelente. Correlaciona fuerte con FCR: resolver al primer contacto = clientes promotores.',code:`nps = promotores_pct - detractores_pct
+# Promotores: 9-10 / Pasivos: 7-8 / Detractores: 0-6`},
+  {title:'Star Schema: FACT vs DIM',body:'FACT tiene métricas numéricas (duracion, abandono) y llaves foráneas. DIM tiene atributos descriptivos (nombre, campaña). La relación siempre va de DIM→FACT, nunca al revés.',code:`-- Cardinalidad correcta:
+-- DIM_Asesor[AsesorKey] 1:* FACT_CDR[AsesorKey]`},
+];
+const dc=daily[new Date().getDate()%daily.length];
+document.getElementById('cod-title').textContent=dc.title;
+document.getElementById('cod-body').textContent=dc.body;
+document.getElementById('cod-code').textContent=dc.code;
+
+/* ──────────────── PWA INSTALL ──────────────── */
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('install-banner').classList.add('show');
+});
+document.getElementById('install-btn').addEventListener('click',async()=>{
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  const{outcome}=await deferredPrompt.userChoice;
+  if(outcome==='accepted')document.getElementById('install-banner').style.display='none';
+  deferredPrompt=null;
+});
+
+/* Service Worker */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
