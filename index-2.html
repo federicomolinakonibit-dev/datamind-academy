@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#030712">
+<link rel="manifest" href="manifest.json">
+<title>DataMind Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════
+   DESIGN SYSTEM
+═══════════════════════════════════════ */
+:root{
+  --bg:#030712;--s1:#060f1f;--s2:#0a1628;--s3:#0f1e35;--s4:#162545;
+  --b:#1a2d47;--b2:#213658;
+  --blue:#3b82f6;--bl:#60a5fa;--bd:#1d4ed8;
+  --cyan:#22d3ee;--green:#10b981;--amber:#f59e0b;
+  --red:#ef4444;--purple:#8b5cf6;--orange:#f97316;
+  --pink:#ec4899;--teal:#14b8a6;--lime:#84cc16;
+  --indigo:#6366f1;--sky:#0ea5e9;
+  --text:#eef2ff;--t2:#94a3b8;--t3:#4b6080;
+  --font:'Plus Jakarta Sans',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:12px;--r2:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;-webkit-font-smoothing:antialiased}
+body{overflow:hidden}
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 15%,rgba(59,130,246,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 85%,rgba(139,92,246,.05) 0%,transparent 60%),
+    linear-gradient(rgba(59,130,246,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,130,246,.018) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,32px 32px,32px 32px;
+}
+#app{display:flex;flex-direction:column;height:100%;position:relative;z-index:1}
+
+/* TOPBAR */
+#topbar{
+  background:rgba(6,15,31,.97);border-bottom:1px solid var(--b);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  flex-shrink:0;display:flex;align-items:center;gap:10px;
+  padding:10px 14px;min-height:52px;
+}
+.logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--bd),var(--blue));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+#tb-title{flex:1;font-size:.9rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#btn-back{width:32px;height:32px;border-radius:9px;background:var(--s3);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;opacity:0;pointer-events:none}
+#btn-back.show{opacity:1;pointer-events:all}
+#btn-back svg{width:16px;height:16px;stroke:var(--t2);fill:none;stroke-width:2.2;stroke-linecap:round}
+#btn-back:active{transform:scale(.92)}
+#lv-pill{padding:2px 8px;border-radius:20px;font-size:.63rem;font-weight:700;font-family:var(--mono);background:rgba(59,130,246,.15);color:var(--bl);white-space:nowrap;flex-shrink:0}
+#xp-pill{padding:2px 8px;border-radius:20px;font-size:.63rem;font-weight:700;font-family:var(--mono);background:rgba(16,185,129,.12);color:var(--green);flex-shrink:0}
+
+/* SCREEN */
+#screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scroll-behavior:smooth}
+#screen::-webkit-scrollbar{display:none}
+
+/* NAV */
+#nav{display:flex;background:rgba(6,15,31,.97);border-top:1px solid var(--b);padding:6px 0 max(6px,env(safe-area-inset-bottom));flex-shrink:0;backdrop-filter:blur(20px)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;cursor:pointer;border:none;background:none;transition:all .2s;position:relative}
+.ni-ic{width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .25s cubic-bezier(.34,1.56,.64,1)}
+.ni svg{width:19px;height:19px;stroke:var(--t3);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:stroke .2s}
+.ni span{font-size:9px;color:var(--t3);font-weight:600;letter-spacing:.02em;transition:color .2s}
+.ni.on .ni-ic{background:rgba(59,130,246,.15);transform:scale(1.1)}
+.ni.on svg{stroke:var(--blue)}
+.ni.on span{color:var(--blue)}
+
+/* VIEWS */
+.view{display:none;padding:14px 14px 28px;animation:vIn .28s ease}
+.view.active{display:block}
+@keyframes vIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--b);border-radius:var(--r);padding:15px;margin-bottom:11px;transition:all .2s}
+.card:active{transform:scale(.99)}
+
+/* ACCORDION */
+.acc{border:1px solid var(--b);border-radius:var(--r);overflow:hidden;margin-bottom:8px;transition:border-color .2s}
+.acc.open{border-color:var(--b2)}
+.acc-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;cursor:pointer;background:var(--s2);font-size:.86rem;font-weight:600;transition:background .2s;user-select:none;gap:8px}
+.acc-hd:active{background:var(--s3)}
+.acc-arr{width:20px;height:20px;border-radius:6px;background:var(--s3);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s;font-size:.58rem;color:var(--t3)}
+.acc.open .acc-arr{background:rgba(59,130,246,.2);color:var(--blue);transform:rotate(180deg)}
+.acc-body{display:none;padding:13px 15px;background:rgba(3,7,18,.5);font-size:.81rem;line-height:1.8;color:var(--t2);border-top:1px solid var(--b)}
+.acc.open .acc-body{display:block;animation:aIn .22s ease}
+@keyframes aIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+
+/* CODE */
+.cb{background:#020508;border:1px solid var(--b);border-radius:var(--r2);padding:13px;margin:9px 0;font-family:var(--mono);font-size:.74rem;line-height:1.7;overflow-x:auto;white-space:pre;color:#7dd3fc}
+.kw{color:#c792ea}.fn{color:#82aaff}.str{color:#c3e88d}.cm{color:#4a5568}.num{color:#f78c6c}
+
+/* INFO BOXES */
+.db{border-left:2px solid var(--blue);background:rgba(59,130,246,.06);border-radius:0 var(--r2) var(--r2) 0;padding:10px 13px;margin:9px 0;font-size:.81rem;line-height:1.75}
+.db.green{border-color:var(--green);background:rgba(16,185,129,.06)}
+.db.amber{border-color:var(--amber);background:rgba(245,158,11,.06)}
+.db.purple{border-color:var(--purple);background:rgba(139,92,246,.06)}
+.db.teal{border-color:var(--teal);background:rgba(20,184,166,.06)}
+.db.red{border-color:var(--red);background:rgba(239,68,68,.06)}
+.db strong{color:var(--text)}
+
+/* EXERCISE */
+.ex{background:var(--s2);border:1px solid var(--b2);border-radius:var(--r);padding:15px;margin:13px 0}
+.ex-hd{display:flex;align-items:center;gap:7px;margin-bottom:9px;flex-wrap:wrap}
+.badge{padding:2px 8px;border-radius:20px;font-size:.67rem;font-weight:700;font-family:var(--mono)}
+.b-easy{background:rgba(16,185,129,.15);color:var(--green)}
+.b-med{background:rgba(245,158,11,.15);color:var(--amber)}
+.b-hard{background:rgba(239,68,68,.15);color:var(--red)}
+.b-exp{background:rgba(139,92,246,.15);color:var(--purple)}
+.ex-title{font-size:.87rem;font-weight:700}
+.ex-desc{font-size:.8rem;color:var(--t2);line-height:1.7;margin-bottom:11px}
+.ex-ed{width:100%;background:#020508;border:1px solid var(--b);border-radius:var(--r2);padding:11px;font-family:var(--mono);font-size:.73rem;color:#7dd3fc;resize:vertical;min-height:95px;outline:none;line-height:1.6;transition:border-color .2s}
+.ex-ed:focus{border-color:var(--blue)}
+.ex-btns{display:flex;gap:7px;margin-top:7px;flex-wrap:wrap}
+.btn{padding:8px 16px;border-radius:var(--r2);border:none;font-weight:700;font-size:.78rem;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;font-family:var(--font)}
+.btn:active{transform:scale(.96)}
+.btn-run{background:linear-gradient(135deg,var(--green),#059669);color:#fff}
+.btn-hint{background:var(--s3);border:1px solid var(--b);color:var(--t2)}
+.btn-clr{background:var(--s3);border:1px solid var(--b);color:var(--t3)}
+.ex-out{margin-top:9px;padding:9px 11px;border-radius:var(--r2);font-family:var(--mono);font-size:.72rem;line-height:1.6;display:none;white-space:pre-wrap}
+.ex-out.show{display:block;animation:vIn .2s ease}
+.out-ok{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);color:var(--green)}
+.out-hint{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);color:var(--amber)}
+.out-err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:var(--red)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:.76rem;border-radius:var(--r);overflow:hidden}
+.tbl th{background:var(--s3);padding:8px 10px;text-align:left;color:var(--t2);font-weight:700;font-family:var(--mono);font-size:.68rem;letter-spacing:.05em;border-bottom:1px solid var(--b)}
+.tbl td{padding:7px 10px;border-bottom:1px solid rgba(26,45,71,.4);color:var(--t2);vertical-align:top;line-height:1.5}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:nth-child(even) td{background:rgba(255,255,255,.012)}
+.tbl-wrap{border:1px solid var(--b);border-radius:var(--r);overflow:hidden;margin:9px 0}
+
+/* PROGRESS */
+.pbar{height:4px;background:var(--s4);border-radius:4px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:4px;transition:width .9s cubic-bezier(.4,0,.2,1)}
+
+/* SECTION TAB NAV */
+.sec-nav{display:flex;gap:5px;overflow-x:auto;padding-bottom:7px;margin-bottom:14px;scrollbar-width:none}
+.sec-nav::-webkit-scrollbar{display:none}
+.stab{padding:6px 12px;border-radius:20px;border:1px solid var(--b);background:var(--s2);font-size:.74rem;font-weight:600;white-space:nowrap;cursor:pointer;transition:all .2s;color:var(--t2);font-family:var(--font);flex-shrink:0}
+.stab.on{background:var(--blue);border-color:var(--blue);color:#fff}
+
+/* STEPS */
+.steps{display:flex;flex-direction:column;gap:11px;margin:10px 0}
+.step{display:flex;gap:11px;align-items:flex-start}
+.step-n{width:26px;height:26px;border-radius:50%;flex-shrink:0;background:linear-gradient(135deg,var(--bd),var(--blue));color:#fff;font-size:.7rem;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:2px}
+.step-b h4{font-size:.86rem;font-weight:700;margin-bottom:2px}
+.step-b p{font-size:.78rem;color:var(--t2);line-height:1.6}
+
+/* LEVEL BADGE */
+.lvl{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;font-size:.73rem;font-weight:700;margin-bottom:11px}
+.lv1{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+.lv2{background:rgba(59,130,246,.15);color:var(--bl);border:1px solid rgba(59,130,246,.3)}
+.lv3{background:rgba(139,92,246,.15);color:var(--purple);border:1px solid rgba(139,92,246,.3)}
+.lv4{background:rgba(245,158,11,.15);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+
+/* FORMULA */
+.formula{background:#020508;border:1px solid var(--b2);border-radius:var(--r2);padding:9px 13px;margin:7px 0;font-family:var(--mono);font-size:.77rem;color:var(--amber);overflow-x:auto;white-space:pre-line}
+.flbl{font-size:.6rem;color:var(--t3);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+
+/* HOME */
+.hero{padding:20px 0 12px;text-align:center;animation:heroIn .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes heroIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.hero-logo{width:60px;height:60px;border-radius:17px;margin:0 auto 12px;background:linear-gradient(135deg,var(--bd),var(--blue),#60a5fa);display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 8px 28px rgba(59,130,246,.4);animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.hero h1{font-size:1.7rem;font-weight:800;background:linear-gradient(135deg,#f0f4ff 0%,var(--bl) 60%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.2}
+.hero p{font-size:.8rem;color:var(--t2);margin-top:5px;line-height:1.6}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:14px 0}
+.stat-card{background:var(--s1);border:1px solid var(--b);border-radius:var(--r2);padding:11px;text-align:center;animation:sUp .4s ease forwards;opacity:0}
+.stat-card:nth-child(1){animation-delay:.1s}.stat-card:nth-child(2){animation-delay:.2s}.stat-card:nth-child(3){animation-delay:.3s}
+@keyframes sUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.stat-v{font-size:1.35rem;font-weight:800;line-height:1}
+.stat-l{font-size:.65rem;color:var(--t3);margin-top:3px;font-weight:500}
+.mods{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin:14px 0}
+.mod{background:var(--s1);border:1px solid var(--b);border-radius:var(--r);padding:13px;cursor:pointer;transition:all .22s;animation:sUp .45s ease forwards;opacity:0;position:relative;overflow:hidden}
+.mod::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .3s;background:radial-gradient(circle at 50% 0%,rgba(59,130,246,.1) 0%,transparent 70%)}
+.mod:hover::before,.mod:active::before{opacity:1}
+.mod:active{transform:scale(.97)}
+.mod:nth-child(1){animation-delay:.12s}.mod:nth-child(2){animation-delay:.16s}.mod:nth-child(3){animation-delay:.2s}.mod:nth-child(4){animation-delay:.24s}.mod:nth-child(5){animation-delay:.28s}.mod:nth-child(6){animation-delay:.32s}.mod:nth-child(7){animation-delay:.36s}.mod:nth-child(8){animation-delay:.4s}.mod:nth-child(9){animation-delay:.44s}.mod:nth-child(10){animation-delay:.48s}.mod:nth-child(11){animation-delay:.52s}.mod:nth-child(12){animation-delay:.56s}
+.mod-em{font-size:22px;display:block;margin-bottom:7px}
+.mod h4{font-size:.81rem;font-weight:800;margin-bottom:2px}
+.mod p{font-size:.68rem;color:var(--t3);line-height:1.4}
+.mod-lv{position:absolute;top:9px;right:9px;font-size:.58rem;font-weight:700;font-family:var(--mono);padding:2px 6px;border-radius:4px}
+.divl{height:1px;background:var(--b);margin:15px 0;position:relative}
+.divl span{position:absolute;top:-8px;left:0;background:var(--bg);padding:0 8px;font-size:.65rem;color:var(--t3);font-family:var(--mono);letter-spacing:.08em}
+
+/* CHIP */
+.chip{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.67rem;font-weight:600;font-family:var(--mono);margin:2px}
+.c-bl{background:rgba(59,130,246,.15);color:var(--bl)}.c-gr{background:rgba(16,185,129,.15);color:var(--green)}
+.c-am{background:rgba(245,158,11,.15);color:var(--amber)}.c-pu{background:rgba(139,92,246,.15);color:var(--purple)}
+.c-cy{background:rgba(34,211,238,.15);color:var(--cyan)}.c-or{background:rgba(249,115,22,.15);color:var(--orange)}
+.c-te{background:rgba(20,184,166,.15);color:var(--teal)}.c-re{background:rgba(239,68,68,.15);color:var(--red)}
+
+/* FLASHCARD */
+.fc-decks{display:flex;gap:5px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
+.fc-decks::-webkit-scrollbar{display:none}
+.fcd-btn{padding:6px 12px;border-radius:20px;border:1px solid var(--b);background:var(--s2);font-size:.74rem;font-weight:600;white-space:nowrap;cursor:pointer;transition:all .2s;color:var(--t2);font-family:var(--font);flex-shrink:0}
+.fcd-btn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.fc-wrap{perspective:1200px;cursor:pointer;margin:0 0 11px}
+.fc{width:100%;min-height:185px;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1)}
+.fc.flip{transform:rotateY(180deg)}
+.fc-f,.fc-b{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--s1);border:1px solid var(--b);border-radius:var(--r);padding:20px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.fc-b{transform:rotateY(180deg);border-color:var(--b2)}
+.fc-lbl{font-size:.62rem;font-weight:700;letter-spacing:.1em;color:var(--t3);margin-bottom:9px;font-family:var(--mono)}
+.fc-q{font-size:.93rem;font-weight:700;line-height:1.5}
+.fc-a{font-size:.8rem;line-height:1.75;color:var(--t2)}
+.fc-btns{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.fc-no{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--r2);padding:10px;color:var(--red);font-weight:700;cursor:pointer;font-family:var(--font);font-size:.8rem;transition:all .2s}
+.fc-yes{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:var(--r2);padding:10px;color:var(--green);font-weight:700;cursor:pointer;font-family:var(--font);font-size:.8rem;transition:all .2s}
+.fc-no:active{background:rgba(239,68,68,.2)}.fc-yes:active{background:rgba(16,185,129,.2)}
+
+/* TERMINAL */
+#term-wrap{background:#000;border:1px solid var(--b);border-radius:var(--r);overflow:hidden;height:380px;display:flex;flex-direction:column}
+.term-bar{display:flex;align-items:center;gap:5px;padding:7px 11px;background:#0a0a0a;border-bottom:1px solid #1a1a1a;flex-shrink:0}
+.tdot{width:9px;height:9px;border-radius:50%}
+.term-out{flex:1;overflow-y:auto;padding:9px 11px;font-family:var(--mono);font-size:.73rem;line-height:1.7;color:#e2e8f0}
+.term-out::-webkit-scrollbar{width:3px}
+.term-out::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
+.tl{margin-bottom:2px}
+.tl.cmd{color:var(--green)}.tl.out{color:#a0aec0}.tl.err{color:var(--red)}.tl.info{color:var(--cyan)}.tl.warn{color:var(--amber)}
+.term-in-row{display:flex;align-items:center;gap:7px;padding:7px 11px;border-top:1px solid #1a1a1a;background:#050505;flex-shrink:0}
+.tprompt{color:var(--green);font-family:var(--mono);font-size:.73rem;white-space:nowrap}
+#tinput{flex:1;background:transparent;border:none;outline:none;color:#e2e8f0;font-family:var(--mono);font-size:.73rem;caret-color:var(--green)}
+
+/* AI CHAT */
+#ai-wrap{display:flex;flex-direction:column;height:calc(100vh - 128px);gap:11px}
+#ai-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:9px;background:var(--s1);border:1px solid var(--b);border-radius:var(--r);padding:15px}
+#ai-msgs::-webkit-scrollbar{width:3px}
+#ai-msgs::-webkit-scrollbar-thumb{background:var(--b);border-radius:2px}
+.ai-msg{max-width:88%;padding:11px 13px;border-radius:12px;font-size:.81rem;line-height:1.75;animation:vIn .28s cubic-bezier(.34,1.56,.64,1)}
+.ai-msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--bd),var(--blue));color:#fff;border-radius:12px 12px 3px 12px}
+.ai-msg.bot{align-self:flex-start;background:var(--s3);border:1px solid var(--b);border-radius:12px 12px 12px 3px}
+.bot-lbl{font-size:.62rem;font-weight:700;letter-spacing:.1em;color:var(--blue);margin-bottom:5px;font-family:var(--mono)}
+.ai-msg pre{background:#020508;border:1px solid var(--b);border-radius:7px;padding:9px;margin-top:7px;font-family:var(--mono);font-size:.71rem;overflow-x:auto;white-space:pre-wrap;color:#7dd3fc;line-height:1.6}
+.ai-msg code{background:rgba(59,130,246,.1);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:.78em;color:var(--bl)}
+.ai-msg strong{color:#fff}
+.ai-typing{align-self:flex-start;background:var(--s3);border:1px solid var(--b);border-radius:12px 12px 12px 3px;padding:11px 15px}
+.dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--t3);margin:0 2px;animation:dot .8s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+@keyframes dot{0%,80%,100%{transform:translateY(0);opacity:.4}40%{transform:translateY(-6px);opacity:1}}
+#ai-bottom{display:flex;gap:7px}
+#ai-input{flex:1;background:var(--s2);border:1px solid var(--b);border-radius:var(--r2);padding:10px 13px;color:var(--text);font-size:.84rem;font-family:var(--font);outline:none;resize:none;height:44px;line-height:1.4;transition:border-color .2s}
+#ai-input:focus{border-color:var(--blue)}
+#ai-send{width:44px;height:44px;border-radius:var(--r2);border:none;background:linear-gradient(135deg,var(--bd),var(--blue));cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+#ai-send:hover{box-shadow:0 4px 14px rgba(59,130,246,.45)}
+#ai-send:active{transform:scale(.93)}
+#ai-send:disabled{opacity:.4;pointer-events:none}
+#ai-send svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round}
+.qp-list{display:flex;flex-direction:column;gap:5px;margin-bottom:9px}
+.qp{background:var(--s2);border:1px solid var(--b);border-radius:var(--r2);padding:8px 11px;font-size:.77rem;cursor:pointer;transition:all .2s;text-align:left;color:var(--t2);font-family:var(--font);line-height:1.4}
+.qp:active{border-color:var(--blue);color:var(--blue)}
+
+/* DICTIONARY (shared) */
+.dict-search{display:flex;align-items:center;gap:8px;background:var(--s2);border:1.5px solid var(--b);border-radius:var(--r);padding:9px 13px;margin-bottom:11px;transition:border-color .2s}
+.dict-search:focus-within{border-color:var(--blue)}
+.dict-search svg{width:15px;height:15px;stroke:var(--t3);fill:none;flex-shrink:0;stroke-width:2;stroke-linecap:round}
+.dict-search input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:.86rem;font-family:var(--font)}
+.dict-search input::placeholder{color:var(--t3)}
+.dict-search button{background:none;border:none;color:var(--t3);cursor:pointer;font-size:.8rem;padding:0 2px;display:none}
+.cats-scroll{overflow-x:auto;padding-bottom:7px;margin-bottom:11px;display:flex;gap:5px;scrollbar-width:none}
+.cats-scroll::-webkit-scrollbar{display:none}
+.cat-btn{padding:5px 11px;border-radius:20px;border:1px solid var(--b);background:var(--s2);font-size:.71rem;font-weight:600;white-space:nowrap;cursor:pointer;transition:all .2s;color:var(--t2);font-family:var(--font);flex-shrink:0}
+.cat-btn.on{color:#fff;border-color:transparent}
+.cat-btn:active{transform:scale(.95)}
+.sortbar{display:flex;align-items:center;gap:5px;padding:4px 0 8px;overflow-x:auto;scrollbar-width:none}
+.sortbar::-webkit-scrollbar{display:none}
+.sbtn{padding:3px 9px;border-radius:6px;background:var(--s2);border:1px solid var(--b);font-size:.65rem;font-weight:600;color:var(--t3);cursor:pointer;transition:all .2s;font-family:var(--font);white-space:nowrap;flex-shrink:0}
+.sbtn.on{background:var(--s3);color:var(--text);border-color:var(--b2)}
+.sortbar span{font-size:.65rem;color:var(--t3);white-space:nowrap}
+.dict-item{background:var(--s1);border:1px solid var(--b);border-radius:var(--r2);margin-bottom:6px;overflow:hidden;transition:border-color .2s;animation:sUp .2s ease}
+.dict-item.open{border-color:var(--b2)}
+.di-hd{display:flex;align-items:flex-start;gap:9px;padding:11px 13px;cursor:pointer}
+.di-left{flex:1;min-width:0}
+.di-term{font-size:.88rem;font-weight:800;line-height:1.3;margin-bottom:3px}
+.di-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:3px}
+.di-cat{font-size:.61rem;font-weight:700;font-family:var(--mono);padding:2px 6px;border-radius:4px}
+.di-abbr{font-size:.67rem;color:var(--t3);font-family:var(--mono)}
+.di-prev{font-size:.76rem;color:var(--t2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.di-arr{width:20px;height:20px;border-radius:6px;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:.56rem;color:var(--t3);transition:all .3s;flex-shrink:0;margin-top:2px}
+.dict-item.open .di-arr{transform:rotate(180deg);background:rgba(59,130,246,.2);color:var(--blue)}
+.di-body{display:none;padding:11px 13px;border-top:1px solid rgba(26,45,71,.5);background:rgba(3,7,18,.4);animation:aIn .2s ease;font-size:.8rem;line-height:1.8;color:var(--t2)}
+.dict-item.open .di-body{display:block}
+.di-body strong{color:var(--text)}
+.rel-row{margin-top:9px}
+.rel-lbl{font-size:.6rem;color:var(--t3);font-family:var(--mono);letter-spacing:.07em;margin-bottom:4px;text-transform:uppercase}
+.rel-chips{display:flex;flex-wrap:wrap;gap:3px}
+.rchip{padding:2px 8px;border-radius:6px;font-size:.67rem;font-weight:600;background:var(--s3);border:1px solid var(--b2);color:var(--t2);cursor:pointer;transition:all .2s;font-family:var(--font)}
+.rchip:active{background:rgba(59,130,246,.15);color:var(--bl);border-color:rgba(59,130,246,.3)}
+.bench-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:7px 0}
+.bench-item{background:var(--s3);border-radius:var(--r2);padding:7px 9px;border:1px solid var(--b2)}
+.bench-v{font-size:.92rem;font-weight:800;font-family:var(--mono)}
+.bench-l{font-size:.62rem;color:var(--t3);margin-top:1px}
+.ch-badge{font-size:.6rem;font-weight:700;font-family:var(--mono);padding:1px 5px;border-radius:3px;background:rgba(255,255,255,.06);color:var(--t2)}
+#alpha-idx{position:fixed;right:3px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:1px;z-index:200;opacity:.4;transition:opacity .2s}
+#alpha-idx:hover{opacity:1}
+.al{font-size:.54rem;font-family:var(--mono);color:var(--t3);cursor:pointer;padding:1px 3px;border-radius:3px;transition:all .15s;line-height:1.4}
+.al:active{background:var(--blue);color:#fff}
+
+/* ROADMAP */
+.rm-phase{background:var(--s1);border:1px solid var(--b);border-radius:var(--r);margin-bottom:9px;overflow:hidden}
+.rm-hd{display:flex;align-items:center;gap:11px;padding:13px 15px;cursor:pointer;background:var(--s2);transition:background .2s}
+.rm-hd:active{background:var(--s3)}
+.rm-num{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;font-family:var(--mono)}
+.rm-bd{padding:0 15px;max-height:0;overflow:hidden;transition:max-height .4s ease,padding .3s}
+.rm-phase.open .rm-bd{padding:13px 15px;max-height:1200px}
+.rm-topic{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid rgba(30,42,69,.4);font-size:.8rem}
+.rm-topic:last-child{border-bottom:none}
+.rm-chk{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--b2);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.66rem;transition:all .2s}
+.rm-chk.done{background:var(--green);border-color:var(--green);color:#fff}
+
+/* KPI specific */
+.tags-row{display:flex;flex-wrap:wrap;gap:3px;margin-top:7px}
+.tag{padding:2px 7px;border-radius:4px;font-size:.63rem;font-weight:600;font-family:var(--mono)}
+.imp-stars{font-size:.58rem;color:var(--amber);letter-spacing:.02em}
+
+/* empty state */
+.empty-state{text-align:center;padding:44px 20px}
+.empty-state svg{width:40px;height:40px;stroke:var(--t3);fill:none;margin-bottom:11px}
+.empty-state p{font-size:.85rem;color:var(--t3);line-height:1.7}
+
+/* RESPONSIVE */
+@media(min-width:640px){
+  .mods{grid-template-columns:repeat(3,1fr)}
+  .view{padding:18px 20px 32px}
+  #ai-wrap{height:calc(100vh - 140px)}
+}
+@media(min-width:960px){
+  #app{flex-direction:row}
+  #nav{flex-direction:column;width:70px;border-top:none;border-right:1px solid var(--b);padding:14px 0}
+  .ni{padding:9px 0}
+  #topbar{padding:10px 20px}
+  .view{padding:22px 28px 36px}
+  .mods{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div id="btn-back" onclick="goBack()">
+    <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  </div>
+  <div class="logo">📐</div>
+  <div id="tb-title">DataMind Academy</div>
+  <div id="lv-pill">N1</div>
+  <div id="xp-pill">0 XP</div>
+</div>
+
+<!-- SCREEN -->
+<div id="screen">
+
+<!-- ═══ HOME ═══ -->
+<div id="v-home" class="view active">
+  <div class="hero">
+    <div class="hero-logo">📐</div>
+    <h1>DataMind Academy</h1>
+    <p>Data Analyst · Data Science · Power BI<br>DAX · Python · COPC · Estadística · ML</p>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-v" id="h-xp" style="color:var(--blue)">0</div><div class="stat-l">XP Total</div></div>
+    <div class="stat-card"><div class="stat-v" id="h-solved" style="color:var(--green)">0</div><div class="stat-l">Ejercicios</div></div>
+    <div class="stat-card"><div class="stat-v" id="h-streak" style="color:var(--amber)">1🔥</div><div class="stat-l">Racha</div></div>
+  </div>
+  <div style="margin-bottom:5px"><div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--t3);margin-bottom:5px"><span>Progreso total</span><span id="h-pct">0%</span></div><div class="pbar"><div class="pbar-fill" id="h-bar" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div></div></div>
+  <div class="divl" style="margin-top:18px"><span>MÓDULOS DE APRENDIZAJE</span></div>
+  <div class="mods" id="mods-grid"></div>
+  <div class="divl"><span>CONCEPTO DEL DÍA</span></div>
+  <div class="card">
+    <div style="font-size:.63rem;font-weight:700;letter-spacing:.1em;color:var(--t3);font-family:var(--mono);margin-bottom:7px">HOY · <span id="cod-date"></span></div>
+    <h3 id="cod-title" style="font-size:.98rem;font-weight:800;margin-bottom:7px"></h3>
+    <p id="cod-body" style="font-size:.8rem;color:var(--t2);line-height:1.75"></p>
+    <div class="cb" id="cod-code" style="margin-top:11px"></div>
+  </div>
+</div>
+
+<!-- ═══ ROADMAP ═══ -->
+<div id="v-roadmap" class="view"><div class="divl" style="margin-top:0"><span>RUTA ACADÉMICA — 4 NIVELES</span></div><div id="rm-content"></div></div>
+
+<!-- ═══ PYTHON ═══ -->
+<div id="v-python" class="view">
+  <div class="sec-nav">
+    <div class="stab on" onclick="secTab(this,'py-bases','py')">Bases</div>
+    <div class="stab" onclick="secTab(this,'py-pandas','py')">pandas</div>
+    <div class="stab" onclick="secTab(this,'py-numpy','py')">numpy</div>
+    <div class="stab" onclick="secTab(this,'py-libs','py')">Librerías</div>
+    <div class="stab" onclick="secTab(this,'py-clean','py')">Limpieza</div>
+    <div class="stab" onclick="secTab(this,'py-stats','py')">Estadística</div>
+  </div>
+  <div id="py-bases"></div><div id="py-pandas" style="display:none"></div>
+  <div id="py-numpy" style="display:none"></div><div id="py-libs" style="display:none"></div>
+  <div id="py-clean" style="display:none"></div><div id="py-stats" style="display:none"></div>
+</div>
+
+<!-- ═══ POWER BI ═══ -->
+<div id="v-pbi" class="view">
+  <div class="sec-nav">
+    <div class="stab on" onclick="secTab(this,'pbi-dax','pbi')">DAX</div>
+    <div class="stab" onclick="secTab(this,'pbi-m','pbi')">M Query</div>
+    <div class="stab" onclick="secTab(this,'pbi-modelo','pbi')">Modelo</div>
+    <div class="stab" onclick="secTab(this,'pbi-service','pbi')">Service</div>
+    <div class="stab" onclick="secTab(this,'pbi-html','pbi')">HTML Visuals</div>
+  </div>
+  <div id="pbi-dax"></div><div id="pbi-m" style="display:none"></div>
+  <div id="pbi-modelo" style="display:none"></div><div id="pbi-service" style="display:none"></div>
+  <div id="pbi-html" style="display:none"></div>
+</div>
+
+<!-- ═══ ESTADÍSTICA ═══ -->
+<div id="v-stats" class="view"><div id="stats-content"></div></div>
+
+<!-- ═══ TERMINAL ═══ -->
+<div id="v-terminal" class="view">
+  <div class="db amber" style="margin-bottom:11px;font-size:.78rem"><strong>Terminal simulada:</strong> Ejecuta lógica Python y muestra resultados esperados. Para ejecución real usa Jupyter o VS Code.</div>
+  <div id="term-wrap">
+    <div class="term-bar">
+      <div class="tdot" style="background:#ff5f57"></div><div class="tdot" style="background:#febc2e"></div><div class="tdot" style="background:#28c840"></div>
+      <span style="font-size:.67rem;color:#555;margin-left:7px;font-family:var(--mono)">python3 · DataMind Terminal</span>
+    </div>
+    <div class="term-out" id="term-out"></div>
+    <div class="term-in-row"><span class="tprompt">>>> </span><input id="tinput" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="import pandas as pd ..."></div>
+  </div>
+  <div style="margin-top:11px"><div style="font-size:.68rem;color:var(--t3);font-family:var(--mono);margin-bottom:7px">ATAJOS RÁPIDOS</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="term-sc"></div></div>
+</div>
+
+<!-- ═══ AI ═══ -->
+<div id="v-ai" class="view">
+  <div id="ai-wrap">
+    <div id="ai-msgs">
+      <div class="ai-msg bot"><div class="bot-lbl">DATAMIND · CLAUDE</div>¡Hola! Soy tu tutor de Data Science.<br><br>Explico <strong>cualquier concepto</strong> de Python, DAX, Power BI, estadística, ML y COPC con enfoque académico. No solo respondo — explico el <strong>porqué</strong>. ¿Qué quieres aprender hoy?</div>
+    </div>
+    <div class="qp-list" id="qp-list"></div>
+    <div id="ai-bottom">
+      <textarea id="ai-input" placeholder="Pregunta sobre cualquier tema..." rows="1"></textarea>
+      <button id="ai-send" onclick="sendAI()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FLASHCARDS ═══ -->
+<div id="v-flash" class="view">
+  <div class="fc-decks" id="fc-decks"></div>
+  <div style="font-size:.7rem;color:var(--t3);text-align:center;margin-bottom:7px;font-family:var(--mono)" id="fc-counter">Carta 1</div>
+  <div class="fc-wrap" onclick="flipFC()"><div class="fc" id="fc-card"><div class="fc-f"><div class="fc-lbl" id="fc-lbl">—</div><div class="fc-q" id="fc-q">—</div><div style="font-size:.67rem;color:var(--t3);margin-top:9px">Toca para ver respuesta</div></div><div class="fc-b"><div class="fc-lbl">RESPUESTA</div><div class="fc-a" id="fc-a">—</div></div></div></div>
+  <div class="fc-btns"><button class="fc-no" onclick="fcAns(false)">✗ No lo sabía</button><button class="fc-yes" onclick="fcAns(true)">✓ Lo supe</button></div>
+  <div style="margin-top:11px"><div class="pbar"><div class="pbar-fill" id="fc-bar" style="width:0%;background:var(--blue)"></div></div><div style="font-size:.68rem;color:var(--t3);margin-top:5px;text-align:center;font-family:var(--mono)" id="fc-score">✓ 0  ✗ 0</div></div>
+</div>
+
+<!-- ═══ DICCIONARIO DA/DS ═══ -->
+<div id="v-dict" class="view">
+  <div class="dict-search" id="dads-search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="dads-input" placeholder="Buscar término DA/DS..." oninput="dadsSearch()" autocomplete="off" spellcheck="false">
+    <button id="dads-clr" onclick="dadsClear()">✕</button>
+  </div>
+  <div class="cats-scroll" id="dads-cats"></div>
+  <div class="sortbar">
+    <span>Orden:</span>
+    <button class="sbtn on" onclick="dadsSetSort('alpha',this)">A–Z</button>
+    <button class="sbtn" onclick="dadsSetSort('cat',this)">Cat.</button>
+  </div>
+  <div id="dads-stats" style="font-size:.68rem;color:var(--t3);font-family:var(--mono);margin-bottom:7px;min-height:16px"></div>
+  <div id="dads-list"></div>
+  <div id="dads-empty" class="empty-state" style="display:none"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>Sin resultados</p></div>
+</div>
+
+<!-- ═══ DICCIONARIO KPIs ═══ -->
+<div id="v-kpis" class="view">
+  <div class="dict-search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="kpi-input" placeholder="Buscar KPI, canal, fórmula, benchmark..." oninput="kpiSearch()" autocomplete="off" spellcheck="false">
+    <button id="kpi-clr" onclick="kpiClear()">✕</button>
+  </div>
+  <div class="cats-scroll" id="kpi-cats"></div>
+  <div class="sortbar">
+    <span>Orden:</span>
+    <button class="sbtn on" onclick="kpiSetSort('alpha',this)">A–Z</button>
+    <button class="sbtn" onclick="kpiSetSort('cat',this)">Cat.</button>
+    <button class="sbtn" onclick="kpiSetSort('imp',this)">★ Importancia</button>
+  </div>
+  <div id="kpi-stats" style="font-size:.68rem;color:var(--t3);font-family:var(--mono);margin-bottom:7px;min-height:16px"></div>
+  <div id="kpi-list"></div>
+  <div id="kpi-empty" class="empty-state" style="display:none"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><p>Sin resultados</p></div>
+</div>
+
+<!-- ═══ EJERCICIOS ═══ -->
+<div id="v-ejercicios" class="view"><div id="ej-content"></div></div>
+
+<!-- ═══ MODELOS ═══ -->
+<div id="v-modelos" class="view"><div id="mod-content"></div></div>
+
+</div><!-- /#screen -->
+
+<!-- BOTTOM NAV -->
+<nav id="nav">
+  <button class="ni on" onclick="goto('v-home','DataMind Academy')">
+    <div class="ni-ic"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><span>Inicio</span>
+  </button>
+  <button class="ni" onclick="goto('v-python','🐍 Python')">
+    <div class="ni-ic"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div><span>Python</span>
+  </button>
+  <button class="ni" onclick="goto('v-dict','📖 Diccionario DA/DS')">
+    <div class="ni-ic"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg></div><span>Dict</span>
+  </button>
+  <button class="ni" onclick="goto('v-kpis','📞 KPIs Contact Center')">
+    <div class="ni-ic"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div><span>KPIs</span>
+  </button>
+  <button class="ni" onclick="goto('v-ai','🤖 Tutor IA')">
+    <div class="ni-ic"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div><span>IA</span>
+  </button>
+</nav>
+</div>
+
+<div id="alpha-idx"></div>
+
+<script>
+'use strict';
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let xp=+localStorage.getItem('dm4_xp')||0, solved=+localStorage.getItem('dm4_solved')||0, streak=+localStorage.getItem('dm4_streak')||1;
+let checks=JSON.parse(localStorage.getItem('dm4_checks')||'{}');
+const navStack=[];
+const aiHistory=[];
+let fcDeck='DAX',fcIdx=0,fcOk=0,fcFail=0;
+let dadsActiveCat='Todas',dadsSort='alpha',dadsQ='',dadsOpen=null;
+let kpiActiveCat='Todas',kpiSort='alpha',kpiQ='',kpiOpen=null;
+const secGroups={py:['py-bases','py-pandas','py-numpy','py-libs','py-clean','py-stats'],pbi:['pbi-dax','pbi-m','pbi-modelo','pbi-service','pbi-html']};
+
+function saveState(){
+  localStorage.setItem('dm4_xp',xp);localStorage.setItem('dm4_solved',solved);localStorage.setItem('dm4_streak',streak);
+  localStorage.setItem('dm4_checks',JSON.stringify(checks));
+  document.getElementById('h-xp').textContent=xp;document.getElementById('h-solved').textContent=solved;
+  document.getElementById('h-streak').textContent=streak+'🔥';
+  const pct=Math.round(solved/60*100);
+  document.getElementById('h-pct').textContent=pct+'%';
+  document.getElementById('h-bar').style.width=Math.min(pct,100)+'%';
+  document.getElementById('xp-pill').textContent=xp+' XP';
+  document.getElementById('lv-pill').textContent=xp<500?'N1':xp<1500?'N2':xp<3000?'N3':'N4';
+}
+saveState();
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+const rendered={};
+const viewRenderers={'v-roadmap':renderRoadmap,'v-python':renderPython,'v-pbi':renderPBI,'v-stats':renderStats,'v-ejercicios':renderEjercicios,'v-modelos':renderModelos};
+const navMap={'v-home':0,'v-python':1,'v-dict':2,'v-kpis':3,'v-ai':4};
+const alphaDicts={'v-dict':()=>buildAlpha(dadsGetSorted(dadsGetFiltered())),'v-kpis':()=>buildAlpha(kpiGetSorted(kpiGetFiltered()))};
+
+function goto(id,title,skipStack){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  document.getElementById('tb-title').textContent=title||'DataMind Academy';
+  document.getElementById('btn-back').classList.toggle('show',id!=='v-home');
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  if(navMap[id]!==undefined) document.querySelectorAll('.ni')[navMap[id]]?.classList.add('on');
+  if(!skipStack&&id!=='v-home') navStack.push(id);
+  document.getElementById('screen').scrollTop=0;
+  if(viewRenderers[id]&&!rendered[id]){viewRenderers[id]();rendered[id]=1;}
+  // show/hide alpha index
+  document.getElementById('alpha-idx').innerHTML='';
+  if(alphaDicts[id]) alphaDicts[id]();
+  else document.getElementById('alpha-idx').innerHTML='';
+}
+function goBack(){
+  navStack.pop();
+  const prev=navStack.length>0?navStack[navStack.length-1]:'v-home';
+  if(navStack.length>0) navStack.pop();
+  goto(prev,'',true);
+}
+function toggle(hd){hd.parentElement.classList.toggle('open')}
+function addXP(n){xp+=n;saveState()}
+function secTab(btn,secId,group){
+  secGroups[group].forEach(s=>{const el=document.getElementById(s);if(el)el.style.display='none';});
+  document.getElementById(secId).style.display='block';
+  btn.closest('.sec-nav').querySelectorAll('.stab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+// ══════════════════════════════════════════
+// HOME MODULES
+// ══════════════════════════════════════════
+const MODS=[
+  {em:'🗺️',t:'Ruta Completa',p:'Plan 4 niveles',lv:'N1-N4',lvc:'lv1',v:'v-roadmap'},
+  {em:'🐍',t:'Python DA',p:'pandas · numpy · libs',lv:'N1-N3',lvc:'lv2',v:'v-python'},
+  {em:'📊',t:'Power BI',p:'DAX · M · Service · Flows',lv:'N2-N4',lvc:'lv3',v:'v-pbi'},
+  {em:'📐',t:'Estadística',p:'Descriptiva · Inferencial · ML',lv:'N2-N3',lvc:'lv3',v:'v-stats'},
+  {em:'📞',t:'KPIs COPC',p:'79 KPIs multicanal completos',lv:'N1-N2',lvc:'lv1',v:'v-kpis'},
+  {em:'📖',t:'Diccionario DA/DS',p:'121 términos técnicos',lv:'Ref',lvc:'lv2',v:'v-dict'},
+  {em:'💻',t:'Terminal Python',p:'Interactiva con atajos',lv:'N1+',lvc:'lv1',v:'v-terminal'},
+  {em:'🤖',t:'Tutor IA',p:'Claude · Respuestas académicas',lv:'Todos',lvc:'lv2',v:'v-ai'},
+  {em:'🃏',t:'Flashcards',p:'Spaced repetition',lv:'Todos',lvc:'lv1',v:'v-flash'},
+  {em:'⚔️',t:'Ejercicios',p:'Retos reales con feedback',lv:'N1-N4',lvc:'lv4',v:'v-ejercicios'},
+  {em:'🌐',t:'Modelos & ETL',p:'Star schema · Pipelines',lv:'N2-N4',lvc:'lv3',v:'v-modelos'},
+];
+const lvColors={lv1:'rgba(16,185,129,.15);color:var(--green)',lv2:'rgba(59,130,246,.15);color:var(--bl)',lv3:'rgba(139,92,246,.15);color:var(--purple)',lv4:'rgba(245,158,11,.15);color:var(--amber)'};
+document.getElementById('mods-grid').innerHTML=MODS.map(m=>`
+<div class="mod" onclick="goto('${m.v}','${m.em} ${m.t}')">
+  <span class="mod-em">${m.em}</span>
+  <div class="mod-lv" style="background:${lvColors[m.lvc]}">${m.lv}</div>
+  <h4>${m.t}</h4><p>${m.p}</p>
+</div>`).join('');
+
+const daily=[
+  {t:'CALCULATE — el motor de DAX',b:'CALCULATE(expr, filtro) modifica el contexto de filtro y evalúa en ese nuevo contexto. Sin entenderlo no puedes escribir medidas avanzadas.',c:`SL_Camp = CALCULATE([SL_%],\n  DIM_Campana[Campana]="TotalPlay")`},
+  {t:'pandas GroupBy = SUMMARIZE en Python',b:'df.groupby("col").agg(...) hace lo mismo que ADDCOLUMNS(VALUES(...)) en DAX pero con más flexibilidad y sin bugs de contexto de fila.',c:`res = df.groupby('campana').agg(\n  AHT=('dur','mean'), N=('id','count')\n).reset_index()`},
+  {t:'Service Level: la métrica de accesibilidad',b:'SL = atendidas en ≤T segundos / total ofrecidas. COPC: ≥80% en ≤20s. Medir en intervalos de 15 min es más útil que el promedio diario.',c:`sl = en_tiempo / ofrecidas * 100\nestado = "✅ OK" if sl >= 80 else "❌ Bajo"`},
+  {t:'Star Schema: FACT al centro, DIM alrededor',b:'FACT tiene métricas y llaves foráneas. DIM tiene atributos. Cardinalidad 1:* de DIM→FACT. Esto permite que DAX filtre eficientemente.',c:`-- DIM_Asesor[AsesorKey] (1) --> (*) FACT_CDR[AsesorKey]`},
+  {t:'IQR: detección de outliers sin asumir normalidad',b:'IQR = Q3-Q1. Outliers fuera de [Q1-1.5·IQR, Q3+1.5·IQR]. Más robusto que z-score para datos sesgados.',c:`Q1,Q3 = np.percentile(aht,[25,75])\nIQR = Q3-Q1\nout = aht[(aht<Q1-1.5*IQR)|(aht>Q3+1.5*IQR)]`},
+  {t:'FCR: el KPI de calidad más importante',b:'Primer contacto resolvente. 1% de aumento en FCR → ~1% reducción de costos + mejora directa en CSAT y NPS.',c:`FCR = resueltos_1er / total * 100\n# COPC: ≥70% mínimo, ≥85% world class`},
+  {t:'Correlación ≠ Causalidad',b:'r=-0.75 entre AHT y CSAT no significa que reducir AHT mejore CSAT. Puede haber una variable de confusión (calidad del agente) que cause ambas.',c:`r, p = stats.pearsonr(aht, csat)\n# r fuerte no implica causalidad directa`},
+];
+const dc=daily[new Date().getDate()%daily.length];
+document.getElementById('cod-title').textContent=dc.t;
+document.getElementById('cod-body').textContent=dc.b;
+document.getElementById('cod-code').textContent=dc.c;
+document.getElementById('cod-date').textContent=new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long'});
+
+// ══════════════════════════════════════════
+// ROADMAP
+// ══════════════════════════════════════════
+const RM=[
+  {lv:'N1',title:'Principiante',color:'var(--green)',dur:'Meses 1-3',topics:['Python: tipos, estructuras, funciones, loops, comprehensions','pandas: DataFrame, Series, indexación, filtros, GroupBy','numpy: arrays, vectorización, estadística básica, IQR','SQL: SELECT, WHERE, GROUP BY, JOIN, ORDER BY, subqueries','Visualización: matplotlib, seaborn — histograma, boxplot, scatter','Estadística descriptiva: media, mediana, σ, percentiles, CV','Power BI Desktop: importar, relaciones, visuals básicos','KPIs básicos: SL, AHT, ABN — definición y fórmula','Excel avanzado: tablas dinámicas, Power Query básico','Proyecto N1: dashboard operativo de KPIs diarios']},
+  {lv:'N2',title:'Intermedio',color:'var(--bl)',dur:'Meses 4-7',topics:['DAX: contextos, CALCULATE, ALL, iteradores X, VAR','M Query: transformaciones, funciones, parámetros, Dataflows','Star Schema: diseño, cardinalidad, dirección de filtros','Power BI Service: workspaces, RLS, refresh, Deployment Pipelines','Estadística inferencial: t-test, ANOVA, chi-cuadrado, p-value','Correlación, regresión lineal simple y múltiple, R²','KPIs COPC completos: FCR, CSAT, NPS, CES, Occupancy','pandas avanzado: merge, pivot, melt, apply, window functions','Python: SQLAlchemy, openpyxl, requests — conexión a datos','Proyecto N2: modelo estrella + dashboard ejecutivo con DAX']},
+  {lv:'N3',title:'Avanzado',color:'var(--purple)',dur:'Meses 8-11',topics:['scikit-learn: clasificación, regresión, evaluación de modelos','Feature engineering: encodings, normalización, imputación','Cross-validation, métricas: precision, recall, F1, ROC-AUC','Series de tiempo: promedios móviles, ARIMA, Prophet','Power Automate: flujos con Power BI y notificaciones','DAX avanzado: tablas calculadas, grupos de cálculo, formato dinámico','ETL/ELT: arquitectura Medallion, dbt básico, Azure Data Factory','Python: multiprocessing, logging, packaging, unit tests','Speech & Text Analytics: NLP básico, sentiment analysis','Proyecto N3: modelo predictivo de churn/abandono de llamadas']},
+  {lv:'N4',title:'Experto / Data Scientist',color:'var(--amber)',dur:'Meses 12-18',topics:['Ensemble methods: Random Forest, XGBoost, LightGBM, CatBoost','Deep Learning básico: redes neuronales con TensorFlow/Keras','MLOps: MLflow, despliegue de modelos, monitoreo de drift','Arquitecturas: Data Lakehouse, Medallion, Cloud DWH','Apache Spark básico: PySpark para grandes volúmenes','APIs: FastAPI para servir modelos ML en producción','Power BI Embedded + Azure Synapse Analytics','Diseño de experimentos: A/B testing robusto, análisis causal','NLP avanzado: BERT, transformers para análisis de encuestas CSAT','Portfolio: 3 proyectos end-to-end publicados en GitHub']},
+];
+function renderRoadmap(){
+  document.getElementById('rm-content').innerHTML=RM.map((p,i)=>`
+  <div class="rm-phase" id="rm${i}">
+    <div class="rm-hd" onclick="rmTog(${i},this)">
+      <div class="rm-num" style="background:${p.color}22;color:${p.color};border:2px solid ${p.color}55">${p.lv}</div>
+      <div style="flex:1"><div style="font-size:.88rem;font-weight:800">${p.title}</div><div style="font-size:.7rem;color:var(--t3)">${p.dur} · ${p.topics.length} temas</div></div>
+      <div style="font-size:.68rem;color:var(--t3);font-family:var(--mono)">${Object.keys(checks).filter(k=>k.startsWith('rm_'+i+'_')&&checks[k]).length}/${p.topics.length}</div>
+    </div>
+    <div class="rm-bd">
+      ${p.topics.map((t,j)=>`
+      <div class="rm-topic">
+        <div class="rm-chk${checks['rm_'+i+'_'+j]?' done':''}" onclick="rmChk(${i},${j})">${checks['rm_'+i+'_'+j]?'✓':''}</div>
+        <span style="${checks['rm_'+i+'_'+j]?'color:var(--green);text-decoration:line-through;opacity:.55':''}">${t}</span>
+      </div>`).join('')}
+    </div>
+  </div>`).join('');
+}
+function rmTog(i){document.getElementById('rm'+i).classList.toggle('open')}
+function rmChk(i,j){const k='rm_'+i+'_'+j;checks[k]=!checks[k];checks[k]?xp+=15:xp=Math.max(0,xp-15);saveState();rendered['v-roadmap']=0;renderRoadmap();}
+
+// ══════════════════════════════════════════
+// PYTHON CONTENT
+// ══════════════════════════════════════════
+function renderPython(){
+  document.getElementById('py-bases').innerHTML=`
+  <div class="lvl lv1">● N1 · Bases de Python</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">📌 Tipos y estructuras de datos <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="db"><strong>Python es dinámico:</strong> no declaras tipos, Python los infiere. Permite exploración rápida pero requiere cuidado en producción.</div>
+    <div class="cb"><span class="kw">int</span>, <span class="kw">float</span>, <span class="kw">str</span>, <span class="kw">bool</span>, <span class="kw">None</span>  <span class="cm"># tipos primitivos</span>
+lista = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]          <span class="cm"># mutable, ordenada</span>
+tupla = (<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>)          <span class="cm"># inmutable</span>
+dicc  = {<span class="str">"sl"</span>: <span class="num">0.85</span>, <span class="str">"aht"</span>: <span class="num">245</span>}
+conj  = {<span class="str">"A01"</span>, <span class="str">"A02"</span>, <span class="str">"A01"</span>} <span class="cm"># sin duplicados</span></div>
+    <div class="ex"><div class="ex-hd"><span class="badge b-easy">Fácil</span><span class="ex-title">Dict de KPIs del turno</span></div>
+    <div class="ex-desc">Crea un dict con: llamadas=850, sl=0.83, aht=245, asesor_top="López". Imprime el SL como porcentaje.</div>
+    <textarea class="ex-ed" id="ex-py1">kpis = {}
+print(...)</textarea>
+    <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('py1','kpis','sl','0.83|83','Lopez|López')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('py1','kpis={\"sl\":0.83,...} luego print(f\"{kpis[\\\"sl\\\"]*100:.0f}%\")')">💡 Pista</button></div>
+    <div class="ex-out" id="out-py1"></div></div>
+  </div></div>
+  <div class="acc"><div class="acc-hd" onclick="toggle(this)">📌 Funciones, lambdas y comprehensions <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="cb"><span class="kw">def</span> <span class="fn">calc_sl</span>(atend, total, umbral=<span class="num">0.80</span>):
+    sl = atend / total
+    <span class="kw">return</span> {<span class="str">"sl"</span>: sl, <span class="str">"ok"</span>: sl >= umbral}
+
+<span class="cm"># Lambda — función de una línea</span>
+sl_pct = <span class="kw">lambda</span> a,t: <span class="fn">round</span>(a/t*<span class="num">100</span>,<span class="num">1</span>)
+
+<span class="cm"># List comprehension</span>
+aht_min = [d/<span class="num">60</span> <span class="kw">for</span> d <span class="kw">in</span> durs <span class="kw">if</span> d > <span class="num">0</span>]
+
+<span class="cm"># Dict comprehension</span>
+norm = {k: v/max(vals) <span class="kw">for</span> k,v <span class="kw">in</span> d.items()}</div>
+    <div class="ex"><div class="ex-hd"><span class="badge b-easy">Fácil</span><span class="ex-title">Categorizar AHT</span></div>
+    <div class="ex-desc">Función categorizar_aht(s): "corta" si &lt;180s, "normal" 180-360s, "larga" &gt;360s. Prueba con [95,245,420,180].</div>
+    <textarea class="ex-ed" id="ex-py2">def categorizar_aht(s):
+    pass
+
+for d in [95,245,420,180]:
+    print(categorizar_aht(d))</textarea>
+    <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('py2','def categorizar','corta','normal','larga')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('py2','if s<180: return \"corta\" elif s<=360: return \"normal\" else: return \"larga\"')">💡 Pista</button></div>
+    <div class="ex-out" id="out-py2"></div></div>
+  </div></div>`;
+
+  document.getElementById('py-pandas').innerHTML=`
+  <div class="lvl lv2">● N2 · pandas</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">🐼 DataFrame — estructura principal <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="db purple"><strong>DataFrame</strong> = tabla 2D con filas indexadas y columnas nombradas. <strong>Series</strong> = una columna.</div>
+    <div class="cb"><span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+df = pd.<span class="fn">read_csv</span>(<span class="str">"cdr.csv"</span>, parse_dates=[<span class="str">"fecha"</span>])
+df.shape; df.info(); df.describe()  <span class="cm"># inspección</span>
+
+<span class="cm"># Selección</span>
+df[<span class="str">"aht"</span>]                  <span class="cm"># Serie</span>
+df[[<span class="str">"asesor"</span>,<span class="str">"aht"</span>,<span class="str">"csat"</span>]] <span class="cm"># sub-DataFrame</span>
+df[df[<span class="str">"aht"</span>] > <span class="num">300</span>]          <span class="cm"># filtro booleano</span>
+df.query(<span class="str">"aht>300 and csat>=4"</span>)<span class="cm"># alternativa</span>
+
+<span class="cm"># GroupBy (= ADDCOLUMNS+VALUES en DAX)</span>
+res = df.groupby(<span class="str">"campana"</span>).agg(
+    AHT   = (<span class="str">"aht"</span>,  <span class="str">"mean"</span>),
+    N     = (<span class="str">"id"</span>,   <span class="str">"count"</span>),
+    CSAT  = (<span class="str">"csat"</span>, <span class="str">"median"</span>),
+    ABN   = (<span class="str">"abn"</span>,  <span class="str">"mean"</span>)
+).round(<span class="num">2</span>).reset_index()
+
+<span class="cm"># merge (= LEFT JOIN SQL)</span>
+out = fact.merge(dim, on=<span class="str">"AsesorKey"</span>, how=<span class="str">"left"</span>)</div>
+    <div class="ex"><div class="ex-hd"><span class="badge b-med">Medio</span><span class="ex-title">GroupBy + merge completo</span></div>
+    <div class="ex-desc">Con el DataFrame de abajo: calcula AHT promedio y N por campaña con GroupBy. Luego merge con dim para agregar el nombre del operador.</div>
+    <textarea class="ex-ed" id="ex-pd1">import pandas as pd
+fact = pd.DataFrame({'campana':['TP','TP','TG','TG'],'aht':[245,310,190,220],'id':[1,2,3,4]})
+dim  = pd.DataFrame({'campana':['TP','TG'],'operador':['TotalPlay','Tigo']})
+# GroupBy + merge</textarea>
+    <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('pd1','groupby','merge','operador|Tigo|TotalPlay','agg|mean')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('pd1','res=fact.groupby(\"campana\").agg(AHT=(\"aht\",\"mean\"),N=(\"id\",\"count\")).reset_index() · res.merge(dim,on=\"campana\")')">💡 Pista</button></div>
+    <div class="ex-out" id="out-pd1"></div></div>
+  </div></div>`;
+
+  document.getElementById('py-numpy').innerHTML=`
+  <div class="lvl lv2">● N2 · numpy</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">🔢 Arrays y IQR paso a paso <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="cb"><span class="kw">import</span> numpy <span class="kw">as</span> np
+aht = np.<span class="fn">array</span>([<span class="num">245</span>,<span class="num">310</span>,<span class="num">198</span>,<span class="num">420</span>,<span class="num">185</span>,<span class="num">2400</span>,<span class="num">280</span>])
+
+<span class="cm"># Estadísticas en una línea</span>
+np.<span class="fn">mean</span>(aht); np.<span class="fn">median</span>(aht); np.<span class="fn">std</span>(aht)
+Q1,Q3 = np.<span class="fn">percentile</span>(aht,[<span class="num">25</span>,<span class="num">75</span>])
+IQR = Q3 - Q1
+
+<span class="cm"># Filtrar outliers con IQR (regla de Tukey)</span>
+li = Q1 - <span class="num">1.5</span> * IQR    <span class="cm"># límite inferior</span>
+ls = Q3 + <span class="num">1.5</span> * IQR    <span class="cm"># límite superior</span>
+limpio  = aht[(aht >= li) & (aht <= ls)]
+outlier = aht[(aht < li)  | (aht > ls)]
+<span class="cm"># → outlier: [2400]  limpio media: 273s</span></div>
+    <div class="ex"><div class="ex-hd"><span class="badge b-med">Medio</span><span class="ex-title">Limpia tiempos de espera con IQR</span></div>
+    <div class="ex-desc">Aplica IQR a [30,45,28,60,35,40,850,32,44,38,920,41]. Imprime: outliers, media antes y después de limpiar.</div>
+    <textarea class="ex-ed" id="ex-np1">import numpy as np
+tiempos = [30,45,28,60,35,40,850,32,44,38,920,41]
+# IQR aquí...</textarea>
+    <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('np1','percentile','IQR|iqr','850|920|outlier','mean|media')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('np1','Q1=np.percentile(t,25) Q3=np.percentile(t,75) IQR=Q3-Q1 li=Q1-1.5*IQR ls=Q3+1.5*IQR')">💡 Pista</button></div>
+    <div class="ex-out" id="out-np1"></div></div>
+  </div></div>`;
+
+  document.getElementById('py-libs').innerHTML=`
+  <div class="lvl lv2">● N2 · Ecosistema de Librerías</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">📦 Stack completo Data Analyst / Data Scientist <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Librería</th><th>Para qué sirve</th><th>Nivel</th></tr></thead><tbody>
+      <tr><td><strong>pandas</strong></td><td>Manipulación de DataFrames (tablas)</td><td><span class="chip c-gr">N1</span></td></tr>
+      <tr><td><strong>numpy</strong></td><td>Cálculo numérico vectorizado</td><td><span class="chip c-gr">N1</span></td></tr>
+      <tr><td><strong>matplotlib</strong></td><td>Visualización estática base</td><td><span class="chip c-gr">N1</span></td></tr>
+      <tr><td><strong>seaborn</strong></td><td>Estadística visual elegante</td><td><span class="chip c-gr">N1</span></td></tr>
+      <tr><td><strong>openpyxl</strong></td><td>Leer/escribir Excel</td><td><span class="chip c-gr">N1</span></td></tr>
+      <tr><td><strong>scipy</strong></td><td>Tests estadísticos, distribuciones</td><td><span class="chip c-bl">N2</span></td></tr>
+      <tr><td><strong>statsmodels</strong></td><td>Regresión, series de tiempo</td><td><span class="chip c-bl">N2</span></td></tr>
+      <tr><td><strong>plotly</strong></td><td>Visualización interactiva</td><td><span class="chip c-bl">N2</span></td></tr>
+      <tr><td><strong>SQLAlchemy</strong></td><td>Conexiones a bases de datos</td><td><span class="chip c-bl">N2</span></td></tr>
+      <tr><td><strong>requests</strong></td><td>APIs REST</td><td><span class="chip c-bl">N2</span></td></tr>
+      <tr><td><strong>scikit-learn</strong></td><td>Machine Learning completo</td><td><span class="chip c-pu">N3</span></td></tr>
+      <tr><td><strong>xgboost</strong></td><td>Gradient boosting (estado del arte)</td><td><span class="chip c-pu">N3</span></td></tr>
+      <tr><td><strong>prophet</strong></td><td>Forecasting series de tiempo</td><td><span class="chip c-pu">N3</span></td></tr>
+      <tr><td><strong>nltk / spacy</strong></td><td>NLP, texto, CSAT análisis</td><td><span class="chip c-am">N4</span></td></tr>
+      <tr><td><strong>tensorflow</strong></td><td>Deep Learning</td><td><span class="chip c-am">N4</span></td></tr>
+      <tr><td><strong>mlflow</strong></td><td>MLOps, tracking de experimentos</td><td><span class="chip c-am">N4</span></td></tr>
+    </tbody></table></div>
+  </div></div>`;
+
+  document.getElementById('py-clean').innerHTML=`
+  <div class="lvl lv2">● N2 · Limpieza de Datos</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">🧹 Pipeline completo de limpieza <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="db amber"><strong>Ley de la basura:</strong> Garbage in, garbage out. Datos sucios → insights incorrectos → decisiones incorrectas.</div>
+    <div class="cb"><span class="cm"># 1. Detectar nulos</span>
+df.isnull().sum()
+df.isnull().mean() * <span class="num">100</span>   <span class="cm"># % por columna</span>
+
+<span class="cm"># 2. Tratar nulos</span>
+df[<span class="str">"aht"</span>].fillna(df[<span class="str">"aht"</span>].median(), inplace=<span class="kw">True</span>)
+df.dropna(subset=[<span class="str">"asesor"</span>], inplace=<span class="kw">True</span>)
+
+<span class="cm"># 3. Limpiar strings (como Text.Trim en M)</span>
+df[<span class="str">"asesor"</span>] = df[<span class="str">"asesor"</span>].str.strip().str.upper()
+
+<span class="cm"># 4. Convertir tipos</span>
+df[<span class="str">"fecha"</span>]   = pd.to_datetime(df[<span class="str">"fecha"</span>])
+df[<span class="str">"duracion"</span>]= pd.to_numeric(df[<span class="str">"duracion"</span>], errors=<span class="str">"coerce"</span>)
+
+<span class="cm"># 5. Duplicados</span>
+df.drop_duplicates(inplace=<span class="kw">True</span>)</div>
+    <div class="ex"><div class="ex-hd"><span class="badge b-med">Medio</span><span class="ex-title">Pipeline de limpieza CDR</span></div>
+    <div class="ex-desc">El DataFrame tiene nulos, strings sucios y tipos incorrectos. Limpia: dropna en asesor, fillna AHT con mediana, strip().upper() en asesor, to_datetime en fecha.</div>
+    <textarea class="ex-ed" id="ex-cl1">import pandas as pd
+df = pd.DataFrame({'asesor':['garcia ',' LOPEZ',None,'Martinez'],'aht':[245,None,310,198],'fecha':['2024-01-15','2024-01-15','2024-01-16','2024-01-16']})
+# limpia aquí
+print(df)</textarea>
+    <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('cl1','dropna','fillna','upper|strip','to_datetime')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('cl1','1)dropna(subset=[\"asesor\"]) 2)fillna(mediana) 3)str.strip().str.upper() 4)pd.to_datetime()')">💡 Pista</button></div>
+    <div class="ex-out" id="out-cl1"></div></div>
+  </div></div>`;
+
+  document.getElementById('py-stats').innerHTML=`
+  <div class="lvl lv2">● N2-N3 · Estadística Aplicada</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">📐 Correlación y regresión lineal <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="db amber"><strong>Regla de oro:</strong> Correlación ≠ Causalidad. r fuerte puede deberse a una variable de confusión no observada.</div>
+    <div class="cb"><span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+aht  = [<span class="num">245</span>,<span class="num">310</span>,<span class="num">198</span>,<span class="num">420</span>,<span class="num">185</span>,<span class="num">280</span>]
+csat = [<span class="num">4.2</span>,<span class="num">3.5</span>,<span class="num">4.8</span>,<span class="num">3.0</span>,<span class="num">4.7</span>,<span class="num">3.8</span>]
+
+r, p = stats.<span class="fn">pearsonr</span>(aht, csat)
+fuerza = <span class="str">"fuerte"</span> <span class="kw">if</span> abs(r)>.7 <span class="kw">else</span> <span class="str">"moderada"</span>
+<span class="kw">print</span>(<span class="str">f"r={r:.3f} ({fuerza} {'negativa' if r<0 else 'positiva'})"</span>)
+
+X = np.array(aht).reshape(-<span class="num">1</span>,<span class="num">1</span>)
+m = LinearRegression().<span class="fn">fit</span>(X, csat)
+<span class="kw">print</span>(<span class="str">f"R²={m.score(X,csat):.3f}"</span>)</div>
+  </div></div>`;
+}
+
+// ══════════════════════════════════════════
+// POWER BI CONTENT
+// ══════════════════════════════════════════
+function renderPBI(){
+  document.getElementById('pbi-dax').innerHTML=`
+  <div class="lvl lv2">● N2 · DAX Fundamentos</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">⚡ Contexto de evaluación — el concepto más importante <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="db teal"><strong>Row context:</strong> columnas calculadas — itera fila por fila. <strong>Filter context:</strong> medidas — define qué filas son visibles según filtros activos.</div>
+    <div class="cb"><span class="cm">-- Columna calculada (row context)</span>
+AHT_Min = FACT_CDR[duracion_seg] / <span class="num">60</span>
+
+<span class="cm">-- Medida (filter context)</span>
+AHT_Prom = AVERAGE(FACT_CDR[duracion_seg])
+
+<span class="cm">-- CALCULATE modifica el filter context</span>
+SL_TotalPlay = CALCULATE([SL_%], DIM_Campana[Campana]=<span class="str">"TotalPlay"</span>)
+
+<span class="cm">-- Patrones esenciales</span>
+Pct_Total = DIVIDE([N], CALCULATE([N], ALL(DIM_Campana)))
+Delta_MoM = [M] - CALCULATE([M], DATEADD(DIM_Fecha[Fecha],-<span class="num">1</span>,MONTH))
+MA7 = CALCULATE(AVERAGE(FACT_CDR[dur]), DATESBETWEEN(
+        DIM_Fecha[Fecha], MAX(DIM_Fecha[Fecha])-<span class="num">6</span>, MAX(DIM_Fecha[Fecha])))</div>
+    <div class="ex"><div class="ex-hd"><span class="badge b-med">Medio</span><span class="ex-title">Medida AHT con semáforo</span></div>
+    <div class="ex-desc">Escribe una medida DAX con VAR que calcule AHT promedio y retorne "✅ OK" si ≤300s, "⚠️ Alto" si ≤420s, "❌ Crítico" si >420s.</div>
+    <textarea class="ex-ed" id="ex-dax1">AHT_Semaforo =
+VAR _aht = AVERAGE(FACT_CDR[duracion_seg])
+VAR _label = -- tu código
+RETURN _label</textarea>
+    <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('dax1','VAR','IF|SWITCH','300','OK|Alto|Crítico')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('dax1','VAR _aht=AVERAGE(...) · IF(_aht<=300,\"✅ OK\",IF(_aht<=420,\"⚠️ Alto\",\"❌ Crítico\"))')">💡 Pista</button></div>
+    <div class="ex-out" id="out-dax1"></div></div>
+  </div></div>
+  <div class="acc"><div class="acc-hd" onclick="toggle(this)">⚡ Biblioteca de medidas Contact Center <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="cb"><span class="cm">-- VOLUMEN</span>
+Total_Llamadas     = COUNTROWS(FACT_CDR)
+Llamadas_Atendidas = CALCULATE(COUNTROWS(FACT_CDR), FACT_CDR[abandono]=<span class="num">0</span>)
+En_Tiempo          = CALCULATE(COUNTROWS(FACT_CDR), FACT_CDR[abandono]=<span class="num">0</span> && FACT_CDR[espera_seg]<=<span class="num">20</span>)
+
+<span class="cm">-- KPIs OPERATIVOS</span>
+SL_%    = DIVIDE([En_Tiempo], [Total_Llamadas])
+AHT_Seg = AVERAGEX(FILTER(FACT_CDR,FACT_CDR[dur_seg]><span class="num">0</span>),FACT_CDR[dur_seg])
+ABN_%   = DIVIDE([Llamadas_Abn],[Total_Llamadas])
+ASA_Seg = AVERAGEX(FILTER(FACT_CDR,FACT_CDR[abandono]=<span class="num">0</span>),FACT_CDR[espera_seg])
+
+<span class="cm">-- SATISFACCIÓN</span>
+NPS = (<span class="fn">CALCULATE</span>(COUNTROWS(FS),FS[nps]>=<span class="num">9</span>)-<span class="fn">CALCULATE</span>(COUNTROWS(FS),FS[nps]<=<span class="num">6</span>))/COUNTROWS(FS)*<span class="num">100</span>
+CSAT_% = DIVIDE(<span class="fn">CALCULATE</span>(COUNTROWS(FS),FS[csat]>=<span class="num">4</span>),COUNTROWS(FS))
+FCR_%  = DIVIDE(<span class="fn">CALCULATE</span>(COUNTROWS(FS),FS[resuelto_1er]=<span class="num">1</span>),COUNTROWS(FS))
+
+<span class="cm">-- RANKING</span>
+Rank_AHT  = RANKX(ALL(DIM_Asesor[Asesor]),[AHT_Seg],,ASC,Dense)
+Rank_CSAT = RANKX(ALL(DIM_Asesor[Asesor]),[CSAT_%],,DESC,Dense)</div>
+  </div></div>`;
+
+  document.getElementById('pbi-m').innerHTML=`
+  <div class="lvl lv2">● N2 · M Query</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">⚙️ Estructura let-in y transformaciones clave <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="db"><strong>M es funcional e inmutable:</strong> cada paso crea una nueva tabla sin modificar la anterior.</div>
+    <div class="cb"><span class="kw">let</span>
+  Src        = Sql.Database(<span class="str">"servidor"</span>,<span class="str">"BD"</span>),
+  Raw        = Src{[Schema=<span class="str">"dbo"</span>,Item=<span class="str">"CDR"</span>]}[Data],
+  Filtrado   = Table.SelectRows(Raw, <span class="kw">each</span> [dur] > <span class="num">0</span>),
+  Limpio     = Table.TransformColumns(Filtrado, {
+                 {<span class="str">"Asesor"</span>, <span class="kw">each</span> Text.Upper(Text.Trim(_)), type text}
+               }),
+  AsesorKey  = Table.AddColumn(Limpio, <span class="str">"AsesorKey"</span>, <span class="kw">each</span>
+                 Text.Upper(Text.Trim([Asesor])) & <span class="str">"-"</span> & Text.Trim([Ext])),
+  Tipado     = Table.TransformColumnTypes(AsesorKey, {
+                 {<span class="str">"Fecha"</span>, type date}, {<span class="str">"dur"</span>, Int64.Type}
+               })
+<span class="kw">in</span> Tipado</div>
+  </div></div>`;
+
+  document.getElementById('pbi-modelo').innerHTML=`
+  <div class="lvl lv2">● N2 · Modelo de Datos</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">🌟 Star Schema — diseño completo <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div style="background:#020508;border:1px solid var(--b);border-radius:var(--r2);padding:14px;font-family:var(--mono);font-size:.7rem;line-height:2;margin-bottom:11px">
+<span style="color:var(--amber)">          DIM_Fecha</span>  DateKey · Fecha · Año · Mes · Semana · DiaSemana
+               │
+<span style="color:var(--cyan)">DIM_Asesor</span> ────┤──── <span style="color:var(--blue);font-weight:800">FACT_CDR</span> ────┬──── <span style="color:var(--purple)">DIM_Hora</span>
+               │    dur·espera·abn    │
+<span style="color:var(--green)">DIM_Campana</span> ───┘    talk·hold·acw   └──── <span style="color:var(--orange)">DIM_Disposicion</span></div>
+    <div class="db green"><strong>Regla:</strong> DIM[Key](1) → (*) FACT[Key]. Siempre. Dirección de filtro: DIM→FACT unidireccional. Nunca M:M sin tabla puente.</div>
+  </div></div>`;
+
+  document.getElementById('pbi-service').innerHTML=`
+  <div class="lvl lv3">● N3 · Power BI Service</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">☁️ Service, RLS, Dataflows y Power Automate <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Función</th><th>Para qué sirve</th></tr></thead><tbody>
+      <tr><td><strong>Workspaces</strong></td><td>Carpetas colaborativas Dev/Test/Prod. Roles: Admin, Member, Contributor, Viewer</td></tr>
+      <tr><td><strong>Row Level Security</strong></td><td>Cada usuario ve solo sus datos. FILTER(DIM_Asesor,[Email]=USERPRINCIPALNAME())</td></tr>
+      <tr><td><strong>Scheduled Refresh</strong></td><td>Hasta 8x/día (Pro), 48x/día (Premium). Requiere Gateway para on-premise</td></tr>
+      <tr><td><strong>Dataflows Gen1/Gen2</strong></td><td>ETL en la nube. Arquitectura Bronce→Plata→Gold. Tablas reutilizables</td></tr>
+      <tr><td><strong>Deployment Pipelines</strong></td><td>CI/CD para reportes. Dev→Test→Prod sin reconfigurar</td></tr>
+      <tr><td><strong>Power Automate</strong></td><td>Flujos: alerta SL bajo→Teams, refresh→email PDF, Forms→dataset</td></tr>
+    </tbody></table></div>
+  </div></div>`;
+
+  document.getElementById('pbi-html').innerHTML=`
+  <div class="lvl lv3">● N3 · HTML Visuals en Power BI</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">🖥️ Reglas y errores críticos <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>❌ Evitar</th><th>✅ Usar</th></tr></thead><tbody>
+      <tr><td>Comilla simple ' en RETURN</td><td>Comillas dobles "" escapadas</td></tr>
+      <tr><td>SUMMARIZE con medidas</td><td>ADDCOLUMNS(VALUES(DIM[col]),...)</td></tr>
+      <tr><td>querySelectorAll()</td><td>getElementsByClassName()</td></tr>
+      <tr><td>box-shadow en visuals</td><td>box-shadow: none siempre</td></tr>
+      <tr><td>clamp() en font-size</td><td>px fijos: 12px, 14px...</td></tr>
+      <tr><td>position:absolute en labels</td><td>CSS Grid para layout</td></tr>
+    </tbody></table></div>
+  </div></div>`;
+}
+
+// ══════════════════════════════════════════
+// ESTADÍSTICA
+// ══════════════════════════════════════════
+function renderStats(){
+  document.getElementById('stats-content').innerHTML=`
+  <div class="lvl lv1">● N1 · Estadística Descriptiva</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">📐 Medidas de tendencia y dispersión <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Métrica</th><th>Fórmula</th><th>Cuándo usar</th></tr></thead><tbody>
+      <tr><td><strong>Media</strong></td><td>Σx/n</td><td>Sin outliers extremos</td></tr>
+      <tr><td><strong>Mediana</strong></td><td>Valor central</td><td>Con outliers (AHT real)</td></tr>
+      <tr><td><strong>Desv. Estándar</strong></td><td>√(Σ(x-μ)²/n)</td><td>Consistencia del agente</td></tr>
+      <tr><td><strong>CV</strong></td><td>σ/μ×100</td><td>Comparar variabilidad relativa</td></tr>
+      <tr><td><strong>IQR</strong></td><td>Q3−Q1</td><td>Outliers sin asumir normalidad</td></tr>
+      <tr><td><strong>Percentil</strong></td><td>P% datos ≤ valor</td><td>SLA, p95 de tiempos</td></tr>
+    </tbody></table></div>
+  </div></div>
+  <div class="lvl lv2" style="margin-top:14px">● N2 · Inferencia</div>
+  <div class="acc"><div class="acc-hd" onclick="toggle(this)">📐 Hypothesis Testing y correlación <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="db amber"><strong>p-value:</strong> probabilidad de observar los datos si H₀ fuera cierta. p&lt;0.05 → rechazar H₀. No mide la magnitud del efecto.</div>
+    <div class="cb"><span class="kw">from</span> scipy <span class="kw">import</span> stats
+<span class="cm"># t-test: ¿AHT TotalPlay ≠ AHT Tigo?</span>
+t, p = stats.<span class="fn">ttest_ind</span>(aht_tp, aht_tigo, equal_var=<span class="kw">False</span>)
+<span class="kw">print</span>(<span class="str">"Significativo"</span> <span class="kw">if</span> p < <span class="num">0.05</span> <span class="kw">else</span> <span class="str">"No significativo"</span>)
+
+<span class="cm"># Correlación</span>
+r, p = stats.<span class="fn">pearsonr</span>(aht, csat)
+<span class="kw">print</span>(<span class="str">f"r={r:.3f} p={p:.4f}"</span>)</div>
+  </div></div>`;
+}
+
+// ══════════════════════════════════════════
+// EJERCICIOS
+// ══════════════════════════════════════════
+function renderEjercicios(){
+  document.getElementById('ej-content').innerHTML=`
+  <div class="divl" style="margin-top:0"><span>PYTHON</span></div>
+  <div class="ex"><div class="ex-hd"><span class="badge b-easy">Fácil</span><span class="ex-title">Análisis de SL por hora</span></div>
+  <div class="ex-desc">Con el dict horario calcula SL%, clasifica (Verde≥85%, Amarillo≥80%, Rojo&lt;80%) y muestra las horas en Rojo.</div>
+  <textarea class="ex-ed" id="ex-r1">datos = {8:{'of':120,'at':105},9:{'of':200,'at':148},10:{'of':180,'at':162},11:{'of':150,'at':108},12:{'of':90,'at':54},13:{'of':110,'at':99}}
+# SL por hora y detectar críticas</textarea>
+  <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('r1','sl|SL','80|0.80','Rojo|rojo|critico|crítico','for|items')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('r1','for h,d in datos.items(): sl=d[\"at\"]/d[\"of\"]; estado=\"Rojo\" if sl<0.80 else ...')">💡 Pista</button></div>
+  <div class="ex-out" id="out-r1"></div></div>
+
+  <div class="ex"><div class="ex-hd"><span class="badge b-med">Medio</span><span class="ex-title">Ranking de agentes con score</span></div>
+  <div class="ex-desc">Score = 0.4×(1−AHT_norm) + 0.6×CSAT_norm. Detecta el outlier con IQR antes de normalizar. Muestra top 3.</div>
+  <textarea class="ex-ed" id="ex-r2">import pandas as pd, numpy as np
+df = pd.DataFrame({'nombre':['García','López','Martínez','Pérez','Sánchez'],'aht':[245,310,198,420,280],'csat':[4.2,3.8,4.6,3.0,4.1]})
+# IQR + normalización + score</textarea>
+  <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('r2','score|Score','0.4|0.6','norm|Norm','top|sort')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('r2','1)IQR en aht 2)min-max norm=(x-min)/(max-min) 3)score=0.4*(1-aht_n)+0.6*csat_n 4)sort_values desc')">💡 Pista</button></div>
+  <div class="ex-out" id="out-r2"></div></div>
+
+  <div class="divl"><span>DAX</span></div>
+  <div class="ex"><div class="ex-hd"><span class="badge b-hard">Difícil</span><span class="ex-title">Medida NPS completa con categorías</span></div>
+  <div class="ex-desc">Escribe la medida NPS que calcule promotores(9-10), pasivos(7-8), detractores(0-6), el score final y devuelva también un estado textual.</div>
+  <textarea class="ex-ed" id="ex-dax2">NPS_Completo =
+VAR _total = COUNTROWS(FACT_Survey)
+VAR _prom  = CALCULATE(COUNTROWS(FACT_Survey), FACT_Survey[nps] >= 9)
+VAR _det   = -- tu código
+VAR _score = -- tu código
+RETURN _score</textarea>
+  <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('dax2','VAR','COUNTROWS','>=9|> 8','DIVIDE|*100')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('dax2','VAR _det=CALCULATE(COUNTROWS,nps<=6) · VAR _score=DIVIDE(_prom-_det,_total)*100')">💡 Pista</button></div>
+  <div class="ex-out" id="out-dax2"></div></div>
+
+  <div class="divl"><span>SQL</span></div>
+  <div class="ex"><div class="ex-hd"><span class="badge b-hard">Difícil</span><span class="ex-title">Window Function: ranking por campaña</span></div>
+  <div class="ex-desc">Query que rankee asesores por AHT dentro de cada campaña con RANK() OVER PARTITION BY. Solo asesores con >50 llamadas.</div>
+  <textarea class="ex-ed" id="ex-sql1">SELECT
+    campana, asesor,
+    -- RANK aquí
+FROM FACT_CDR
+GROUP BY campana, asesor
+HAVING COUNT(*) > 50
+ORDER BY campana, ranking</textarea>
+  <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('sql1','RANK()|rank()','PARTITION BY|partition by','ORDER BY|order by','HAVING|having')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('sql1','RANK() OVER (PARTITION BY campana ORDER BY AVG(duracion_seg) ASC) AS ranking')">💡 Pista</button></div>
+  <div class="ex-out" id="out-sql1"></div></div>
+
+  <div class="ex"><div class="ex-hd"><span class="badge b-exp">Experto</span><span class="ex-title">ML: Predecir abandono de llamadas</span></div>
+  <div class="ex-desc">Entrena un DecisionTreeClassifier para predecir abandono dado tiempo_espera, hora, campana_encoded. Evalúa con accuracy y muestra feature importances.</div>
+  <textarea class="ex-ed" id="ex-ml1">import numpy as np, pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+np.random.seed(42); n=300
+df = pd.DataFrame({'espera':np.random.exponential(25,n).clip(0,120).astype(int),'hora':np.random.randint(8,20,n),'campana':np.random.randint(0,3,n),'abandono':(np.random.exponential(25,n)>40).astype(int)})
+# Entrena y evalúa</textarea>
+  <div class="ex-btns"><button class="btn btn-run" onclick="chkEx('ml1','train_test_split','fit|predict','accuracy_score|score','feature_importances_|importance')">▶ Verificar</button><button class="btn btn-hint" onclick="hint('ml1','X=df[[\"espera\",\"hora\",\"campana\"]] y=df[\"abandono\"] → split → model.fit → predict → accuracy_score → feature_importances_')">💡 Pista</button></div>
+  <div class="ex-out" id="out-ml1"></div></div>`;
+}
+
+// ══════════════════════════════════════════
+// MODELOS & ETL
+// ══════════════════════════════════════════
+function renderModelos(){
+  document.getElementById('mod-content').innerHTML=`
+  <div class="lvl lv2">● N2 · Modelado</div>
+  <div class="acc open"><div class="acc-hd" onclick="toggle(this)">🌐 Flujo de datos: fuente → dashboard <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="steps">
+      <div class="step"><div class="step-n">1</div><div class="step-b"><h4>Fuente (Source)</h4><p>BD operacional, APIs, archivos. Nunca modifiques la fuente original.</p></div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-b"><h4>Extract (Bronce)</h4><p>Ingesta cruda sin transformación. Una fuente por Dataflow Bronce.</p></div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-b"><h4>Transform (Plata)</h4><p>Limpieza, tipado, normalización, AsesorKey. M Query o Python.</p></div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-b"><h4>Load (Gold/FACT)</h4><p>Star Schema. FACT + DIM. Cardinalidad 1:* de DIM a FACT.</p></div></div>
+      <div class="step"><div class="step-n">5</div><div class="step-b"><h4>Semántica (DAX)</h4><p>Medidas, columnas calculadas. Capa de lógica de negocio.</p></div></div>
+      <div class="step"><div class="step-n">6</div><div class="step-b"><h4>Presentación</h4><p>Dashboard ejecutivo. Cada visual consume medidas DAX.</p></div></div>
+    </div>
+  </div></div>
+  <div class="lvl lv2" style="margin-top:14px">● N2 · Normalización</div>
+  <div class="acc"><div class="acc-hd" onclick="toggle(this)">🌐 1NF, 2NF, 3NF y OLTP vs OLAP <span class="acc-arr">▼</span></div>
+  <div class="acc-body">
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th></th><th>OLTP</th><th>OLAP</th></tr></thead><tbody>
+      <tr><td>Propósito</td><td>Transaccional</td><td>Analítico</td></tr>
+      <tr><td>Diseño</td><td>Normalizado (3NF)</td><td>Desnormalizado (Star)</td></tr>
+      <tr><td>Velocidad</td><td>Miles INSERT/UPDATE/s</td><td>Millones filas por consulta</td></tr>
+      <tr><td>Ejemplo</td><td>CRM, ACD, ERP</td><td>Power BI, Data Warehouse</td></tr>
+    </tbody></table></div>
+  </div></div>`;
+}
+
+// ══════════════════════════════════════════
+// EXERCISE CHECKERS
+// ══════════════════════════════════════════
+function chkEx(id,...kws){
+  const code=document.getElementById('ex-'+id)?.value||'';
+  const out=document.getElementById('out-'+id);
+  if(!out)return;
+  if(!code.trim()||code.length<30){showOut(out,'hint','✏️ Escribe tu solución antes de verificar.');return;}
+  const passed=kws.filter(kw=>kw.split('|').some(k=>code.toLowerCase().includes(k.toLowerCase())));
+  if(passed.length>=Math.ceil(kws.length*.55)){
+    showOut(out,'ok','✅ Correcto! +30 XP — Buena implementación.');
+    addXP(30);solved++;saveState();
+  } else {
+    showOut(out,'hint','💡 Tu solución está incompleta. Revisa los conceptos clave del ejercicio o usa la pista.');
+  }
+}
+function hint(id,text){const out=document.getElementById('out-'+id);if(out)showOut(out,'hint','💡 Pista: '+text);}
+function showOut(el,type,msg){el.className='ex-out show out-'+type;el.textContent=msg;}
+
+// ══════════════════════════════════════════
+// TERMINAL
+// ══════════════════════════════════════════
+const termH=[];let tIdx=-1;
+const tSnip={'import pandas as pd':'✅ pandas 2.1 cargado','import numpy as np':'✅ numpy 1.26 cargado','help':'Comandos: import pandas, import numpy, df=pd.DataFrame({...}), np.mean([...]), clear','clear':'__CLEAR__'};
+const tSC=[{l:'pandas',c:'import pandas as pd'},{l:'numpy',c:'import numpy as np'},{l:'DataFrame',c:"df=pd.DataFrame({'col':[1,2,3]})"},{l:'GroupBy',c:"df.groupby('col').agg(n=('val','mean'))"},{l:'IQR',c:"Q1,Q3=np.percentile(d,[25,75])\nIQR=Q3-Q1\ncln=d[(d>=Q1-1.5*IQR)&(d<=Q3+1.5*IQR)]"},{l:'correlación',c:"r,p=stats.pearsonr(x,y)\nprint(f'r={r:.3f}')"},{l:'calc_sl()',c:"def calc_sl(a,t):\n    return round(a/t*100,1)\nprint(calc_sl(720,850))"}];
+function termInit(){
+  const o=document.getElementById('term-out');
+  tPrint('info','DataMind Python Terminal v4.0');tPrint('info','Escribe "help" para ver comandos disponibles');tPrint('info','─────────────────────────────────────────');
+  document.getElementById('term-sc').innerHTML=tSC.map(s=>`<button onclick="tRun('${s.c.replace(/\n/g,'\\n').replace(/'/g,"\\'")}','${s.l}')" style="background:var(--s2);border:1px solid var(--b);border-radius:6px;padding:4px 9px;color:var(--t2);font-size:.69rem;cursor:pointer;font-family:var(--mono);white-space:nowrap">${s.l}</button>`).join('');
+  const inp=document.getElementById('tinput');
+  inp.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){tRun(inp.value);inp.value='';}
+    if(e.key==='ArrowUp'){tIdx=Math.min(tIdx+1,termH.length-1);inp.value=termH[tIdx]||'';}
+    if(e.key==='ArrowDown'){tIdx=Math.max(tIdx-1,-1);inp.value=termH[tIdx]||'';}
+  });
+}
+function tRun(cmd){
+  cmd=cmd.replace(/\\n/g,'\n').replace(/\\'/g,"'");
+  if(!cmd.trim())return;
+  termH.unshift(cmd);tIdx=-1;
+  cmd.split('\n').forEach(l=>tPrint('cmd','>>> '+l));
+  const k=Object.keys(tSnip).find(k=>cmd.toLowerCase().includes(k.toLowerCase()));
+  if(k){if(tSnip[k]==='__CLEAR__'){document.getElementById('term-out').innerHTML='';return;}tSnip[k].split('\n').forEach(l=>tPrint('out',l));}
+  else{
+    if(cmd.includes('print('))tPrint('out','[salida: '+cmd.slice(6,-1).replace(/['"]/g,'')+']');
+    else if(cmd.includes('='))tPrint('out','✅ Variable asignada');
+    else tPrint('out','[expresión evaluada — usa Jupyter para resultados exactos]');
+  }
+  document.getElementById('term-out').scrollTop=9999;
+}
+function tPrint(t,txt){const d=document.createElement('div');d.className='tl '+t;d.textContent=txt;document.getElementById('term-out').appendChild(d);}
+termInit();
+
+// ══════════════════════════════════════════
+// AI CHAT — respuestas locales inteligentes
+// ══════════════════════════════════════════
+const AI_KB=[
+  {k:['calculate','filter context','contexto de filtro'],r:'**CALCULATE** es la función más importante de DAX. Hace dos cosas: (1) evalúa una expresión y (2) modifica el contexto de filtro antes de evaluarla.\n\n**FILTER** en cambio devuelve una *tabla* filtrada — no modifica el contexto, simplemente reduce filas. La confusión viene porque CALCULATE acepta FILTER como argumento:\n\n```dax\n-- CALCULATE modifica el contexto\nSL_TP = CALCULATE([SL_%], DIM_Campana[Campana]="TotalPlay")\n\n-- FILTER devuelve tabla (úsalo cuando necesites condición compleja)\nSL_TP2 = CALCULATE([SL_%], FILTER(DIM_Campana, [SL_Obj]>0.80))\n```\n\n**Regla:** usa expresión directa en CALCULATE cuando puedas. Usa FILTER solo para condiciones que no puedes expresar directamente.\n\n💭 *¿Qué pasa si usas ALL() dentro de CALCULATE? ¿Cuándo lo necesitarías?*'},
+  {k:['groupby','summarize','addcolumns'],r:'Excelente comparación. Ambos agrupan datos pero con diferencias críticas:\n\n**pandas GroupBy:**\n```python\nresumen = df.groupby("campana").agg(\n    AHT=("dur","mean"), N=("id","count")\n).reset_index()\n```\n\n**DAX equivalente correcto:**\n```dax\nTabla = ADDCOLUMNS(VALUES(DIM_Campana[Campana]),\n    "AHT", [AHT_Promedio],\n    "N",   [Total_Llamadas])\n```\n\n⚠️ **Trampa DAX:** SUMMARIZE con medidas en su cuerpo da resultados incorrectos (evalúa en contexto de fila). ADDCOLUMNS+VALUES siempre evalúa medidas en contexto de filtro correcto.\n\n💭 *¿Por qué reset_index() es casi siempre necesario en pandas después de groupby?*'},
+  {k:['rls','row level security','seguridad fila'],r:'**RLS (Row Level Security)** restringe qué datos ve cada usuario en Power BI Service.\n\n**Pasos:**\n1. En Power BI Desktop: Modelado → Administrar roles\n2. Crea rol "Asesor" con filtro:\n```dax\nDIM_Asesor[Email] = USERPRINCIPALNAME()\n```\n3. Publica al Service\n4. En el workspace: Dataset → Seguridad → asigna usuarios al rol\n\n**RLS dinámico** (un solo rol para todos): la función `USERPRINCIPALNAME()` devuelve el email del usuario logueado — cada quien ve solo sus datos automáticamente sin crear un rol por persona.\n\n💭 *¿Qué diferencia hay entre RLS estático y dinámico en términos de mantenimiento?*'},
+  {k:['correlacion','causalidad','correlación'],r:'Esta distinción es **fundamental** en Data Science.\n\n**Correlación** (r): relación estadística entre dos variables. r=-0.75 entre AHT y CSAT significa que cuando AHT sube, CSAT tiende a bajar. *Pero no implica que reducir el AHT mejore el CSAT.*\n\n**Causalidad**: A *causa* B. Para establecerla necesitas:\n1. Correlación entre A y B\n2. A precede temporalmente a B\n3. Eliminar causas alternativas (variables de confusión)\n\n**Ejemplo real:** AHT y CSAT correlacionan negativamente, pero la variable de confusión puede ser la *complejidad del caso* — casos complejos tienen AHT alto Y CSAT bajo, no porque uno cause el otro.\n\n**Estándar gold:** A/B testing aleatorizado establece causalidad.\n\n💭 *¿Cómo diseñarías un experimento para saber si reducir el AHT realmente mejora el CSAT?*'},
+  {k:['overfitting','sobreajuste','regularizacion','regularización'],r:'**Overfitting** = el modelo memoriza el entrenamiento pero falla en datos nuevos. Alta accuracy en train, baja en test.\n\n**Causas:** modelo muy complejo, pocos datos de entrenamiento, demasiadas features.\n\n**Soluciones en scikit-learn:**\n```python\nfrom sklearn.tree import DecisionTreeClassifier\nfrom sklearn.model_selection import cross_val_score\n\n# 1. Limitar complejidad\nmodel = DecisionTreeClassifier(max_depth=5, min_samples_leaf=10)\n\n# 2. Cross-validation para detectarlo\nscores = cross_val_score(model, X, y, cv=5)\nprint(f"CV: {scores.mean():.3f} ± {scores.std():.3f}")\n\n# 3. Regularización en regresión\nfrom sklearn.linear_model import Ridge\nmodel = Ridge(alpha=1.0)  # L2\n```\n\n**Señal de overfitting:** accuracy train 98%, accuracy test 72% → diferencia >15% es sospechosa.\n\n💭 *¿Por qué usar cross-validation en lugar de un solo train/test split?*'},
+  {k:['etl','elt','medallion','dataflow'],r:'**ETL** (Extract-Transform-Load): transforma *antes* de cargar al destino.\n**ELT** (Extract-Load-Transform): carga crudo primero, transforma *dentro* del DWH.\n\n| | ETL | ELT |\n|---|---|---|\n| Dónde transforma | Herramienta intermedia | En el DWH (SQL, dbt) |\n| Cuándo usar | On-prem, datos sensibles | Cloud, grandes volúmenes |\n| Ejemplo PBI | Dataflows M (Medallion) | Synapse + Power BI DirectQuery |\n\n**Arquitectura Medallion (tu caso Konibit):**\n```\nBronce → ingesta cruda, sin transformar\nPlata  → limpieza, tipado, AsesorKey\nGold   → Star Schema (FACT + DIM)\n```\n\n**Regla de oro:** Bronze nunca transforma. FACT nunca se auto-referencia.\n\n💭 *¿Por qué es importante que Bronze no transforme? ¿Qué pasa si necesitas rereprocesar?*'},
+  {k:['star schema','esquema estrella','fact','dim','modelo'],r:'**Star Schema** es el diseño estándar para BI analítico.\n\n**Estructura:**\n```\nDIM_Fecha ──┐\nDIM_Asesor ─┤── FACT_CDR ──┬── DIM_Hora\nDIM_Campana─┘              └── DIM_Disposicion\n```\n\n**Reglas clave:**\n- FACT: métricas numéricas + llaves foráneas (FK)\n- DIM: atributos descriptivos + llave primaria (PK) única\n- Cardinalidad: siempre DIM(1) → FACT(*)\n- Filtro unidireccional: DIM→FACT\n\n**¿Por qué no 3NF en DIM?** Las DIM están desnormalizadas intencionalmente: menos JOINs = consultas más rápidas en OLAP.\n\n💭 *¿Qué problemas genera una relación M:M directa entre dos tablas FACT sin tabla puente?*'},
+  {k:['aht','tmo','handle time','talk time','acw'],r:'**AHT (Average Handle Time / TMO)** es el KPI de eficiencia más importante en Contact Center.\n\n**Composición:**\n```\nAHT = Talk Time + Hold Time + ACW\n     (conversación + espera en llamada + post-llamada)\n```\n\n**Benchmarks:**\n- Voz: 240-360s típico, <240s excelente\n- Chat: 300-480s (mayor por concurrencia)\n- ACW: ≤30s óptimo, >90s alto\n\n**Trampa operativa:** bajar AHT a la fuerza sin mejorar FCR genera recontactos. Cada 1% de aumento en FCR ≈ 1% reducción de costos.\n\n**En DAX:**\n```dax\nAHT_Seg = AVERAGEX(\n    FILTER(FACT_CDR, FACT_CDR[dur_seg] > 0),\n    FACT_CDR[dur_seg]\n)\n```\n\n💭 *¿Cómo detectarías si la reducción de AHT de un asesor es genuina o está cortando llamadas?*'},
+  {k:['nps','net promoter','promotores','detractores'],r:'**NPS (Net Promoter Score)** mide lealtad del cliente.\n\n**Pregunta:** "¿Con qué probabilidad recomendarías la empresa? (0-10)"\n- **Promotores (9-10):** leales, generan boca a boca positivo\n- **Pasivos (7-8):** satisfechos pero vulnerables\n- **Detractores (0-6):** insatisfechos, generan boca a boca negativo\n\n```dax\nNPS =\nVAR _total = COUNTROWS(FACT_Survey)\nVAR _prom  = CALCULATE(COUNTROWS(FACT_Survey), FACT_Survey[nps] >= 9)\nVAR _det   = CALCULATE(COUNTROWS(FACT_Survey), FACT_Survey[nps] <= 6)\nRETURN DIVIDE(_prom - _det, _total) * 100\n```\n\n**Benchmarks:** ≥50 excelente · 20-49 bueno · 0-19 aceptable · <0 crisis\n\n💭 *¿Por qué los pasivos (7-8) representan el mayor riesgo aunque no sean detractores?*'},
+  {k:['iqr','outlier','percentil','cuartil'],r:'**IQR (Interquartile Range)** es el método más robusto para detectar outliers.\n\n**¿Por qué no z-score?** Z-score asume distribución normal. Los tiempos de llamada (AHT, ASA) son sesgados a la derecha — IQR no asume distribución.\n\n```python\nimport numpy as np\naht = np.array([180,200,195,210,185,2400,190,175,3600,205])\n\nQ1 = np.percentile(aht, 25)   # 185\nQ3 = np.percentile(aht, 75)   # 207\nIQR = Q3 - Q1                  # 22\n\nlimite_inf = Q1 - 1.5 * IQR   # 152\nlimite_sup = Q3 + 1.5 * IQR   # 240\n\nlimpios  = aht[(aht >= limite_inf) & (aht <= limite_sup)]\noutliers = aht[(aht < limite_inf)  | (aht > limite_sup)]\n# outliers → [2400, 3600]\n```\n\n💭 *¿Qué harías con los outliers detectados: eliminarlos, reemplazarlos o analizarlos por separado?*'},
+  {k:['pandas','dataframe','serie','series'],r:'**DataFrame** es la estructura central de pandas — una tabla 2D con índice y columnas nombradas.\n\n```python\nimport pandas as pd\n\n# Crear\ndf = pd.DataFrame({"asesor":["García","López"],"aht":[245,310],"csat":[4.2,3.8]})\n\n# Inspeccionar\ndf.shape      # (2, 3)\ndf.dtypes     # tipos por columna\ndf.describe() # estadísticas\n\n# Seleccionar\ndf["aht"]                    # Serie (1 columna)\ndf[["asesor","aht"]]         # DataFrame (varias)\ndf[df["aht"] > 280]          # filtro booleano\ndf.query("aht > 280")        # alternativa legible\n\n# Agregar columna\ndf["aht_min"] = df["aht"] / 60\n\n# GroupBy\ndf.groupby("campana").agg(AHT=("aht","mean")).reset_index()\n```\n\n**Analogía:** DataFrame = tabla Power BI, pero programable y sin límite de transformaciones.\n\n💭 *¿Cuándo usarías .loc vs .iloc para seleccionar datos?*'},
+];
+
+const AI_FALLBACK=[
+  'Esa es una pregunta interesante sobre **{topic}**. Te recomiendo explorarla en el módulo correspondiente de la academia.\n\n**Para profundizar:**\n- Revisa el módulo Python o Power BI según aplique\n- Usa el Diccionario DA/DS para términos específicos\n- Los KPIs de Contact Center tienen sus definiciones completas en la sección KPIs\n\n¿Puedes reformular la pregunta con más contexto? Por ejemplo: ¿es para aplicarlo en DAX, Python o en operaciones de CC?',
+  'Buena pregunta. **{topic}** es un concepto que conecta varias áreas.\n\nPara darte la mejor respuesta académica, ¿me puedes decir en qué contexto lo necesitas?\n- ¿Es para **modelado de datos** (Star Schema, DAX)?\n- ¿Para **análisis en Python** (pandas, numpy, ML)?\n- ¿Para **operaciones de Contact Center** (KPIs, COPC)?\n\nMientras tanto, te sugiero buscar el término en el **Diccionario DA/DS** — tiene 67 términos con definiciones académicas completas.',
+];
+
+const QPS=['¿Cuál es la diferencia entre CALCULATE y FILTER en DAX?','Explícame pandas GroupBy vs DAX SUMMARIZE','¿Qué es el overfitting y cómo evitarlo?','¿Diferencia entre correlación y causalidad?','¿Cómo funciona el AHT y sus componentes?','¿Qué es IQR y por qué es mejor que z-score para outliers?'];
+document.getElementById('qp-list').innerHTML=QPS.slice(0,4).map(q=>`<button class="qp" onclick="sendQP('${q.replace(/'/g,"\\'")}')">${q}</button>`).join('');
+document.getElementById('ai-input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}});
+function sendQP(q){document.getElementById('ai-input').value=q;sendAI();}
+function sendAI(){
+  const inp=document.getElementById('ai-input'),btn=document.getElementById('ai-send');
+  const text=inp.value.trim();if(!text)return;
+  btn.disabled=true;inp.value='';
+  appendMsg('user',text);
+  const typing=appendTyping();
+  setTimeout(()=>{
+    typing.remove();
+    const tl=text.toLowerCase();
+    const match=AI_KB.find(e=>e.k.some(k=>tl.includes(k)));
+    const reply=match?match.r:AI_FALLBACK[Math.floor(Math.random()*AI_FALLBACK.length)].replace('{topic}',text.split(' ').slice(0,3).join(' '));
+    appendMsg('bot',reply);addXP(10);
+    btn.disabled=false;
+  },900+Math.random()*600);
+}
+function appendMsg(role,text){
+  const msgs=document.getElementById('ai-msgs'),d=document.createElement('div');
+  d.className='ai-msg '+role;
+  if(role==='bot')d.innerHTML='<div class="bot-lbl">DATAMIND · TUTOR</div>'+fmtAI(text);
+  else d.textContent=text;
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;
+}
+function appendTyping(){
+  const msgs=document.getElementById('ai-msgs'),d=document.createElement('div');
+  d.className='ai-typing';d.innerHTML='<div class="dots"><span></span><span></span><span></span></div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;return d;
+}
+function fmtAI(t){
+  return t.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>`<pre>${esc(c.trim())}</pre>`)
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\|(.+)\|/g,(_,row)=>`<div style="font-family:var(--mono);font-size:.72rem;color:var(--t2);padding:2px 0">${row.split('|').map(c=>`<span style="display:inline-block;min-width:100px;padding:0 4px">${c.trim()}</span>`).join('')}</div>`)
+    .replace(/\n/g,'<br>');
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ══════════════════════════════════════════
+// FLASHCARDS — Opción múltiple con feedback
+// ══════════════════════════════════════════
+const FC_DECKS={
+  'DAX':[
+    {q:'¿Qué función en DAX modifica el contexto de filtro?',opts:['FILTER()','CALCULATE()','ALL()','SUMX()'],c:1,exp:'**CALCULATE** es la única función que modifica el contexto de filtro. FILTER devuelve una tabla pero no modifica el contexto. ALL elimina filtros pero debe usarse dentro de CALCULATE.'},
+    {q:'¿Cuál es el problema de usar SUMMARIZE con medidas?',opts:['Es más lento que ADDCOLUMNS','Evalúa medidas en contexto de fila (incorrecto)','No acepta columnas de DIM','Solo funciona con FACT tables'],c:1,exp:'**SUMMARIZE** evalúa cualquier medida en contexto de fila, produciendo resultados incorrectos. El patrón correcto es **ADDCOLUMNS(VALUES(DIM[col]), "Medida", [Mi_Medida])** que evalúa en contexto de filtro.'},
+    {q:'¿Qué hace ALL(DIM_Campana) dentro de CALCULATE?',opts:['Filtra solo la campaña activa','Elimina todos los filtros sobre DIM_Campana','Ordena por campaña','Cuenta las campañas disponibles'],c:1,exp:'**ALL()** elimina los filtros sobre la tabla o columna especificada. Fundamental para calcular % del total: DIVIDE([Llamadas], CALCULATE([Llamadas], ALL(DIM_Campana))) da el porcentaje de cada campaña sobre el total.'},
+    {q:'¿Cuándo evaluará VAR su expresión dentro de una medida DAX?',opts:['Cada vez que se use en RETURN','Una sola vez, en el contexto donde se declara','Solo si hay un filtro activo','Depende del tipo de datos'],c:1,exp:'**VAR** se evalúa exactamente una vez en el contexto donde se declara, sin importar cuántas veces se referencie en RETURN. Esto lo hace más eficiente que repetir la misma expresión, y también evita problemas de contexto de fila en columnas calculadas.'},
+    {q:'¿Para qué sirven los iteradores X como SUMX o AVERAGEX?',opts:['Para iterar sobre columnas (en anchura)','Para iterar fila por fila evaluando una expresión','Son alias de SUM y AVERAGE respectivamente','Para crear columnas calculadas únicamente'],c:1,exp:'Los **iteradores X** recorren cada fila de una tabla y evalúan una expresión por fila. SUMX(FACT_CDR, FACT_CDR[talk]+FACT_CDR[hold]) suma la combinación talk+hold fila por fila. Son más potentes que SUM porque pueden evaluar cualquier expresión.'},
+    {q:'¿Qué devuelve FILTER(FACT_CDR, FACT_CDR[abn]=1)?',opts:['El conteo de filas abandonadas','Un número: las filas que cumplen la condición','Una tabla filtrada solo con abandonos','Un valor booleano TRUE/FALSE'],c:2,exp:'**FILTER** devuelve una **tabla** — no un número ni un booleano. Esa tabla filtrada puede usarse como argumento dentro de CALCULATE, COUNTROWS, SUMX, etc. Es importante no confundir FILTER (devuelve tabla) con CALCULATE (modifica contexto).'},
+    {q:'En DAX, ¿qué diferencia hay entre contexto de fila y contexto de filtro?',opts:['Son lo mismo, diferentes nombres','Fila: itera columna por columna. Filtro: itera fila por fila','Fila: existe en columnas calculadas. Filtro: existe en medidas','Fila: creado por slicers. Filtro: creado por CALCULATE'],c:2,exp:'**Contexto de fila** existe en columnas calculadas — evalúa expresión por cada fila. **Contexto de filtro** existe en medidas — define qué filas son visibles según slicers, matrices y CALCULATE. Esta distinción explica por qué una medida se comporta diferente dentro de una columna calculada.'},
+    {q:'¿Cuál es la fórmula correcta para % del total por campaña en DAX?',opts:['[Llamadas] / SUM(FACT_CDR[id])','DIVIDE([Llamadas], CALCULATE([Llamadas], ALL(DIM_Campana)))','[Llamadas] / [Total_Llamadas]','CALCULATE([Llamadas]) / COUNT(FACT_CDR[id])'],c:1,exp:'**DIVIDE([Llamadas], CALCULATE([Llamadas], ALL(DIM_Campana)))** es correcto. ALL(DIM_Campana) elimina el filtro de campaña, haciendo que el denominador sea el total global. Sin ALL, tanto numerador como denominador estarían filtrados por la misma campaña, dando siempre 100%.'},
+  ],
+  'Python':[
+    {q:'¿Cuál es la diferencia entre .loc y .iloc en pandas?',opts:['.loc es más rápido que .iloc','.loc accede por etiqueta/nombre; .iloc por posición entera','.iloc solo funciona con índices de tipo string','.loc solo funciona con condiciones booleanas'],c:1,exp:'**.loc** usa etiquetas — si el índice tiene nombres o fechas, úsalas. **.iloc** usa posiciones enteras (0, 1, 2...). Pueden parecer iguales con índice numérico secuencial, pero divergen si el DataFrame fue reordenado o filtrado. Regla: preferir .loc para código claro y mantenible.'},
+    {q:'¿Por qué casi siempre usamos reset_index() después de groupby().agg()?',opts:['Para ordenar el resultado alfabéticamente','Porque groupby convierte la columna agrupadora en índice','Para eliminar valores nulos del resultado','Porque agg() solo funciona con índice entero'],c:1,exp:'**groupby()** convierte la columna de agrupación en el índice del resultado. reset_index() la devuelve a columna normal con índice 0,1,2... Esto facilita el merge posterior y el acceso por nombre de columna. Sin reset_index(), df["campana"] daría error porque "campana" sería el índice.'},
+    {q:'¿Cuándo es preferible IQR sobre z-score para detectar outliers?',opts:['Cuando los datos son perfectamente normales','Cuando los datos son sesgados o no siguen distribución normal','Cuando tienes más de 1000 filas','IQR y z-score son equivalentes siempre'],c:1,exp:'**IQR** no asume ninguna distribución — es robusto. Los tiempos de llamada (AHT, ASA) son sesgados a la derecha (muchos valores bajos, pocos muy altos). El **z-score** asume normalidad: si los datos son sesgados, sus "outliers" estarán mal identificados. Para datos de Contact Center, IQR es el estándar.'},
+    {q:'¿Qué hace pd.merge(fact, dim, on="Key", how="left")?',opts:['Elimina filas de fact que no tienen match en dim','Mantiene todas las filas de fact; agrega columnas de dim (NaN si no hay match)','Solo mantiene filas con match en ambas tablas','Concatena los DataFrames verticalmente'],c:1,exp:'**how="left"** equivale a LEFT JOIN en SQL: mantiene todas las filas de la tabla izquierda (fact). Si una fila de fact no tiene match en dim, las columnas de dim aparecen como NaN. Útil para enriquecer FACT con atributos de DIM sin perder filas.'},
+    {q:'¿Qué error produce esta línea: df["fecha"].dt.month si fecha es tipo object?',opts:['Retorna None silenciosamente','AttributeError: solo funciona con datetime64','Retorna el string del mes en texto','Convierte automáticamente a fecha'],c:1,exp:'El accessor **.dt** solo funciona cuando la columna es tipo **datetime64**. Si es object (string), arroja AttributeError. La solución es convertir primero: df["fecha"] = pd.to_datetime(df["fecha"]). Siempre verificar df.dtypes después de cargar datos.'},
+    {q:'¿Qué diferencia hay entre df.groupby("col")["val"].mean() y df.groupby("col").agg(M=("val","mean"))?',opts:['Son equivalentes en resultado y forma','La primera devuelve Serie; la segunda devuelve DataFrame con columna nombrada M','La primera es más rápida siempre','agg() no acepta funciones estándar como "mean"'],c:1,exp:'La primera devuelve una **Serie** con el nombre de la columna como nombre. La segunda devuelve un **DataFrame** con columna explícitamente nombrada "M" — más útil para múltiples métricas simultáneas y para hacer merge posterior. Preferir .agg() cuando necesitas varios KPIs a la vez.'},
+    {q:'¿Cuál es la forma pythónica de crear una columna con categoría de AHT?',opts:['Un bucle for con if/elif/else','df["cat"] = df["aht"].apply(lambda x: "corta" if x<180 else "normal" if x<=360 else "larga")','df["cat"] = map(categorizar, df["aht"])','Solo se puede con numpy.where() para ser eficiente'],c:1,exp:'**.apply(lambda)** es la forma más clara y pythónica para categorización fila por fila. Para alto rendimiento con muchas filas se puede usar numpy.where() o pd.cut(), pero apply con lambda es más legible y suficiente para volúmenes de CC típicos.'},
+    {q:'Después de limpiar un DataFrame con dropna() y drop_duplicates(), ¿qué deberías verificar?',opts:['Que el tamaño del archivo no haya cambiado','El shape resultante y si la proporción eliminada es aceptable','Que todas las columnas sigan siendo numéricas','Nada, esas funciones son siempre seguras'],c:1,exp:'Siempre verificar **df.shape** antes y después para saber cuántas filas se eliminaron. Si dropna() eliminó el 40% de tus datos, puede haber un problema mayor: columna con muchos nulos que requiere imputación en lugar de eliminación. El criterio: eliminar filas si los nulos son <5% y aleatorios; imputar si son sistemáticos.'},
+  ],
+  'Estadística':[
+    {q:'¿Cuándo la mediana es más representativa que la media?',opts:['Siempre, es más robusta','Cuando los datos son simétricos y sin outliers','Cuando hay outliers o la distribución es sesgada','Solo con datos categóricos'],c:2,exp:'La **mediana** es robusta ante outliers: un AHT de 3600s (agente que dejó una llamada abierta) infla la media pero no mueve la mediana. La **media** es preferible cuando los datos son simétricos — es más sensible a todos los valores y tiene mejores propiedades estadísticas para inferencia.'},
+    {q:'Un p-value de 0.03 en un t-test significa que...',opts:['Hay 3% de probabilidad de que H₀ sea verdadera','Hay 97% de probabilidad de que la diferencia sea real','Hay 3% de probabilidad de ver esta diferencia si H₀ fuera cierta','El efecto es grande y significativo'],c:2,exp:'El **p-value** mide la probabilidad de observar los datos *asumiendo que H₀ es verdadera*. p=0.03 < 0.05: rechazas H₀. Pero NO significa que hay 97% de probabilidad de que el efecto sea real, ni mide la magnitud del efecto. Siempre complementar con el tamaño del efecto (Cohen\'s d, eta²).'},
+    {q:'¿Qué mide la correlación de Pearson (r)?',opts:['Cualquier relación entre dos variables','La relación lineal entre dos variables continuas','Si una variable causa cambios en la otra','La pendiente de la recta de regresión'],c:1,exp:'**r de Pearson** mide específicamente la relación **lineal**. r=0 puede ocultar una relación curvilínea perfecta. Asume que ambas variables son continuas y aproximadamente normales. Para relaciones monótonas no lineales, usar **Spearman**. Y siempre recordar: correlación ≠ causalidad.'},
+    {q:'¿Qué significa R²=0.72 en un modelo de regresión?',opts:['El modelo predice con 72% de exactitud','El modelo explica el 72% de la varianza de Y','Hay 72% de correlación entre X e Y','El error promedio es del 28%'],c:1,exp:'**R²** mide la proporción de varianza de Y explicada por el modelo. R²=0.72 significa que el modelo captura el 72% de la variabilidad observada en Y. El 28% restante es variabilidad no explicada (ruido o variables no incluidas). En regresión múltiple, usar R² ajustado que penaliza añadir variables irrelevantes.'},
+    {q:'Tienes AHT de dos campañas. ¿Qué prueba usas para saber si la diferencia es significativa?',opts:['Correlación de Pearson','Chi-cuadrado de independencia','T-test de muestras independientes (Welch)','Regresión lineal simple'],c:2,exp:'**T-test de Welch** (equal_var=False en scipy) compara medias de dos grupos independientes sin asumir varianzas iguales. Chi-cuadrado es para variables categóricas. Pearson mide correlación entre dos variables continuas. Regresión modela la relación entre variables, no compara grupos.'},
+    {q:'¿Qué es el error Tipo I en hypothesis testing?',opts:['No detectar un efecto real que existe','Rechazar H₀ cuando en realidad es verdadera','Aceptar H₁ cuando H₀ también es correcta','El error en la medición de los datos'],c:1,exp:'**Error Tipo I (α):** rechazar H₀ siendo verdadera — "falsa alarma". Su probabilidad se controla con el nivel de significancia α (típicamente 0.05). **Error Tipo II (β):** no rechazar H₀ siendo falsa — "falsa tranquilidad". Reducir α aumenta β: hay un trade-off fundamental entre ambos.'},
+    {q:'¿Para qué sirve el Coeficiente de Variación (CV)?',opts:['Para normalizar datos entre 0 y 1','Para comparar la variabilidad relativa entre grupos con diferentes escalas','Para detectar outliers sin asumir normalidad','Para calcular la correlación entre más de 2 variables'],c:1,exp:'**CV = σ/μ × 100** es adimensional, lo que permite comparar variabilidad entre grupos con diferentes unidades o escalas. Ejemplo: CV_AsesorA=15% vs CV_AsesorB=35% — B es más inconsistente aunque tenga AHT similar. Imposible comparar con σ directamente si los promedios son diferentes.'},
+  ],
+  'COPC KPIs':[
+    {q:'¿Cuál es el target COPC estándar para Service Level en voz inbound?',opts:['≥90% en ≤30 segundos','≥80% en ≤20 segundos','≥75% en ≤15 segundos','≥85% en ≤60 segundos'],c:1,exp:'**COPC estándar: ≥80% en ≤20 segundos** para voz inbound. El umbral de tiempo (T) puede ajustarse por tipo de operación, pero el porcentaje mínimo es 80%. Para chat: ≥80% en ≤30s. Importante medir en intervalos de 15-30 min — el promedio diario puede ocultar períodos críticos.'},
+    {q:'AHT = 245s. ¿Cuánto debe ser el ACW para estar en el rango óptimo COPC?',opts:['≤30 segundos','≤60 segundos','≤90 segundos','No existe un estándar COPC para ACW'],c:0,exp:'**ACW óptimo: ≤30 segundos.** Si AHT=245s y Talk=200s + Hold=15s, entonces ACW=30s — dentro del rango. ACW >90s es considerado alto e indica: sistemas lentos, procesos manuales, o agente sin capacitación en herramientas. Reducir ACW con automatización de CRM es la palanca más efectiva.'},
+    {q:'¿Qué impacto tiene 1% de mejora en FCR sobre los costos operativos?',opts:['Impacto mínimo, menos del 0.1%','Aproximadamente 1% de reducción en costos','Entre 5-10% de reducción en costos','Depende del volumen, no hay relación directa'],c:1,exp:'**1% de aumento en FCR ≈ 1% de reducción en costos operativos.** La relación es casi lineal porque: menos recontactos = menos llamadas = menos agentes necesarios. Además, FCR alto correlaciona directamente con CSAT y NPS alto. Es el KPI con mayor palanca sobre múltiples dimensiones simultáneamente.'},
+    {q:'¿Cuál es la diferencia entre Occupancy y Utilization?',opts:['Son sinónimos usados en distintas regiones','Occupancy incluye capacitación y reuniones; Utilization no','Occupancy mide solo tiempo en contacto/ACW; Utilization incluye todas las actividades productivas','Utilization es Occupancy ÷ Shrinkage'],c:2,exp:'**Occupancy** = (Talk + ACW) / Login time — solo tiempo en interacciones. **Utilization** = todo el tiempo productivo (contactos + capacitación + reuniones + coaching) / tiempo pagado. Utilization = 1 − Shrinkage. Una operación puede tener Occupancy del 88% pero Utilization del 70% si hay mucho tiempo en capacitación.'},
+    {q:'¿Qué significa un NPS de -15 en una operación de Contact Center?',opts:['Hay más promotores que detractores — es positivo','Hay más detractores que promotores — situación crítica','El 15% de los clientes no respondió la encuesta','El score está dentro del rango normal de CC'],c:1,exp:'NPS negativo significa **más detractores que promotores** — situación crítica. NPS=-15 indica que por cada promotor hay significativamente más clientes insatisfechos que generan boca a boca negativo. Benchmarks: ≥50 excelente, 20-49 bueno, 0-19 aceptable, negativo requiere acción inmediata.'},
+    {q:'¿Cómo se calcula el Headcount necesario considerando Shrinkage del 32%?',opts:['Agentes_requeridos × 1.32','Agentes_requeridos / (1 - 0.32)','Agentes_requeridos × 0.68','Agentes_requeridos + 32'],c:1,exp:'**Headcount = Agentes_requeridos / (1 − Shrinkage) = Agentes / 0.68.** Si necesitas 50 agentes productivos con 32% shrinkage: 50 / 0.68 = 74 headcount total. La división (no multiplicación) es correcta porque shrinkage reduce la disponibilidad: de 74 agentes contratados, solo 50 estarán disponibles en promedio.'},
+    {q:'¿Qué mide el CES (Customer Effort Score) y por qué es importante?',opts:['La satisfacción general con la empresa','El esfuerzo del agente para resolver el caso','El esfuerzo percibido por el cliente para resolver su problema','La facilidad de uso de los sistemas del CC'],c:2,exp:'**CES** mide cuánto esfuerzo percibe el cliente para resolver su consulta (escala 1-7). Según CEB/Gartner, es el **predictor más fuerte de churn** — incluso más que CSAT y NPS. Clientes con bajo esfuerzo son más leales aunque no sean extremadamente satisfechos. Alta correlación con FCR: resolver al primer contacto = bajo esfuerzo.'},
+    {q:'ABN = 8% en una operación inbound. ¿Cómo clasificas esta operación?',opts:['Dentro del rango COPC — aceptable','Por encima del estándar — requiere revisión inmediata','Excelente — menor al umbral crítico del 10%','No hay benchmark COPC para ABN'],c:1,exp:'COPC define ABN **≤5%** como estándar. Un **8% está por encima** y requiere revisión: analizar SL en los intervalos de 15 min donde ocurren los abandonos, verificar si el ASA excede la tolerancia del cliente (típicamente >2 min genera abandono exponencial). Acciones: ajustar staffing en picos, activar callback IVR.'},
+  ],
+  'Modelos & ETL':[
+    {q:'En un Star Schema, ¿qué tipo de información va en la tabla FACT?',opts:['Atributos descriptivos del cliente o campaña','Métricas numéricas y llaves foráneas (FK) hacia DIM','El historial completo de transacciones con texto','Únicamente fechas y horas'],c:1,exp:'La **tabla FACT** contiene: (1) métricas numéricas aditivas (duración, abandono, CSAT score) y (2) llaves foráneas que apuntan a las tablas DIM. No debe tener atributos descriptivos — esos van en DIM. Esta separación permite que DAX filtre eficientemente: filtra DIM primero, luego FACT a través de la llave.'},
+    {q:'¿Cuál es la cardinalidad correcta entre DIM_Asesor y FACT_CDR?',opts:['FACT_CDR (1) → DIM_Asesor (*): un registro FACT para muchos asesores','DIM_Asesor (1) → FACT_CDR (*): un asesor tiene muchas llamadas','M:M bidireccional con tabla puente','1:1 — cada llamada tiene exactamente un asesor y viceversa'],c:1,exp:'**DIM(1) → FACT(*)** siempre. Un asesor puede tener cientos de llamadas, pero cada llamada pertenece a exactamente un asesor. La llave primaria (PK) de DIM_Asesor es única; la llave foránea (FK) en FACT_CDR se repite. La dirección del filtro va de DIM hacia FACT: un slicer de asesor filtra las filas de FACT_CDR.'},
+    {q:'¿Qué diferencia hay entre ETL y ELT en cuándo ocurre la transformación?',opts:['No hay diferencia, son sinónimos modernos','ETL transforma antes de cargar; ELT carga crudo y transforma en el destino','ELT es ETL más rápido usando procesamiento paralelo','ETL es para batch; ELT es para streaming'],c:1,exp:'**ETL:** Extrae → Transforma (en herramienta intermedia: SSIS, Python, M) → Carga al DWH limpio. **ELT:** Extrae → Carga crudo al DWH → Transforma dentro del DWH (SQL, dbt). ELT aprovecha la capacidad del cloud DWH (Synapse, BigQuery) para transformar grandes volúmenes. Tu arquitectura Dataflows en Power BI es ETL: M transforma antes de llegar al modelo.'},
+    {q:'En la arquitectura Medallion, ¿qué hace la capa Bronce?',opts:['Limpia y normaliza los datos de la fuente','Construye el Star Schema final para consumo','Ingesta cruda sin transformación — preserva la fuente original','Aplica reglas de negocio y KPIs calculados'],c:2,exp:'**Bronce = copia fiel de la fuente, sin transformar.** Su único propósito es tener un snapshot confiable de los datos originales. Si algo falla en Plata o Gold, puedes reprocesar desde Bronce. La regla es absoluta: Bronce nunca transforma. Esto también permite auditar: si un KPI es cuestionado, siempre puedes rastrear hasta el dato crudo.'},
+    {q:'¿Qué diferencia principal hay entre OLTP y OLAP?',opts:['OLTP es para análisis; OLAP para transacciones','OLTP está normalizado para escritura; OLAP desnormalizado para lectura analítica','OLTP es más moderno que OLAP','Son equivalentes pero usan diferentes lenguajes'],c:1,exp:'**OLTP** (CRM, ACD): normalizado en 3NF, optimizado para miles de INSERT/UPDATE por segundo con baja latencia. **OLAP** (Power BI, DWH): desnormalizado en Star Schema, optimizado para leer millones de filas en aggregaciones. Usar OLTP como fuente directa de Power BI es un error: bloquea transacciones y es lento para análisis.'},
+    {q:'¿Por qué se recomienda evitar las relaciones bidireccionales en Power BI?',opts:['Consumen más memoria RAM','Pueden crear ambigüedad y caminos múltiples que producen resultados incorrectos en medidas','Son más lentas que las unidireccionales','No están disponibles en Power BI Desktop'],c:1,exp:'Las **relaciones bidireccionales** permiten que los filtros fluyan en ambas direcciones — útil para M:M con tabla puente, pero peligroso en general. Pueden crear: caminos ambiguos entre tablas, medidas que devuelven valores inesperados, y degradación de rendimiento. Regla: usar unidireccional DIM→FACT siempre. Bidireccional solo en casos explícitamente justificados.'},
+    {q:'¿Cuál es la ventaja del patrón AsesorKey compuesto (Nombre + "-" + Extension)?',opts:['Hace las consultas DAX más rápidas','Evita ambigüedad cuando el mismo nombre existe con diferentes extensiones','Cumple con el formato COPC requerido','Permite hacer RANKX sin configuración adicional'],c:1,exp:'Sin llave compuesta, "García" en TotalPlay y "García" en Tigo podrían tener la misma llave — relación ambigua. **AsesorKey = UPPER(TRIM(Asesor)) & "-" & TRIM(Extension)** garantiza unicidad. La misma lógica se aplica tanto en FACT_CDR como en DIM_Asesor con M Query para mantener integridad referencial.'},
+  ],
+};
+
+let fcMcqState={answered:false,selected:-1};
+function fcInit(){
+  const el=document.getElementById('fc-decks');
+  el.innerHTML=Object.keys(FC_DECKS).map(k=>`<button class="fcd-btn${k===fcDeck?' on':''}" onclick="fcSwitch('${k}',this)">${k}</button>`).join('');
+  loadFC();
+}
+function fcSwitch(deck,btn){fcDeck=deck;fcIdx=0;fcOk=0;fcFail=0;fcMcqState={answered:false,selected:-1};document.querySelectorAll('.fcd-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');loadFC();}
+
+function loadFC(){
+  const cards=FC_DECKS[fcDeck];if(!cards)return;
+  fcMcqState={answered:false,selected:-1};
+  const c=cards[fcIdx%cards.length];
+  const tot=fcOk+fcFail;
+  document.getElementById('fc-bar').style.width=tot?Math.round(fcOk/tot*100)+'%':'0%';
+  document.getElementById('fc-score').textContent=`✓ ${fcOk}   ✗ ${fcFail}`;
+  document.getElementById('fc-counter').textContent=`Pregunta ${(fcIdx%cards.length)+1} de ${cards.length} · ${fcDeck}`;
+
+  // Render MCQ card
+  const wrap=document.querySelector('.fc-wrap');
+  wrap.onclick=null;
+  wrap.style.cursor='default';
+  document.getElementById('fc-card').outerHTML=`<div id="fc-card-mcq" style="background:var(--s1);border:1px solid var(--b);border-radius:var(--r);padding:16px;margin-bottom:11px">
+    <div style="font-size:.62rem;font-weight:700;letter-spacing:.1em;color:var(--t3);margin-bottom:8px;font-family:var(--mono)">${fcDeck} · OPCIÓN MÚLTIPLE</div>
+    <div style="font-size:.9rem;font-weight:700;line-height:1.55;margin-bottom:14px;color:var(--text)">${c.q}</div>
+    <div id="mcq-opts" style="display:flex;flex-direction:column;gap:7px">
+      ${c.opts.map((o,i)=>`<button id="mcq-${i}" onclick="fcSelectOpt(${i})" style="text-align:left;padding:10px 13px;border-radius:var(--r2);border:1.5px solid var(--b);background:var(--s2);color:var(--t2);font-size:.8rem;font-family:var(--font);cursor:pointer;transition:all .2s;line-height:1.4">
+        <span style="font-family:var(--mono);font-size:.7rem;color:var(--t3);margin-right:7px">${String.fromCharCode(65+i)}.</span>${o}
+      </button>`).join('')}
+    </div>
+    <div id="mcq-feedback" style="display:none;margin-top:11px;padding:11px 13px;border-radius:var(--r2);font-size:.8rem;line-height:1.7"></div>
+  </div>`;
+  // Remove old flip buttons and replace with next button area
+  document.querySelector('.fc-btns').innerHTML=`<button id="fc-next-btn" onclick="fcNext()" style="display:none;width:100%;padding:11px;border-radius:var(--r2);border:none;background:linear-gradient(135deg,var(--bd),var(--blue));color:#fff;font-weight:700;font-size:.85rem;cursor:pointer;font-family:var(--font)">Siguiente pregunta →</button>`;
+}
+
+function fcSelectOpt(idx){
+  if(fcMcqState.answered)return;
+  fcMcqState.answered=true;fcMcqState.selected=idx;
+  const cards=FC_DECKS[fcDeck];
+  const c=cards[fcIdx%cards.length];
+  const correct=idx===c.c;
+  if(correct){fcOk++;addXP(8);}else{fcFail++;}
+  // Color options
+  c.opts.forEach((_,i)=>{
+    const btn=document.getElementById('mcq-'+i);
+    if(i===c.c){btn.style.background='rgba(16,185,129,.15)';btn.style.borderColor='var(--green)';btn.style.color='var(--green)';}
+    else if(i===idx&&!correct){btn.style.background='rgba(239,68,68,.1)';btn.style.borderColor='var(--red)';btn.style.color='var(--red)';}
+    else{btn.style.opacity='.4';}
+    btn.style.cursor='default';
+  });
+  // Feedback
+  const fb=document.getElementById('mcq-feedback');
+  fb.style.display='block';
+  fb.style.background=correct?'rgba(16,185,129,.08)':'rgba(239,68,68,.08)';
+  fb.style.border=`1px solid ${correct?'rgba(16,185,129,.3)':'rgba(239,68,68,.3)'}`;
+  fb.innerHTML=`<div style="font-weight:700;margin-bottom:5px;color:${correct?'var(--green)':'var(--red)'}">${correct?'✅ ¡Correcto! +8 XP':'❌ No es correcto'}</div><div style="color:var(--t2)">${fmtAI(c.exp)}</div>`;
+  // Update score bar
+  const tot=fcOk+fcFail;
+  document.getElementById('fc-bar').style.width=Math.round(fcOk/tot*100)+'%';
+  document.getElementById('fc-score').textContent=`✓ ${fcOk}   ✗ ${fcFail}`;
+  document.getElementById('fc-next-btn').style.display='block';
+}
+
+function fcNext(){
+  fcIdx++;
+  const cards=FC_DECKS[fcDeck];
+  if(fcIdx>0&&fcIdx%cards.length===0){
+    const pct=Math.round(fcOk/(fcOk+fcFail)*100);
+    setTimeout(()=>{
+      document.getElementById('mcq-feedback').innerHTML=`<div style="text-align:center;padding:8px 0"><div style="font-size:1.4rem;margin-bottom:6px">${pct>=80?'🏆':'💪'}</div><div style="font-size:1rem;font-weight:800;color:${pct>=80?'var(--green)':'var(--amber)'}">${pct}% correcto</div><div style="font-size:.8rem;color:var(--t2);margin-top:4px">✓ ${fcOk} bien · ✗ ${fcFail} mal · ${pct>=80?'¡Excelente dominio!':'Sigue practicando'}</div></div>`;
+      document.getElementById('fc-next-btn').textContent='Reiniciar mazo 🔄';
+      document.getElementById('fc-next-btn').onclick=()=>{fcIdx=0;fcOk=0;fcFail=0;loadFC();};
+    },200);
+    return;
+  }
+  loadFC();
+}
+function flipFC(){}// kept for compatibility
+function fcAns(){}// kept for compatibility
+fcInit();
+
+// ══════════════════════════════════════════
+// DICCIONARIO DA/DS
+// ══════════════════════════════════════════
+const DADS=[
+  {id:'media',term:'Media (Promedio)',abbr:'μ / x̄',cat:'Estadística',color:'#8b5cf6',short:'Suma de valores / n. Sensible a outliers.',def:'La media aritmética divide la suma entre n. Es sensible a valores extremos. Cuando hay outliers, la mediana es más representativa.',formula:'μ = Σxᵢ / n',tags:['N1','Tendencia Central'],rel:['mediana','desv-std','IQR']},
+  {id:'mediana',term:'Mediana',abbr:'Me',cat:'Estadística',color:'#8b5cf6',short:'Valor central de los datos ordenados. Robusta ante outliers.',def:'Divide el conjunto en dos mitades iguales. Para n par, promedio de los dos valores centrales. Preferible a la media con distribuciones sesgadas.',tags:['N1','Robusta','Tendencia Central'],rel:['media','IQR','percentil']},
+  {id:'desv-std',term:'Desviación Estándar',abbr:'σ / s',cat:'Estadística',color:'#8b5cf6',short:'Raíz de la varianza. Mide dispersión en las mismas unidades que los datos.',def:'σ baja = datos concentrados. σ alta = mayor variabilidad. Regla 68-95-99.7 (distribución normal): 68% dentro de μ±σ, 95% dentro de μ±2σ.',formula:'σ = √(Σ(xᵢ−μ)²/N)',tags:['N1','Dispersión'],rel:['varianza','z-score','coef-variacion']},
+  {id:'varianza',term:'Varianza',abbr:'σ²',cat:'Estadística',color:'#8b5cf6',short:'Promedio de las desviaciones al cuadrado. Base de la desviación estándar.',def:'Mide la dispersión total. Muestral usa n-1 (corrección de Bessel). Sus unidades son el cuadrado de las originales, por eso se usa σ en la práctica.',formula:'σ² = Σ(xᵢ−μ)²/N',tags:['N1','Dispersión'],rel:['desv-std']},
+  {id:'coef-variacion',term:'Coeficiente de Variación',abbr:'CV',cat:'Estadística',color:'#8b5cf6',short:'Dispersión relativa: σ/μ × 100. Permite comparar variabilidad entre grupos.',def:'Adimensional. Permite comparar la variabilidad entre conjuntos con diferentes escalas o medias. CV<10% bajo, CV>30% alto.',formula:'CV = (σ/μ) × 100',tags:['N2','Comparación'],rel:['desv-std','media']},
+  {id:'percentil',term:'Percentil',cat:'Estadística',color:'#8b5cf6',short:'Valor por debajo del cual cae P% de las observaciones.',def:'P50 = mediana. P25 = Q1. P75 = Q3. El P95 del tiempo de respuesta indica que el 95% ocurrieron en ese tiempo o menos.',tags:['N1','Distribución'],rel:['cuartil','IQR','mediana']},
+  {id:'cuartil',term:'Cuartil',abbr:'Q1, Q2, Q3',cat:'Estadística',color:'#8b5cf6',short:'Valores que dividen los datos en 4 partes iguales del 25% cada una.',def:'Q1=P25, Q2=mediana=P50, Q3=P75. Base para el box plot y el IQR.',tags:['N1','Distribución'],rel:['IQR','percentil','mediana']},
+  {id:'IQR',term:'Rango Intercuartílico',abbr:'IQR',cat:'Estadística',color:'#8b5cf6',short:'Q3 − Q1. Mide la dispersión del 50% central. Base para detección de outliers.',def:'Regla de Tukey: outliers fuera de [Q1−1.5·IQR, Q3+1.5·IQR]. No asume normalidad. Ideal para tiempos de proceso sesgados.',formula:'IQR = Q3 − Q1\nLím. inf = Q1 − 1.5×IQR\nLím. sup = Q3 + 1.5×IQR',tags:['N1','Outliers','Robusto'],rel:['cuartil','outlier','z-score']},
+  {id:'z-score',term:'Z-Score',cat:'Estadística',color:'#8b5cf6',short:'Desviaciones estándar que un valor se aleja de la media. Estandariza a μ=0, σ=1.',def:'|z|>2: outlier moderado (~5% datos en distribución normal). |z|>3: outlier severo. Solo válido si los datos son aproximadamente normales.',formula:'z = (x − μ) / σ',tags:['N1','Estandarización','Outliers'],rel:['IQR','desv-std','normalizar']},
+  {id:'outlier',term:'Outlier (Valor Atípico)',cat:'Estadística',color:'#8b5cf6',short:'Observación que se aleja significativamente del patrón general.',def:'Puede ser error (corregir) o evento legítimo extremo (analizar). Métodos: IQR, z-score, Isolation Forest, DBSCAN.',tags:['N1','Limpieza'],rel:['IQR','z-score','IQR']},
+  {id:'correlacion',term:'Correlación de Pearson',abbr:'r',cat:'Estadística',color:'#8b5cf6',short:'Mide la relación lineal entre dos variables. Rango −1 a +1.',def:'|r|<0.3 débil, 0.3-0.7 moderada, >0.7 fuerte. Asume linealidad y normalidad. Para datos no normales o relaciones monótonas usar Spearman.',formula:'r = Σ[(xᵢ−x̄)(yᵢ−ȳ)] / √[Σ(xᵢ−x̄)² × Σ(yᵢ−ȳ)²]',tags:['N2','Correlación','Bivariante'],rel:['causalidad','regresion-lineal']},
+  {id:'causalidad',term:'Causalidad',cat:'Estadística',color:'#8b5cf6',short:'Una variable causa directamente cambios en otra. Más fuerte que correlación.',def:'Para establecer causalidad: correlación + precedencia temporal + eliminación de causas alternativas. El A/B testing es el estándar para causalidad en entornos digitales.',tags:['N3','Causal','Experimento'],rel:['correlacion','ab-testing']},
+  {id:'p-value',term:'P-Value',cat:'Estadística',color:'#8b5cf6',short:'Probabilidad de observar los datos si H₀ fuera verdadera.',def:'No es la probabilidad de que H₀ sea cierta. p<0.05 → rechazar H₀ (convención). Siempre reportar también el tamaño del efecto.',tags:['N2','Inferencia','Significancia'],rel:['hipotesis-nula','intervalo-confianza']},
+  {id:'hipotesis-nula',term:'Hipótesis Nula',abbr:'H₀',cat:'Estadística',color:'#8b5cf6',short:'Asume que no hay efecto o diferencia. Se intenta rechazar con evidencia.',def:'Si p<α se rechaza H₀. Si no se rechaza H₀ no significa que sea verdadera. Error Tipo I: rechazar H₀ siendo verdadera (α). Error Tipo II: no rechazar H₀ siendo falsa (β).',tags:['N2','Inferencia'],rel:['p-value','ab-testing']},
+  {id:'ab-testing',term:'A/B Testing',cat:'Estadística',color:'#8b5cf6',short:'Experimento controlado que compara dos versiones para determinar cuál es mejor.',def:'Los usuarios se asignan aleatoriamente a grupos A y B. Evita sesgo de selección. Requiere definir hipótesis, métrica, tamaño de muestra y criterio ANTES de empezar.',tags:['N2','Experimento','Causal'],rel:['causalidad','p-value','hipotesis-nula']},
+  {id:'regresion-lineal',term:'Regresión Lineal',cat:'Estadística',color:'#8b5cf6',short:'Modelo que establece relación lineal entre variable dependiente e independientes.',def:'Y = β₀ + β₁X + ε. R² mide % de varianza explicada. Supuestos: linealidad, independencia de errores, homocedasticidad, normalidad de residuos.',formula:'Ŷ = β₀ + β₁X₁ + ... + βₚXₚ',tags:['N2','Regresión','Predicción'],rel:['correlacion','r-cuadrado','overfitting']},
+  {id:'r-cuadrado',term:'R² — Coeficiente de Determinación',cat:'Estadística',color:'#8b5cf6',short:'Proporción de la varianza de Y explicada por el modelo. Rango 0-1.',def:'R²=1 perfecta explicación. R²=0 ninguna. Usar R² ajustado en regresión múltiple para penalizar variables irrelevantes.',formula:'R² = 1 − SS_residual/SS_total',tags:['N2','Regresión','Bondad de Ajuste'],rel:['regresion-lineal','overfitting']},
+  // ML
+  {id:'overfitting',term:'Overfitting (Sobreajuste)',cat:'Machine Learning',color:'#ec4899',short:'El modelo memoriza el entrenamiento pero falla al generalizar a datos nuevos.',def:'Alta accuracy en train, baja en test. Causas: modelo muy complejo, pocos datos. Soluciones: regularización, cross-validation, más datos, dropout.',tags:['N3','Generalización','Regularización'],rel:['underfitting','cross-validation','regularizacion']},
+  {id:'underfitting',term:'Underfitting (Subajuste)',cat:'Machine Learning',color:'#ec4899',short:'El modelo es muy simple para capturar los patrones en los datos.',def:'Alta pérdida en train y test. Soluciones: modelo más complejo, más features, menos regularización.',tags:['N3','Complejidad'],rel:['overfitting','bias-variance']},
+  {id:'cross-validation',term:'Validación Cruzada',abbr:'K-Fold CV',cat:'Machine Learning',color:'#ec4899',short:'Divide datos en K folds para evaluar el modelo de forma robusta.',def:'Entrena K veces usando K-1 folds. Error final = promedio de K errores. Para series temporales usar TimeSeriesSplit (nunca mezclar futuro en entrenamiento).',tags:['N3','Evaluación','Robusto'],rel:['overfitting','bias-variance']},
+  {id:'precision-recall',term:'Precisión y Recall',abbr:'Precision / Recall',cat:'Machine Learning',color:'#ec4899',short:'Métricas de clasificación binaria. Existe un trade-off entre ambas.',def:'Precisión = TP/(TP+FP): de lo predicho positivo, ¿cuánto era real? Recall = TP/(TP+FN): de los positivos reales, ¿cuántos encontró el modelo?',formula:'Precisión = TP/(TP+FP)\nRecall = TP/(TP+FN)',tags:['N3','Clasificación','Evaluación'],rel:['f1-score','roc-auc','confusion-matrix']},
+  {id:'f1-score',term:'F1-Score',cat:'Machine Learning',color:'#ec4899',short:'Media armónica de precisión y recall. Mejor que accuracy con clases desbalanceadas.',def:'F1 = 2×(P×R)/(P+R). Rango 0-1. Preferible a accuracy cuando las clases están desbalanceadas.',formula:'F1 = 2 × Precisión × Recall / (Precisión + Recall)',tags:['N3','Clasificación','Desbalance'],rel:['precision-recall','roc-auc']},
+  {id:'roc-auc',term:'ROC-AUC',cat:'Machine Learning',color:'#ec4899',short:'Área bajo la curva ROC. Mide la calidad del clasificador independiente del umbral.',def:'AUC=0.5 aleatorio. AUC=1 perfecto. AUC 0.7-0.8 aceptable. 0.8-0.9 bueno. >0.9 excelente. Independiente del umbral y del desbalance.',tags:['N3','Clasificación','Evaluación'],rel:['precision-recall','f1-score']},
+  {id:'confusion-matrix',term:'Matriz de Confusión',cat:'Machine Learning',color:'#ec4899',short:'Tabla que muestra TP, TN, FP, FN de un clasificador.',def:'De ella se derivan accuracy, precisión, recall, F1, especificidad. Punto de partida para entender qué tipo de errores comete el modelo.',tags:['N3','Clasificación','Diagnóstico'],rel:['precision-recall','f1-score','roc-auc']},
+  {id:'rmse',term:'RMSE',abbr:'Root Mean Squared Error',cat:'Machine Learning',color:'#ec4899',short:'Raíz del promedio de errores al cuadrado. Métrica principal para regresión.',def:'Penaliza errores grandes. Mismas unidades que la variable objetivo. Sensible a outliers. Complementar con MAE (robusta) y MAPE (porcentaje).',formula:'RMSE = √(Σ(yᵢ−ŷᵢ)²/n)',tags:['N3','Regresión ML','Evaluación'],rel:['mae']},
+  {id:'mae',term:'MAE',abbr:'Mean Absolute Error',cat:'Machine Learning',color:'#ec4899',short:'Promedio de errores absolutos. Más robusto que RMSE ante outliers.',formula:'MAE = Σ|yᵢ−ŷᵢ|/n',tags:['N3','Regresión ML','Evaluación'],rel:['rmse']},
+  {id:'regularizacion',term:'Regularización (L1/L2)',cat:'Machine Learning',color:'#ec4899',short:'Penaliza la complejidad del modelo para reducir overfitting.',def:'L1 (Lasso): produce coeficientes exactamente 0 → selección de variables. L2 (Ridge): reduce coeficientes sin eliminarlos. Elastic Net: combinación de ambas.',formula:'Lasso: L = MSE + λΣ|βᵢ|\nRidge: L = MSE + λΣβᵢ²',tags:['N3','Regularización','L1','L2'],rel:['overfitting','feature-selection']},
+  {id:'feature-engineering',term:'Feature Engineering',cat:'Machine Learning',color:'#ec4899',short:'Crear, transformar o seleccionar variables para mejorar el modelo.',def:'La diferencia entre un modelo mediocre y uno excelente. Técnicas: one-hot encoding, normalización, binning, interacciones, extracción temporal (hora, día, mes).',tags:['N3','Feature','Transformación'],rel:['normalizar','one-hot']},
+  {id:'normalizar',term:'Normalización vs Estandarización',cat:'Machine Learning',color:'#ec4899',short:'Min-Max escala a [0,1]. Z-score escala a μ=0, σ=1.',def:'Min-Max sensible a outliers. Z-score preferida para KNN, SVM, PCA. Necesaria cuando variables tienen escalas muy diferentes.',formula:'Min-Max: (x−min)/(max−min)\nZ-score: (x−μ)/σ',tags:['N2','Preprocesamiento'],rel:['z-score','feature-engineering']},
+  {id:'pca',term:'PCA — Análisis de Componentes Principales',cat:'Machine Learning',color:'#ec4899',short:'Reducción de dimensionalidad: transforma variables correlacionadas en componentes ortogonales.',def:'Encuentra direcciones de máxima varianza. Los componentes son ortogonales (no correlacionados). Prerequiere estandarización. Pierde interpretabilidad.',tags:['N3','Dimensionalidad','No Supervisado'],rel:['normalizar','feature-engineering']},
+  {id:'random-forest',term:'Random Forest',cat:'Machine Learning',color:'#ec4899',short:'Ensemble de árboles entrenados con bagging y selección aleatoria de features.',def:'Reduce la varianza del árbol individual. Produce feature importance basada en reducción de impureza. Robusto y difícil de sobreajustar si se configuran max_depth y n_estimators.',tags:['N3','Ensemble','Árbol'],rel:['xgboost','feature-engineering']},
+  {id:'xgboost',term:'XGBoost',abbr:'eXtreme Gradient Boosting',cat:'Machine Learning',color:'#ec4899',short:'Gradient boosting optimizado con regularización y manejo de valores faltantes.',def:'Construye árboles secuencialmente corrigiendo errores del anterior. Regularización L1/L2 reduce overfitting. Estándar en competencias de ML con datos tabulares.',tags:['N3','Ensemble','Tabular'],rel:['random-forest','regularizacion']},
+  // Python
+  {id:'dataframe',term:'DataFrame (pandas)',cat:'Python',color:'#10b981',short:'Tabla 2D de pandas con filas indexadas y columnas nombradas.',def:'Análogo a tabla SQL o hoja de cálculo. Columnas pueden tener diferentes tipos. Soporta vectorización, GroupBy, merge, pivot.',tags:['N1','pandas','Estructura'],rel:['series','groupby-pandas','merge-pandas']},
+  {id:'series',term:'Series (pandas)',cat:'Python',color:'#10b981',short:'Array 1D etiquetado de pandas. Una columna de un DataFrame.',def:'Tiene índice y array de valores del mismo tipo. Operaciones entre Series se alinean por índice.',tags:['N1','pandas'],rel:['dataframe']},
+  {id:'groupby-pandas',term:'GroupBy (pandas)',cat:'Python',color:'#10b981',short:'Split-apply-combine: agrupa por columna, aplica función, combina resultados.',def:'Equivalente a GROUP BY en SQL y SUMMARIZE/ADDCOLUMNS en DAX. .agg() permite múltiples funciones simultáneas.',tags:['N2','pandas','SQL'],rel:['dataframe','merge-pandas']},
+  {id:'merge-pandas',term:'merge() pandas',cat:'Python',color:'#10b981',short:'Une dos DataFrames por columnas. Equivalente a JOIN en SQL.',def:'how=inner (intersección), left (todo izquierda), outer (unión). Parámetros: on, left_on/right_on, how, suffixes.',tags:['N2','pandas','JOIN'],rel:['groupby-pandas','dataframe']},
+  // SQL
+  {id:'join-sql',term:'JOIN (SQL)',cat:'SQL',color:'#22d3ee',short:'Combina filas de dos tablas basándose en una condición de unión.',def:'INNER: solo coincidencias. LEFT: todas de izquierda + matches derechos. FULL OUTER: todas. CROSS: producto cartesiano.',tags:['N1','SQL','Relacional'],rel:['window-fn','cte']},
+  {id:'window-fn',term:'Window Functions (SQL)',cat:'SQL',color:'#22d3ee',short:'Calculan sobre un conjunto de filas sin colapsar. RANK, LAG, LEAD, SUM OVER.',def:'A diferencia de GROUP BY, mantienen todas las filas. OVER() define ventana. PARTITION BY divide en grupos. ORDER BY define orden.',formula:'fn() OVER (PARTITION BY col ORDER BY col)',tags:['N2','SQL','Analítica','Ranking'],rel:['join-sql','cte']},
+  {id:'cte',term:'CTE (SQL)',abbr:'Common Table Expression',cat:'SQL',color:'#22d3ee',short:'Subconsulta nombrada y temporal definida con WITH. Reutilizable dentro de la misma consulta.',def:'Mejora legibilidad al descomponer consultas complejas. Las CTEs recursivas permiten traversar jerarquías.',formula:'WITH nombre AS (SELECT ...) SELECT ...',tags:['N2','SQL','Legibilidad'],rel:['join-sql','window-fn']},
+  // DAX
+  {id:'calculate-dax',term:'CALCULATE (DAX)',cat:'DAX',color:'#f59e0b',short:'Evalúa expresión en contexto de filtro modificado. La función más importante de DAX.',def:'CALCULATE(expr, filtro1, filtro2...). Puede agregar filtros, reemplazarlos (ALL), activar relaciones inactivas (USERELATIONSHIP).',formula:'CALCULATE(expresión, [filtro1, ...])',tags:['N2','DAX','Fundamental'],rel:['all-dax','filter-ctx']},
+  {id:'all-dax',term:'ALL / ALLEXCEPT / ALLSELECTED (DAX)',cat:'DAX',color:'#f59e0b',short:'Eliminan filtros del contexto. Base de % totales y comparaciones absolutas.',def:'ALL: elimina todos. ALLEXCEPT: mantiene los de columnas especificadas. ALLSELECTED: respeta filtros externos al visual.',tags:['N2','DAX','Filtros'],rel:['calculate-dax']},
+  {id:'filter-ctx',term:'Contexto de Filtro (DAX)',cat:'DAX',color:'#f59e0b',short:'Define qué filas son visibles al evaluar una medida.',def:'Creado por slicers, matrices, CALCULATE. Diferente al contexto de fila (columnas calculadas). CALCULATE es la única función que modifica el contexto de filtro.',tags:['N2','DAX','Fundamental'],rel:['calculate-dax','all-dax']},
+  // BI/Modelado
+  {id:'star-schema',term:'Star Schema',cat:'BI / Modelado',color:'#f97316',short:'FACT central con métricas + DIM con atributos. Optimizado para OLAP.',def:'Cardinalidad 1:* de DIM a FACT. Desnormalizado intencionalmente en DIM para velocidad de lectura. Base del diseño de Data Warehouses.',tags:['N2','Modelado','DWH'],rel:['olap','oltp','etl']},
+  {id:'olap',term:'OLAP',abbr:'Online Analytical Processing',cat:'BI / Modelado',color:'#f97316',short:'Sistemas optimizados para consultas analíticas. Desnormalizado, lectura masiva.',def:'Operaciones: Roll-up, Drill-down, Slice, Dice, Pivot. Power BI/Analysis Services son OLAP.',tags:['N2','Arquitectura'],rel:['oltp','star-schema','data-warehouse']},
+  {id:'oltp',term:'OLTP',abbr:'Online Transaction Processing',cat:'BI / Modelado',color:'#f97316',short:'Sistemas transaccionales. Normalizado (3NF), optimizado para escritura y concurrencia.',def:'Características: 3NF, alta concurrencia, baja latencia, ACID. No usar directamente como fuente de BI.',tags:['N2','Arquitectura'],rel:['olap','normalizacion']},
+  {id:'etl',term:'ETL',abbr:'Extract-Transform-Load',cat:'BI / Modelado',color:'#f97316',short:'Extrae datos de fuentes, los transforma y los carga al destino analítico.',def:'Herramientas: SSIS, Power Query (M), dbt. La capa de transformación puede ser el cuello de botella.',tags:['N2','Pipeline'],rel:['elt','data-warehouse']},
+  {id:'elt',term:'ELT',abbr:'Extract-Load-Transform',cat:'BI / Modelado',color:'#f97316',short:'Carga crudo primero, transforma en el DWH. Mejor para cloud y grandes volúmenes.',def:'La transformación ocurre dentro del DWH usando su capacidad. dbt es la herramienta de transformación ELT más popular.',tags:['N3','Cloud','Pipeline'],rel:['etl','data-warehouse']},
+  {id:'data-warehouse',term:'Data Warehouse',abbr:'DWH',cat:'BI / Modelado',color:'#f97316',short:'Repositorio centralizado de datos históricos integrados y orientados al análisis.',def:'Características Inmon: orientado a temas, integrado, variante en el tiempo, no volátil. Cloud: Snowflake, BigQuery, Synapse, Redshift.',tags:['N3','Arquitectura','Histórico'],rel:['star-schema','etl','data-lake']},
+  {id:'data-lake',term:'Data Lake',cat:'BI / Modelado',color:'#f97316',short:'Repositorio que almacena datos en formato original: estructurados y no estructurados.',def:'Schema-on-read vs schema-on-write del DWH. Riesgo de "data swamp" sin gobernanza. Formatos: CSV, JSON, Parquet, imágenes, logs.',tags:['N3','Big Data','Cloud'],rel:['data-warehouse','elt']},
+  {id:'normalizacion',term:'Normalización (BD)',cat:'BI / Modelado',color:'#f97316',short:'Organiza una BD relacional para reducir redundancia e inconsistencia.',def:'1NF: valores atómicos. 2NF: atributos dependen de toda la PK. 3NF: sin dependencias transitivas. Star Schema está en 3NF en la FACT; DIM intencionalmente desnormalizada.',tags:['N2','Relacional','Diseño'],rel:['star-schema','oltp']},
+  // Visualización
+  {id:'boxplot',term:'Box Plot',cat:'Visualización',color:'#84cc16',short:'Caja (Q1-Q3) + bigotes + outliers. Visualiza distribución y valores atípicos.',def:'Caja = IQR. Línea = mediana. Bigotes = hasta Q1-1.5·IQR y Q3+1.5·IQR. Puntos fuera = outliers.',tags:['N1','Distribución'],rel:['IQR','histograma']},
+  {id:'histograma',term:'Histograma',cat:'Visualización',color:'#84cc16',short:'Gráfico de barras de frecuencias para variable continua. Muestra la distribución.',def:'El número de bins afecta la interpretación. Regla de Sturges: k=1+3.322·log(n). Para comparar múltiples distribuciones considerar violin plot.',tags:['N1','Distribución'],rel:['boxplot','desv-std']},
+  {id:'scatter-plot',term:'Scatter Plot',cat:'Visualización',color:'#84cc16',short:'Gráfico de puntos que muestra relación entre dos variables numéricas.',def:'Permite visualizar correlación, outliers bivariantes, clusters, relaciones no lineales.',tags:['N1','Correlación'],rel:['correlacion','regresion-lineal']},
+  {id:'heatmap',term:'Heatmap',cat:'Visualización',color:'#84cc16',short:'Colores para representar magnitudes en una matriz 2D.',def:'Usos: matriz de correlación, comportamiento temporal (ventas por hora/día), matriz de confusión.',tags:['N2','Matriz'],rel:['correlacion','confusion-matrix']},
+  // KPIs generales
+  {id:'kpi',term:'KPI',abbr:'Key Performance Indicator',cat:'KPIs',color:'#3b82f6',short:'Métrica cuantificable que refleja el éxito en alcanzar objetivos estratégicos.',def:'Un buen KPI es SMART: Específico, Medible, Alcanzable, Relevante y Temporal. Jerarquía: estratégico → táctico → operativo.',tags:['N1','Gestión'],rel:['sla','benchmark']},
+  {id:'sla',term:'SLA',abbr:'Service Level Agreement',cat:'KPIs',color:'#3b82f6',short:'Contrato formal que define niveles mínimos de servicio comprometidos.',def:'Contiene métricas, objetivos, métodos de medición, penalizaciones y excepciones. Diferente al SLO (objetivo interno más estricto).',tags:['N2','Contractual'],rel:['kpi','benchmark']},
+  {id:'benchmark',term:'Benchmark',cat:'KPIs',color:'#3b82f6',short:'Estándar de referencia para comparar desempeño con la industria o mejores prácticas.',def:'Tipos: interno, competitivo, funcional, genérico. El benchmarking es el proceso sistemático de identificar y adoptar mejores prácticas.',tags:['N2','Comparación','Industria'],rel:['kpi','sla']},
+  {id:'roi',term:'ROI',abbr:'Return on Investment',cat:'KPIs',color:'#3b82f6',short:'Retorno financiero de una inversión relativo a su costo.',formula:'ROI = (Beneficio neto / Costo inversión) × 100',tags:['N2','Financiero'],rel:['kpi']},
+  {id:'churn',term:'Churn Rate',cat:'KPIs',color:'#3b82f6',short:'Porcentaje de clientes que abandonan el servicio en un período.',formula:'Churn = (Clientes perdidos / Clientes al inicio) × 100',tags:['N2','Retención','Lealtad'],rel:['nps-gen','clv']},
+  {id:'clv',term:'CLV / LTV',abbr:'Customer Lifetime Value',cat:'KPIs',color:'#3b82f6',short:'Valor monetario total que un cliente genera durante toda su relación con la empresa.',formula:'CLV = (Ingreso promedio × Margen) / Churn Rate',tags:['N3','Financiero','Retención'],rel:['churn']},
+  {id:'nps-gen',term:'NPS (general)',abbr:'Net Promoter Score',cat:'KPIs',color:'#3b82f6',short:'Medida de lealtad: %Promotores(9-10) − %Detractores(0-6). Rango -100 a +100.',formula:'NPS = %Promotores − %Detractores',tags:['N1','Lealtad'],rel:['churn','csat-gen']},
+  {id:'csat-gen',term:'CSAT (general)',abbr:'Customer Satisfaction',cat:'KPIs',color:'#3b82f6',short:'Satisfacción con una interacción específica. % de respuestas positivas.',formula:'CSAT% = (Respuestas positivas / Total) × 100',tags:['N1','Satisfacción'],rel:['nps-gen','ces-gen']},
+  {id:'ces-gen',term:'CES (general)',abbr:'Customer Effort Score',cat:'KPIs',color:'#3b82f6',short:'Esfuerzo percibido para resolver el problema. Mejor predictor de churn.',formula:'CES = Media respuestas en escala 1-7',tags:['N2','Esfuerzo'],rel:['csat-gen','nps-gen']},
+];
+
+// DADS LOGIC
+const dadsAllCats=['Todas',...new Set(DADS.map(d=>d.cat))].sort((a,b)=>a==='Todas'?-1:b==='Todas'?1:a.localeCompare(b,'es'));
+function dadsInit(){
+  document.getElementById('dads-cats').innerHTML=dadsAllCats.map(c=>`<button class="cat-btn${c==='Todas'?' on':''}" data-cat="${c}" onclick="dadsCat('${c}',this)" style="${c==='Todas'?'background:var(--blue);border-color:var(--blue);color:#fff':''}">${c}</button>`).join('');
+  dadsRender();
+}
+function dadsCat(cat,btn){dadsActiveCat=cat;document.querySelectorAll('#dads-cats .cat-btn').forEach(b=>{b.classList.remove('on');b.style.cssText='';});btn.classList.add('on');btn.style.background=cat==='Todas'?'var(--blue)':DADS.find(d=>d.cat===cat)?.color||'var(--blue)';btn.style.borderColor=btn.style.background;btn.style.color='#fff';dadsRender();}
+function dadsSearch(){dadsQ=document.getElementById('dads-input').value.toLowerCase();document.getElementById('dads-clr').style.display=dadsQ?'block':'none';dadsRender();}
+function dadsClear(){document.getElementById('dads-input').value='';dadsQ='';document.getElementById('dads-clr').style.display='none';dadsRender();}
+function dadsSetSort(s,btn){dadsSort=s;document.querySelectorAll('#v-dict .sbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');dadsRender();}
+function dadsGetFiltered(){return DADS.filter(d=>{const mc=dadsActiveCat==='Todas'||d.cat===dadsActiveCat;if(!mc)return false;if(!dadsQ)return true;return d.term.toLowerCase().includes(dadsQ)||(d.abbr||'').toLowerCase().includes(dadsQ)||d.short.toLowerCase().includes(dadsQ)||(d.def||'').toLowerCase().includes(dadsQ)||(d.tags||[]).some(t=>t.toLowerCase().includes(dadsQ));});}
+function dadsGetSorted(arr){return dadsSort==='cat'?[...arr].sort((a,b)=>a.cat.localeCompare(b.cat,'es')||a.term.localeCompare(b.term,'es')):[...arr].sort((a,b)=>a.term.localeCompare(b.term,'es'));}
+function dadsRender(){
+  const data=dadsGetSorted(dadsGetFiltered());
+  document.getElementById('dads-stats').textContent=dadsQ?`${data.length} resultado${data.length!==1?'s':''} para "${dadsQ}"`:'';
+  const list=document.getElementById('dads-list'),empty=document.getElementById('dads-empty');
+  if(!data.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=data.map((d,i)=>{
+    const col=d.color||'#3b82f6';const isOpen=d.id===dadsOpen;
+    return `<div class="dict-item${isOpen?' open':''}" id="di-${d.id}" style="animation-delay:${Math.min(i*.015,.3)}s">
+      <div class="di-hd" onclick="dadsToggle('${d.id}')">
+        <div class="di-left">
+          <div class="di-term">${hlTxt(d.term,dadsQ)}</div>
+          <div class="di-row"><span class="di-cat" style="background:${col}22;color:${col}">${d.cat}</span>${d.abbr?`<span class="di-abbr">${d.abbr}</span>`:''}</div>
+          ${!isOpen?`<div class="di-prev">${hlTxt(d.short,dadsQ)}</div>`:''}
+        </div>
+        <div class="di-arr">▼</div>
+      </div>
+      ${isOpen?dadsBuildBody(d):''}
+    </div>`;
+  }).join('');
+  buildAlpha(data,'di-');
+}
+function dadsBuildBody(d){
+  let h=`<div class="di-body"><p>${hlTxt(d.def||d.short,dadsQ)}</p>`;
+  if(d.formula)h+=`<div class="flbl">FÓRMULA</div><div class="formula" style="margin-top:4px">${d.formula}</div>`;
+  if(d.tags?.length)h+=`<div class="tags-row">${d.tags.map(t=>`<span class="tag" style="background:${d.color||'#3b82f6'}15;color:${d.color||'#3b82f6'}">${t}</span>`).join('')}</div>`;
+  if(d.rel?.length){h+=`<div class="rel-row"><div class="rel-lbl">VER TAMBIÉN</div><div class="rel-chips">`;d.rel.forEach(r=>{const rd=DADS.find(x=>x.id===r);if(rd)h+=`<button class="rchip" onclick="dadsJump('${r}')">${rd.term.split(' ').slice(0,3).join(' ')}</button>`;});h+=`</div></div>`;}
+  return h+`</div>`;
+}
+function dadsToggle(id){dadsOpen=dadsOpen===id?null:id;dadsRender();if(dadsOpen)setTimeout(()=>document.getElementById('di-'+id)?.scrollIntoView({behavior:'smooth',block:'nearest'}),60);}
+function dadsJump(id){const d=DADS.find(x=>x.id===id);if(!d)return;if(dadsActiveCat!=='Todas'&&d.cat!==dadsActiveCat){dadsActiveCat='Todas';document.querySelectorAll('#dads-cats .cat-btn').forEach(b=>{b.classList.remove('on');b.style.cssText='';});const ab=document.querySelector('#dads-cats .cat-btn[data-cat="Todas"]');if(ab){ab.classList.add('on');ab.style.background='var(--blue)';ab.style.borderColor='var(--blue)';ab.style.color='#fff';}}dadsOpen=id;dadsRender();setTimeout(()=>document.getElementById('di-'+id)?.scrollIntoView({behavior:'smooth',block:'start'}),80);}
+
+// ══════════════════════════════════════════
+// DICCIONARIO KPIs
+// ══════════════════════════════════════════
+const KPIS=[
+  // ACCESIBILIDAD
+  {id:'ksl',term:'Service Level',abbr:'SL — Nivel de Servicio',cat:'Accesibilidad',ch:'VOZ',imp:5,color:'#14b8a6',short:'% contactos atendidos dentro del tiempo umbral.',def:'Métrica primaria de accesibilidad. Medir en intervalos de 15-30 min para detectar picos intradiarios. Excluir abandonos en primeros 5-10 segundos (COPC estándar).',formula:'SL = (Atendidos en ≤T seg / Total ofrecidos) × 100',bench:{copc:'≥80% en ≤20s',world:'≥85% en ≤20s',critico:'<70%'},tags:['COPC','N1','Crítico'],rel:['kasa','kabn']},
+  {id:'ksl-chat',term:'SL Chat',abbr:'Service Level Chat',cat:'Accesibilidad',ch:'CHAT',imp:5,color:'#14b8a6',short:'% de chats atendidos en ≤30 segundos.',formula:'SL_Chat = (Chats atendidos en ≤T seg / Total recibidos) × 100',bench:{sincronico:'≥80% en ≤30s',asincrono:'≥90% en ≤4h'},tags:['N2','Chat','Multicanal'],rel:['ksl','kfrt']},
+  {id:'krta-email',term:'Response Time Rate Email',abbr:'RTR Email',cat:'Accesibilidad',ch:'EMAIL',imp:4,color:'#14b8a6',short:'% de emails respondidos dentro del tiempo comprometido.',formula:'RTR = (Emails respondidos en ≤T h / Total recibidos) × 100',bench:{urgente:'≥95% en ≤1h',estandar:'≥90% en ≤4h'},tags:['N2','Email','Asincrónico'],rel:['ksl-chat','kfrt']},
+  {id:'kasa',term:'Average Speed of Answer',abbr:'ASA — Velocidad Promedio de Respuesta',cat:'Accesibilidad',ch:'VOZ',imp:4,color:'#14b8a6',short:'Tiempo promedio de espera en cola antes de ser atendido.',def:'Complementa al SL. Un SL del 80% puede coexistir con un ASA alto si el 20% restante espera mucho.',formula:'ASA = Suma tiempos de espera atendidos / Total atendidos',bench:{copc:'≤20s voz',chat:'≤10s',email:'≤2h'},tags:['COPC','N1'],rel:['ksl','kabn']},
+  {id:'kabn',term:'Abandonment Rate',abbr:'ABN — Tasa de Abandono',cat:'Accesibilidad',ch:'VOZ',imp:5,color:'#14b8a6',short:'% de contactos donde el cliente desconecta antes de ser atendido.',def:'Excluir abandonos en primeros 5-10 segundos. Curva de abandono: aumenta exponencialmente al superar la tolerancia del cliente.',formula:'ABN = (Abandonados / Total ofrecidos) × 100',bench:{copc:'≤5%',bueno:'≤3%',critico:'>10%'},tags:['COPC','N1','Crítico'],rel:['ksl','kasa']},
+  {id:'klcr',term:'Lost Contact Rate',abbr:'LCR — Tasa de Contacto Perdido',cat:'Accesibilidad',ch:'TODOS',imp:4,color:'#14b8a6',short:'% total de contactos que no llegaron a ser atendidos por ningún motivo.',def:'Más amplio que ABN. Incluye: abandonos, bloqueos (sin líneas), errores de sistema, desbordamientos no atendidos.',formula:'LCR = (Abandonados + Bloqueados + Desbordados no atendidos) / Total intentos × 100',tags:['N3','Demanda'],rel:['kabn','kbloqueo']},
+  {id:'kbloqueo',term:'Blocking Rate',abbr:'Tasa de Bloqueo',cat:'Accesibilidad',ch:'VOZ',imp:3,color:'#14b8a6',short:'% de llamadas que reciben ocupado por falta de líneas disponibles.',def:'El cliente ni entra al sistema. Calculado con Erlang B (sin cola). Diferente al abandono donde el cliente entra pero espera.',formula:'Blocking = (Llamadas bloqueadas / Total intentos) × 100',bench:{maximo:'≤1% en hora pico'},tags:['N3','Infraestructura'],rel:['klcr','kabn']},
+  // EFICIENCIA
+  {id:'kaht',term:'Average Handle Time',abbr:'AHT / TMO — Tiempo Medio de Operación',cat:'Eficiencia',ch:'VOZ',imp:5,color:'#3b82f6',short:'Tiempo total promedio por interacción: Talk + Hold + ACW.',def:'Determinante principal del cálculo de dotación (Erlang). No reducir AHT a costa de FCR: genera recontactos y peor experiencia.',formula:'AHT = (Talk Time + Hold Time + ACW) / Llamadas manejadas',bench:{tipico:'240-360s',bueno:'<240s',chat:'300-480s'},tags:['COPC','N1','Crítico','Dotación'],rel:['kacw','ktalk','khold','kfcr','koccupancy']},
+  {id:'ktalk',term:'Talk Time',abbr:'Tiempo de Conversación',cat:'Eficiencia',ch:'VOZ',imp:3,color:'#3b82f6',short:'Tiempo de conversación activa durante la llamada.',formula:'Talk Time prom = Σ tiempos conversación / Total llamadas',tags:['N1','Componente AHT'],rel:['kaht','khold','kacw']},
+  {id:'khold',term:'Hold Time',abbr:'Tiempo en Espera (durante llamada)',cat:'Eficiencia',ch:'VOZ',imp:3,color:'#3b82f6',short:'Tiempo que el cliente espera en espera mientras la llamada está activa.',def:'Diferente al tiempo de espera en cola. Ocurre durante la llamada. Hold alto = base de conocimiento deficiente o procesos complejos.',bench:{maximo:'≤60s promedio',hold_rate:'≤20% de llamadas'},tags:['N2','Componente AHT'],rel:['kaht','ktalk','kacw']},
+  {id:'kacw',term:'After Call Work',abbr:'ACW — Trabajo Post-Llamada',cat:'Eficiencia',ch:'VOZ',imp:4,color:'#3b82f6',short:'Tiempo post-llamada para documentar el caso antes de disponibilizarse.',def:'Incluye: CRM, código de disposición, notas, acciones de seguimiento. Reducir con automatización libera capacidad.',formula:'ACW = AHT − Talk Time − Hold Time',bench:{bueno:'≤30s',aceptable:'30-60s',alto:'>90s'},tags:['COPC','N1'],rel:['kaht','ktalk']},
+  {id:'koccupancy',term:'Occupancy Rate',abbr:'Tasa de Ocupación',cat:'Eficiencia',ch:'TODOS',imp:5,color:'#3b82f6',short:'% del tiempo productivo del agente en interacción o ACW.',def:'>90%: burnout y errores. <75%: sobreservicio. Chat: 70-80% por concurrencia.',formula:'Occupancy = (Talk + ACW) / Login Time × 100',bench:{voz:'85-90%',chat:'70-80%',email:'80-85%'},tags:['COPC','N1','Crítico'],rel:['kaht','kshrinkage','kerlang']},
+  {id:'kutilization',term:'Utilization Rate',abbr:'Tasa de Utilización',cat:'Eficiencia',ch:'TODOS',imp:3,color:'#3b82f6',short:'% del tiempo pagado dedicado a actividades productivas totales.',def:'Más amplio que Occupancy. Incluye capacitación, reuniones, coaching. Utilization = 1 − Shrinkage.',formula:'Utilization = Tiempo productivo total / Tiempo pagado × 100',tags:['N2'],rel:['koccupancy','kshrinkage']},
+  {id:'kcph',term:'Calls Per Hour',abbr:'CPH',cat:'Eficiencia',ch:'VOZ',imp:3,color:'#3b82f6',short:'Llamadas promedio que maneja un agente por hora.',formula:'CPH = 3600 / AHT (segundos)',tags:['N2','Productividad'],rel:['kaht','koccupancy']},
+  {id:'kconcurrencia',term:'Chat Concurrency',abbr:'Concurrencia de Chat',cat:'Eficiencia',ch:'CHAT',imp:4,color:'#3b82f6',short:'Número promedio de sesiones de chat que un agente maneja simultáneamente.',def:'Estándar: 2-3 simultáneos. Simple: 3-4. Complejo: 1-2. Alta concurrencia puede reducir CSAT si el cliente percibe respuestas lentas.',bench:{simple:'3-4',estandar:'2-3',complejo:'1-2'},tags:['N3','Chat','Productividad'],rel:['kaht','koccupancy']},
+  {id:'ktransfer',term:'Transfer Rate',abbr:'Tasa de Transferencia',cat:'Eficiencia',ch:'TODOS',imp:4,color:'#3b82f6',short:'% de contactos transferidos a otro agente o grupo durante la interacción.',def:'Alta tasa indica: enrutamiento incorrecto, falta de capacitación, proceso complejo. Cada transferencia impacta FCR, CES y CSAT.',formula:'Transfer Rate = (Transferidos / Total) × 100',bench:{bueno:'≤10%',alto:'>25%'},tags:['N2','Calidad'],rel:['kfcr','kces','kenrutamiento']},
+  {id:'kescalacion',term:'Escalation Rate',abbr:'Tasa de Escalación',cat:'Eficiencia',ch:'TODOS',imp:3,color:'#3b82f6',short:'% de contactos escalados a supervisor o nivel de autoridad superior.',formula:'Escalation Rate = (Escalados / Total) × 100',bench:{bueno:'≤5%',alto:'>15%'},tags:['N2','Jerarquía'],rel:['ktransfer','kfcr']},
+  // CALIDAD
+  {id:'kfcr',term:'First Contact Resolution',abbr:'FCR — Resolución al Primer Contacto',cat:'Calidad',ch:'TODOS',imp:5,color:'#10b981',short:'% de consultas resueltas en el primer contacto sin recontacto posterior.',def:'KPI de calidad más importante. 1% de aumento en FCR → ~1% reducción de costos + mejora en CSAT/NPS.',formula:'FCR = (Resueltos 1er contacto / Total) × 100',bench:{copc:'≥70%',bueno:'≥80%',world:'≥85-90%'},tags:['COPC','N1','Crítico'],rel:['kcsat','knps','kces','krecontacto']},
+  {id:'krecontacto',term:'Repeat Contact Rate',abbr:'RCR — Tasa de Recontacto',cat:'Calidad',ch:'TODOS',imp:4,color:'#10b981',short:'% de clientes que contactan nuevamente en 24-72h por el mismo motivo.',formula:'RCR = (Recontactos en ≤T días / Total clientes) × 100',bench:{bueno:'≤10%',alto:'>25%'},tags:['N2','Calidad'],rel:['kfcr','kevitables']},
+  {id:'kevitables',term:'Avoidable Contact Rate',abbr:'Tasa de Contactos Evitables',cat:'Calidad',ch:'TODOS',imp:3,color:'#10b981',short:'% de contactos que no habrían ocurrido si un proceso previo funcionara correctamente.',def:'15-35% del volumen típico es evitable. Reducirlos es la palanca de eficiencia más potente.',bench:{benchmark:'15-35% del volumen total'},tags:['N3','Optimización'],rel:['krecontacto','kselfservice']},
+  {id:'kqa',term:'QA Score',abbr:'Quality Monitoring Score',cat:'Calidad',ch:'TODOS',imp:5,color:'#10b981',short:'Puntuación de evaluaciones de calidad contra rúbrica definida.',def:'Componentes típicos: apertura/cierre, identificación cliente, empatía, precisión información, compliance, resolución.',formula:'QA Score = Σ(Peso×Puntuación) / Peso_total × 100',bench:{minimo:'≥85%',bueno:'≥90%',world:'≥95%'},tags:['COPC','N2'],rel:['kfatal','kcompliance','kspeech']},
+  {id:'kfatal',term:'Fatal Error Rate',abbr:'Tasa de Errores Fatales',cat:'Calidad',ch:'TODOS',imp:5,color:'#10b981',short:'% de interacciones con errores que auto-reprueban la evaluación completa.',def:'Verificación de identidad incompleta, información incorrecta dañina, lenguaje inapropiado, violación de privacidad. Cualquier error fatal reproba independientemente del resto.',bench:{maximo:'0%'},tags:['N2','Compliance','Riesgo'],rel:['kqa','kcompliance']},
+  {id:'kcompliance',term:'Compliance Rate',abbr:'Tasa de Cumplimiento Normativo',cat:'Calidad',ch:'TODOS',imp:5,color:'#10b981',short:'% de interacciones que cumplen todos los requisitos regulatorios.',formula:'Compliance = (Conformes / Total evaluadas) × 100',bench:{minimo:'≥99%',critico:'100% en elementos críticos'},tags:['N2','Regulatorio','Legal'],rel:['kfatal','kqa']},
+  {id:'kscript',term:'Script Adherence Rate',abbr:'Cumplimiento de Guión',cat:'Calidad',ch:'TODOS',imp:3,color:'#10b981',short:'% de interacciones donde el agente siguió el flujo de conversación definido.',tags:['N3','Calidad'],rel:['kqa','kspeech']},
+  {id:'kveracidad',term:'Information Accuracy Rate',abbr:'Tasa de Precisión de Información',cat:'Calidad',ch:'TODOS',imp:4,color:'#10b981',short:'% de interacciones con información correcta y verificada.',bench:{minimo:'≥95%',critico:'<90%'},tags:['N2','Conocimiento'],rel:['kqa','kfatal']},
+  // EXPERIENCIA CLIENTE
+  {id:'kcsat',term:'CSAT',abbr:'Customer Satisfaction Score',cat:'Experiencia Cliente',ch:'TODOS',imp:5,color:'#ec4899',short:'Satisfacción del cliente con la interacción. % de respuestas positivas (≥4/5).',formula:'CSAT% = (Respuestas ≥4 [escala 1-5] / Total) × 100',bench:{copc:'≥85%',bueno:'≥90%',critico:'<75%'},tags:['COPC','N1','Crítico'],rel:['knps','kces','kfcr']},
+  {id:'knps',term:'NPS',abbr:'Net Promoter Score',cat:'Experiencia Cliente',ch:'TODOS',imp:5,color:'#ec4899',short:'Promotores(9-10) − Detractores(0-6). Mide lealtad.',formula:'NPS = %Promotores − %Detractores (rango -100 a +100)',bench:{excelente:'≥50',bueno:'20-50',aceptable:'0-20',critico:'<0'},tags:['COPC','N1','Crítico'],rel:['kcsat','kces']},
+  {id:'kces',term:'CES',abbr:'Customer Effort Score',cat:'Experiencia Cliente',ch:'TODOS',imp:4,color:'#ec4899',short:'Esfuerzo percibido para resolver el problema. Mejor predictor de churn.',formula:'CES = Media respuestas en escala 1-7',bench:{copc:'≥5.5/7',bueno:'≥6.0/7'},tags:['COPC','N2'],rel:['kfcr','kcsat']},
+  {id:'ksrvrate',term:'Survey Response Rate',abbr:'Tasa de Respuesta Encuesta',cat:'Experiencia Cliente',ch:'TODOS',imp:3,color:'#ec4899',short:'% de clientes que completan la encuesta de satisfacción.',def:'Crítico para validez estadística de CSAT y NPS. Tasas bajas generan sesgo de autoselección.',bench:{ivr:'15-30%',sms:'20-35%',email:'5-15%',chat:'40-60%'},tags:['N2','Metodología'],rel:['kcsat','knps']},
+  {id:'ksentiment',term:'Sentiment Score',abbr:'Índice de Sentimiento',cat:'Experiencia Cliente',ch:'CHAT',imp:3,color:'#ec4899',short:'Puntuación NLP del sentimiento del cliente en interacciones de texto/voz.',tags:['N4','NLP','IA'],rel:['kspeech','kcsat']},
+  {id:'kchurn',term:'Churn Rate CC',abbr:'Tasa de Pérdida de Clientes',cat:'Experiencia Cliente',ch:'TODOS',imp:4,color:'#ec4899',short:'% de clientes que cancelan en el período. Impacto directo del CC.',formula:'Churn = (Clientes perdidos / Inicio período) × 100',bench:{bueno:'≤2% mensual',critico:'>5% mensual'},tags:['N3','Retención'],rel:['knps','kces','kfcr']},
+  {id:'kretention',term:'Retention Rate',abbr:'Tasa de Retención (Campañas Save)',cat:'Experiencia Cliente',ch:'VOZ',imp:4,color:'#ec4899',short:'% de clientes que mantienen el servicio tras llamar a cancelar.',formula:'Retention = (Retenciones / Total intentos cancelación) × 100',bench:{bueno:'≥60%',excelente:'≥75%'},tags:['N3','Retención'],rel:['kchurn']},
+  // WORKFORCE
+  {id:'kshrinkage',term:'Shrinkage',abbr:'Contracción del Personal',cat:'Workforce',ch:'TODOS',imp:5,color:'#8b5cf6',short:'% del tiempo pagado donde el agente no está disponible para contactos.',def:'Planificada: descansos, capacitación, reuniones. No planificada: ausentismo, tardanzas. Impacta la dotación.',formula:'Shrinkage = (Tiempo no disponible / Tiempo pagado) × 100\nHeadcount = Req / (1 − Shrinkage)',bench:{tipico:'30-35%',critico:'>40%'},tags:['COPC','N1','Crítico'],rel:['koccupancy','kattrition','kadherence']},
+  {id:'kadherence',term:'Schedule Adherence',abbr:'Adherencia al Horario',cat:'Workforce',ch:'TODOS',imp:4,color:'#8b5cf6',short:'% del tiempo donde el agente realiza la actividad correcta según su turno.',formula:'Adherence = (Tiempo actividad correcta / Tiempo programado) × 100',bench:{bueno:'≥90%',critico:'<80%'},tags:['COPC','N2'],rel:['kshrinkage','kconformance']},
+  {id:'kconformance',term:'Conformance Rate',abbr:'Conformidad',cat:'Workforce',ch:'TODOS',imp:3,color:'#8b5cf6',short:'% del tiempo programado que el agente realmente trabajó (presencia cuantitativa).',formula:'Conformance = Tiempo trabajado / Tiempo programado × 100',tags:['N2'],rel:['kadherence','kshrinkage']},
+  {id:'kattrition',term:'Attrition Rate',abbr:'Rotación de Personal',cat:'Workforce',ch:'TODOS',imp:5,color:'#8b5cf6',short:'% de agentes que abandonan la operación. Uno de los más altos entre industrias.',formula:'Attrition mensual = (Salidas / Headcount prom) × 100',bench:{bueno:'<2% mensual',alto:'>4% mensual'},tags:['COPC','N1','Crítico'],rel:['kshrinkage','koccupancy','kburnout']},
+  {id:'kburnout',term:'Burnout Index',abbr:'Índice de Agotamiento',cat:'Workforce',ch:'TODOS',imp:3,color:'#8b5cf6',short:'Indicador compuesto de señales de agotamiento laboral del agente.',def:'Señales: occupancy >90% sostenida, ausentismo frecuente, mayor QA deficiente, más escalaciones, deterioro CSAT individual.',tags:['N3','Bienestar','Predictivo'],rel:['koccupancy','kattrition']},
+  {id:'kttp',term:'Time to Proficiency',abbr:'Tiempo hasta Competencia',cat:'Workforce',ch:'TODOS',imp:3,color:'#8b5cf6',short:'Semanas que tarda un nuevo agente en alcanzar el nivel de desempeño estándar.',bench:{tipico:'4-8 semanas',complejo:'8-16 semanas'},tags:['N3','Onboarding'],rel:['kattrition','kqa']},
+  {id:'kforecast',term:'Forecast Accuracy',abbr:'Precisión del Pronóstico',cat:'Workforce',ch:'TODOS',imp:4,color:'#8b5cf6',short:'Exactitud del pronóstico de volumen vs volumen real observado.',formula:'Forecast Accuracy = 1 − |Pronóstico−Real|/Real × 100',bench:{bueno:'≥90%',aceptable:'85-90%'},tags:['N3','WFM','Planificación'],rel:['kerlang','kshrinkage']},
+  // CANALES DIGITALES
+  {id:'kbacklog',term:'Email Backlog',abbr:'Cola Pendiente',cat:'Canales Digitales',ch:'EMAIL',imp:4,color:'#22d3ee',short:'Emails/casos en cola sin atender al cierre del turno.',formula:'Backlog = Recibidos − Resueltos en el período',bench:{maximo:'0 al final del turno'},tags:['N2','Email'],rel:['krta-email','kresol-email']},
+  {id:'kresol-email',term:'Email Resolution Time',abbr:'Tiempo de Resolución Email',cat:'Canales Digitales',ch:'EMAIL',imp:3,color:'#22d3ee',short:'Tiempo desde recepción hasta respuesta final que resuelve la consulta.',bench:{simple:'≤4h',complejo:'≤24h',especializado:'≤48h'},tags:['N2','Email'],rel:['kbacklog']},
+  {id:'kfrt',term:'First Response Time',abbr:'FRT — Primera Respuesta',cat:'Canales Digitales',ch:'TODOS',imp:4,color:'#22d3ee',short:'Tiempo desde el contacto del cliente hasta la primera respuesta del agente.',bench:{voz:'≤20s',chat:'≤30s',email:'≤1h urgente / ≤4h std',rrss:'≤1h'},tags:['N2','Multicanal'],rel:['ksl','kasa']},
+  {id:'kdeflexion',term:'Deflection Rate',abbr:'Tasa de Deflexión',cat:'Canales Digitales',ch:'TODOS',imp:4,color:'#22d3ee',short:'% de contactos resueltos en canales de bajo costo sin intervención humana.',formula:'Deflection = (Resueltos en autoservicio / Total intentos) × 100',bench:{objetivo:'30-50%',chatbot:'15-35%'},tags:['N3','Autoservicio','Eficiencia'],rel:['kselfservice','kbot']},
+  {id:'kselfservice',term:'Self-Service Rate',abbr:'Tasa de Autoservicio',cat:'Canales Digitales',ch:'TODOS',imp:4,color:'#22d3ee',short:'% de transacciones que los clientes completan autónomamente sin agente.',tags:['N3','Digital'],rel:['kdeflexion','kbot','kivr']},
+  {id:'kbot',term:'Bot Containment Rate',abbr:'Contención del Bot',cat:'Canales Digitales',ch:'CHAT',imp:4,color:'#22d3ee',short:'% de conversaciones chatbot resueltas completamente sin transferir a agente.',formula:'Containment = (Sin transferencia / Total sesiones bot) × 100',bench:{basico:'20-40%',maduro:'40-60%',avanzado:'>60%'},tags:['N3','Chatbot','IA'],rel:['kdeflexion','kselfservice']},
+  {id:'kivr',term:'IVR Completion Rate',abbr:'Completación IVR',cat:'Canales Digitales',ch:'VOZ',imp:3,color:'#22d3ee',short:'% de llamantes que completan su gestión en el IVR sin pedir agente.',bench:{bueno:'30-50%',alto:'>50%'},tags:['N3','IVR','Autoservicio'],rel:['kdeflexion','kabn']},
+  {id:'ksocialrt',term:'Social Media Response Time',abbr:'Tiempo RRSS',cat:'Canales Digitales',ch:'RRSS',imp:4,color:'#22d3ee',short:'Tiempo desde publicación del cliente hasta respuesta en redes sociales.',bench:{twitter:'≤1h',facebook:'≤3h',instagram:'≤4h'},tags:['N2','RRSS','Reputación'],rel:['kfrt']},
+  {id:'kchat-abn',term:'Chat Abandonment Rate',abbr:'Abandono en Chat',cat:'Canales Digitales',ch:'CHAT',imp:3,color:'#22d3ee',short:'% de sesiones de chat que el cliente cierra antes de ser atendido o durante.',bench:{en_cola:'≤2%',durante:'≤5%'},tags:['N3','Chat'],rel:['kabn','ksl-chat']},
+  {id:'kchat-art',term:'Average Response Time Chat',abbr:'ART Chat',cat:'Canales Digitales',ch:'CHAT',imp:4,color:'#22d3ee',short:'Tiempo promedio entre mensajes del agente durante la sesión de chat.',bench:{bueno:'≤60s',aceptable:'60-120s',critico:'>180s'},tags:['N3','Chat','Fluidez'],rel:['kslfchat','kconcurrencia']},
+  // FINANCIERO
+  {id:'kcpc',term:'Cost Per Contact',abbr:'CPC — Costo por Contacto',cat:'Financiero',ch:'TODOS',imp:5,color:'#f59e0b',short:'Costo total del CC dividido entre los contactos manejados.',formula:'CPC = Costo total / Total contactos',bench:{voz_agente:'$3-8 USD',chat:'$2-5 USD',email:'$2-4 USD',bot:'$0.10-0.50 USD'},tags:['N2','Financiero'],rel:['kroi','kdeflexion']},
+  {id:'kroi',term:'ROI Contact Center',abbr:'Retorno de Inversión CC',cat:'Financiero',ch:'TODOS',imp:3,color:'#f59e0b',short:'Retorno financiero generado por el CC relativo a su costo operativo.',formula:'ROI = (Beneficio generado / Costo total CC) × 100',tags:['N3','Financiero'],rel:['kcpc','kconversion']},
+  {id:'kconversion',term:'Conversion Rate CC',abbr:'Tasa de Conversión',cat:'Financiero',ch:'TODOS',imp:4,color:'#f59e0b',short:'% de contactos que resultan en venta o contratación (campañas comerciales).',formula:'CVR = (Ventas / Contactos con intención) × 100',bench:{inbound:'15-30%',outbound:'5-15%',retention:'50-75%'},tags:['N3','Ventas'],rel:['kroi','krpc']},
+  {id:'krpc',term:'Revenue Per Call',abbr:'RPC — Ingreso por Llamada',cat:'Financiero',ch:'VOZ',imp:3,color:'#f59e0b',short:'Ingreso promedio generado por cada llamada en operaciones con función comercial.',formula:'RPC = Ingreso total generado / Total llamadas',tags:['N3','Ventas'],rel:['kconversion']},
+  // OPERACIONES
+  {id:'kerlang',term:'Erlang C',abbr:'Modelo de Colas Erlang C',cat:'Operaciones',ch:'VOZ',imp:4,color:'#f97316',short:'Modelo matemático para calcular agentes necesarios y cumplir un objetivo de SL.',def:'Supuestos: llegadas Poisson, tiempos exponenciales, cola infinita. Para alto abandono usar Erlang A (incluye impaciencia).',formula:'Intensidad (Erlangs) = λ × AHT / 3600\nSL = f(N agentes, Erlangs)',tags:['N3','Matemático','WFM'],rel:['ksl','kaht','kshrinkage']},
+  {id:'kintraday',term:'Intraday Management',abbr:'Gestión Intradiaria',cat:'Operaciones',ch:'TODOS',imp:4,color:'#f97316',short:'Monitoreo y ajuste en tiempo real para mantener los objetivos de SL durante el día.',tags:['N3','WFM','Tiempo Real'],rel:['ksl','kadherence']},
+  {id:'kenrutamiento',term:'Routing Efficiency',abbr:'Eficiencia de Enrutamiento',cat:'Operaciones',ch:'TODOS',imp:3,color:'#f97316',short:'% de contactos enrutados al agente más apropiado desde el primer intento.',formula:'Routing Eff = (Enrutados correctamente / Total) × 100',tags:['N3','Tecnología','Skills'],rel:['ktransfer','kfcr']},
+  {id:'ksistema',term:'System Availability',abbr:'Disponibilidad del Sistema',cat:'Operaciones',ch:'TODOS',imp:4,color:'#f97316',short:'% del tiempo en que los sistemas críticos están operativos.',formula:'Availability = (Tiempo operativo / Tiempo total) × 100\nUptime 99.9% = ≤8.7h caída/año',bench:{minimo:'≥99.9%',critico:'<99.5%'},tags:['N3','Tecnología','Continuidad'],rel:['ksl']},
+  {id:'kchannelmix',term:'Channel Mix',abbr:'Mix de Canales',cat:'Operaciones',ch:'TODOS',imp:3,color:'#f97316',short:'Distribución % del volumen entre canales disponibles.',formula:'Mix canal X = (Contactos canal X / Total) × 100',tags:['N3','Estrategia','Multicanal'],rel:['kcpc','kdeflexion']},
+  {id:'kpeak',term:'Peak Hour Factor',abbr:'Factor de Pico',cat:'Operaciones',ch:'VOZ',imp:3,color:'#f97316',short:'Ratio entre la hora más ocupada y el volumen promedio diario.',formula:'PHF = Volumen hora pico / (Total diario / Horas operación)',tags:['N3','Planificación','Demanda'],rel:['kerlang','ksl']},
+  // TECNOLOGÍA
+  {id:'kspeech',term:'Speech Analytics Coverage',abbr:'Cobertura Speech Analytics',cat:'Tecnología',ch:'VOZ',imp:3,color:'#6366f1',short:'% de llamadas analizadas automáticamente por sistemas de análisis de voz.',tags:['N4','IA','QA'],rel:['kqa','kscript']},
+  {id:'kautomation',term:'Automation Rate',abbr:'Tasa de Automatización',cat:'Tecnología',ch:'TODOS',imp:4,color:'#6366f1',short:'% de tareas del CC ejecutadas automáticamente sin intervención humana.',formula:'Automation = (Tareas automatizadas / Total posibles) × 100',tags:['N4','IA','Eficiencia'],rel:['kacw','kdeflexion']},
+  // SUPERVISIÓN
+  {id:'ksupervisor',term:'Supervisor Calls Rate',abbr:'Tasa de Llamadas a Supervisor',cat:'Supervisión',ch:'VOZ',imp:3,color:'#84cc16',short:'% de llamadas donde el cliente solicita hablar con un supervisor.',bench:{bueno:'≤3%',alto:'>8%'},tags:['N2','Escalación'],rel:['kescalacion','kqa']},
+  {id:'kmonitoring',term:'Monitoring Coverage',abbr:'Cobertura de Monitoreo',cat:'Supervisión',ch:'TODOS',imp:3,color:'#84cc16',short:'% de agentes que reciben evaluación de calidad por muestra en el período.',bench:{copc:'100% agentes con ≥4 eval/mes'},tags:['N2','QA'],rel:['kqa','kspeech']},
+  {id:'kcoaching',term:'Coaching Rate',abbr:'Tasa de Coaching',cat:'Supervisión',ch:'TODOS',imp:3,color:'#84cc16',short:'Frecuencia de sesiones de coaching individuales supervisor-agente.',bench:{minimo:'1 sesión/agente/mes',bueno:'2-4 sesiones/mes'},tags:['N2','Desarrollo'],rel:['kqa','kattrition']},
+];
+
+// KPI LOGIC
+const kpiAllCats=['Todas',...new Set(KPIS.map(d=>d.cat))].sort((a,b)=>a==='Todas'?-1:b==='Todas'?1:a.localeCompare(b,'es'));
+const chIcons={'VOZ':'📞','CHAT':'💬','EMAIL':'📧','RRSS':'📱','VIDEO':'🎥','TODOS':'🌐'};
+function kpiInit(){
+  document.getElementById('kpi-cats').innerHTML=kpiAllCats.map(c=>`<button class="cat-btn${c==='Todas'?' on':''}" data-cat="${c}" onclick="kpiCat('${c}',this)" style="${c==='Todas'?'background:var(--teal);border-color:var(--teal);color:#fff':''}">${c}</button>`).join('');
+  kpiRender();
+}
+function kpiCat(cat,btn){kpiActiveCat=cat;document.querySelectorAll('#kpi-cats .cat-btn').forEach(b=>{b.classList.remove('on');b.style.cssText='';});btn.classList.add('on');const col=cat==='Todas'?'var(--teal)':KPIS.find(d=>d.cat===cat)?.color||'var(--teal)';btn.style.background=col;btn.style.borderColor=col;btn.style.color='#fff';kpiRender();}
+function kpiSearch(){kpiQ=document.getElementById('kpi-input').value.toLowerCase();document.getElementById('kpi-clr').style.display=kpiQ?'block':'none';kpiRender();}
+function kpiClear(){document.getElementById('kpi-input').value='';kpiQ='';document.getElementById('kpi-clr').style.display='none';kpiRender();}
+function kpiSetSort(s,btn){kpiSort=s;document.querySelectorAll('#v-kpis .sbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');kpiRender();}
+function kpiGetFiltered(){return KPIS.filter(d=>{const mc=kpiActiveCat==='Todas'||d.cat===kpiActiveCat;if(!mc)return false;if(!kpiQ)return true;return d.term.toLowerCase().includes(kpiQ)||(d.abbr||'').toLowerCase().includes(kpiQ)||d.short.toLowerCase().includes(kpiQ)||(d.def||'').toLowerCase().includes(kpiQ)||(d.formula||'').toLowerCase().includes(kpiQ)||d.cat.toLowerCase().includes(kpiQ)||(d.ch||'').toLowerCase().includes(kpiQ)||(d.tags||[]).some(t=>t.toLowerCase().includes(kpiQ));});}
+function kpiGetSorted(arr){if(kpiSort==='cat')return[...arr].sort((a,b)=>a.cat.localeCompare(b.cat,'es')||a.term.localeCompare(b.term,'es'));if(kpiSort==='imp')return[...arr].sort((a,b)=>(b.imp||0)-(a.imp||0)||a.term.localeCompare(b.term,'es'));return[...arr].sort((a,b)=>a.term.localeCompare(b.term,'es'));}
+function kpiRender(){
+  const data=kpiGetSorted(kpiGetFiltered());
+  document.getElementById('kpi-stats').textContent=kpiQ?`${data.length} resultado${data.length!==1?'s':''} para "${kpiQ}"`:'';
+  const list=document.getElementById('kpi-list'),empty=document.getElementById('kpi-empty');
+  if(!data.length){list.innerHTML='';empty.style.display='block';return;}
+  empty.style.display='none';
+  list.innerHTML=data.map((d,i)=>{
+    const col=d.color||'#14b8a6';const isOpen=d.id===kpiOpen;
+    const stars='★'.repeat(d.imp||3)+'☆'.repeat(5-(d.imp||3));
+    return `<div class="dict-item${isOpen?' open':''}" id="ki-${d.id}" style="animation-delay:${Math.min(i*.015,.3)}s">
+      <div class="di-hd" onclick="kpiToggle('${d.id}')">
+        <div class="di-left">
+          <div class="di-term">${hlTxt(d.term,kpiQ)}</div>
+          <div class="di-row">
+            <span class="di-cat" style="background:${col}22;color:${col}">${d.cat}</span>
+            <span class="ch-badge">${chIcons[d.ch]||'🌐'} ${d.ch}</span>
+            <span style="font-size:.58rem;color:var(--amber)">${stars}</span>
+          </div>
+          ${!isOpen?`<div class="di-prev">${hlTxt(d.short,kpiQ)}</div>`:''}
+        </div>
+        <div class="di-arr">▼</div>
+      </div>
+      ${isOpen?kpiBuildBody(d):''}
+    </div>`;
+  }).join('');
+  buildAlpha(data,'ki-');
+}
+function kpiBuildBody(d){
+  const col=d.color||'#14b8a6';
+  let h=`<div class="di-body"><p>${hlTxt(d.def||d.short,kpiQ)}</p>`;
+  if(d.formula)h+=`<div class="flbl">FÓRMULA</div><div class="formula" style="margin-top:4px">${d.formula}</div>`;
+  if(d.bench){
+    const bColors={copc:'var(--teal)',bueno:'var(--green)',world:'var(--green)',critico:'var(--red)',alto:'var(--red)',maximo:'var(--amber)',objetivo:'var(--blue)',minimo:'var(--amber)',voz:'var(--blue)',chat:'var(--cyan)',email:'var(--purple)',estandar:'var(--blue)',tipico:'var(--bl)',inbound:'var(--green)',outbound:'var(--amber)',retention:'var(--teal)',excelente:'var(--lime)',aceptable:'var(--amber)',basico:'var(--amber)',maduro:'var(--blue)',avanzado:'var(--green)',en_cola:'var(--green)',durante:'var(--amber)',urgente:'var(--red)',sincronico:'var(--teal)',asincrono:'var(--indigo)',voz_agente:'var(--blue)',bot:'var(--green)',twitter:'var(--sky)',facebook:'var(--indigo)',instagram:'var(--pink)',benchmark:'var(--bl)',hold_rate:'var(--amber)'};
+    h+=`<div class="flbl" style="margin-top:7px">BENCHMARKS</div><div class="bench-grid">`;
+    Object.entries(d.bench).forEach(([k,v])=>{const c=bColors[k]||'var(--bl)';h+=`<div class="bench-item"><div class="bench-v" style="color:${c}">${v}</div><div class="bench-l">${k.replace(/_/g,' ').toUpperCase()}</div></div>`;});
+    h+=`</div>`;
+  }
+  if(d.tags?.length)h+=`<div class="tags-row">${d.tags.map(t=>`<span class="tag" style="background:${col}15;color:${col}">${t}</span>`).join('')}</div>`;
+  if(d.rel?.length){h+=`<div class="rel-row"><div class="rel-lbl">VER TAMBIÉN</div><div class="rel-chips">`;d.rel.forEach(r=>{const rd=KPIS.find(x=>x.id===r);if(rd)h+=`<button class="rchip" onclick="kpiJump('${r}')">${rd.term.split(' ').slice(0,3).join(' ')}</button>`;});h+=`</div></div>`;}
+  return h+`</div>`;
+}
+function kpiToggle(id){kpiOpen=kpiOpen===id?null:id;kpiRender();if(kpiOpen)setTimeout(()=>document.getElementById('ki-'+id)?.scrollIntoView({behavior:'smooth',block:'nearest'}),60);}
+function kpiJump(id){const d=KPIS.find(x=>x.id===id);if(!d)return;if(kpiActiveCat!=='Todas'&&d.cat!==kpiActiveCat){kpiActiveCat='Todas';document.querySelectorAll('#kpi-cats .cat-btn').forEach(b=>{b.classList.remove('on');b.style.cssText='';});const ab=document.querySelector('#kpi-cats .cat-btn[data-cat="Todas"]');if(ab){ab.classList.add('on');ab.style.background='var(--teal)';ab.style.borderColor='var(--teal)';ab.style.color='#fff';}}kpiOpen=id;kpiRender();setTimeout(()=>document.getElementById('ki-'+id)?.scrollIntoView({behavior:'smooth',block:'start'}),80);}
+
+// SHARED UTILS
+function hlTxt(txt,q){if(!q||!txt)return txt||'';const re=new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');return txt.replace(re,'<mark style="background:rgba(59,130,246,.25);color:var(--bl);border-radius:3px;padding:0 2px">$1</mark>');}
+function buildAlpha(data,prefix){
+  const lets=[...new Set(data.map(d=>d.term[0].toUpperCase()))].sort();
+  document.getElementById('alpha-idx').innerHTML=lets.map(l=>`<div class="al" onclick="jmpAlpha('${l}','${prefix}')">${l}</div>`).join('');
+}
+function jmpAlpha(l,prefix){
+  const id=prefix==='di-'?dadsGetSorted(dadsGetFiltered()).find(d=>d.term.toUpperCase().startsWith(l))?.id:kpiGetSorted(kpiGetFiltered()).find(d=>d.term.toUpperCase().startsWith(l))?.id;
+  if(id) document.getElementById(prefix+id)?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// INIT
+dadsInit();
+kpiInit();
+
+// PWA
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;});
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>
